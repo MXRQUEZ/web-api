@@ -18,18 +18,18 @@ namespace WebAPI.AutoMapper
                 .ForMember(dest => dest.PasswordHash, source => source.MapFrom(source => source.Password));
             CreateMap<User, UserDTO>()
                 .ForMember(dest => dest.UserName, source => source.MapFrom(source => source.UserName))
-                .ForMember(dest => dest.Age, source => source.MapFrom(source => source.Age))
+                .ForMember(dest => dest.DateOfBirth, source => source.MapFrom(source => source.DateOfBirth))
+                .ForMember(dest => dest.Gender, source => source.MapFrom(source => source.Gender))
                 .ForMember(dest => dest.Email, source => source.MapFrom(source => source.Email))
                 .ForMember(dest => dest.PhoneNumber, source => source.MapFrom(source => source.PhoneNumber))
-                .ForMember(dest => dest.AddressDelivery, source => source.MapFrom(source => source.AddressDelivery))
-                .ForMember(dest => dest.Email, source => source.MapFrom(source => source.UserName));
+                .ForMember(dest => dest.AddressDelivery, source => source.MapFrom(source => source.AddressDelivery));
             CreateMap<UserDTO, User>()
                 .ForMember(dest => dest.UserName, source => source.MapFrom(source => source.UserName))
-                .ForMember(dest => dest.Age, source => source.MapFrom(source => source.Age))
+                .ForMember(dest => dest.DateOfBirth, source => source.MapFrom(source => source.DateOfBirth))
+                .ForMember(dest => dest.Gender, source => source.MapFrom(source => source.Gender))
                 .ForMember(dest => dest.Email, source => source.MapFrom(source => source.Email))
                 .ForMember(dest => dest.PhoneNumber, source => source.MapFrom(source => source.PhoneNumber))
-                .ForMember(dest => dest.AddressDelivery, source => source.MapFrom(source => source.AddressDelivery))
-                .ForMember(dest => dest.UserName, source => source.MapFrom(source => source.Email));
+                .ForMember(dest => dest.AddressDelivery, source => source.MapFrom(source => source.AddressDelivery));
         }
     }
 }

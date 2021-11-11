@@ -25,7 +25,7 @@ namespace DAL.UserContext
                 {
                     Email = ADMIN_EMAIL, 
                     UserName = ADMIN_EMAIL,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
                 };
                 var result = await userManager.CreateAsync(admin, ADMIN_PASSWORD);
                 if (result.Succeeded)
