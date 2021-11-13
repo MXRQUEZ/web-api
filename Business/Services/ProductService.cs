@@ -60,15 +60,16 @@ namespace Business.Services
             term = term.ToLower();
             foreach (var product in _productRepository.GetProducts())
             {
-                var lowerCaseProductName = product.Name.ToLower();
-                if (limit <= 0) break;
-                limit--;
 
-                if (offset >= 0)
+                if (offset > 0)
                 {
                     offset--;
                     continue;
                 }
+
+                var lowerCaseProductName = product.Name.ToLower();
+                if (limit <= 0) break;
+                limit--;
 
                 if (lowerCaseProductName.Contains(term))
                 {

@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
         {
             var result = await _userService.ChangePasswordAsync(UserHelper.GetIdByClaims(User.Claims), oldPassword, newPassword);
-            return result ? Ok() : BadRequest();
+            return result ? Ok() : Unauthorized();
         }
     }
 }
