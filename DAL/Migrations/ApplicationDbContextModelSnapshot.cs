@@ -19,7 +19,140 @@ namespace DAL.Migrations
                 .HasAnnotation("ProductVersion", "5.0.12")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("DAL.Model.User", b =>
+            modelBuilder.Entity("DAL.Models.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("DateCreated")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Platform")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalRating")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name", "Platform", "DateCreated", "TotalRating")
+                        .HasFilter("[DateCreated] IS NOT NULL");
+
+                    b.ToTable("Products");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DateCreated = "28/03/2019",
+                            Name = "PC Product1",
+                            Platform = 1,
+                            TotalRating = 5
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DateCreated = "28/03/2020",
+                            Name = "PC Product2",
+                            Platform = 1,
+                            TotalRating = 4
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DateCreated = "28/03/2021",
+                            Name = "PC Product3",
+                            Platform = 1,
+                            TotalRating = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DateCreated = "28/03/2020",
+                            Name = "PC Product4",
+                            Platform = 1,
+                            TotalRating = 5
+                        },
+                        new
+                        {
+                            Id = 5,
+                            DateCreated = "28/03/2018",
+                            Name = "Mobile Product1",
+                            Platform = 2,
+                            TotalRating = 3
+                        },
+                        new
+                        {
+                            Id = 6,
+                            DateCreated = "28/03/2021",
+                            Name = "Mobile Product2",
+                            Platform = 2,
+                            TotalRating = 5
+                        },
+                        new
+                        {
+                            Id = 7,
+                            DateCreated = "28/03/2018",
+                            Name = "Mobile Product3",
+                            Platform = 2,
+                            TotalRating = 4
+                        },
+                        new
+                        {
+                            Id = 8,
+                            DateCreated = "28/03/2021",
+                            Name = "PS Product1",
+                            Platform = 4,
+                            TotalRating = 5
+                        },
+                        new
+                        {
+                            Id = 9,
+                            DateCreated = "28/03/2021",
+                            Name = "PS Product2",
+                            Platform = 4,
+                            TotalRating = 4
+                        },
+                        new
+                        {
+                            Id = 10,
+                            DateCreated = "28/03/2018",
+                            Name = "PS Product3",
+                            Platform = 4,
+                            TotalRating = 3
+                        },
+                        new
+                        {
+                            Id = 11,
+                            DateCreated = "28/03/2021",
+                            Name = "Xbox Product1",
+                            Platform = 8,
+                            TotalRating = 5
+                        },
+                        new
+                        {
+                            Id = 12,
+                            DateCreated = "28/03/2019",
+                            Name = "Xbox Product2",
+                            Platform = 8,
+                            TotalRating = 4
+                        },
+                        new
+                        {
+                            Id = 13,
+                            DateCreated = "28/03/2018",
+                            Name = "Nintendo Product1",
+                            Platform = 16,
+                            TotalRating = 4
+                        });
+                });
+
+            modelBuilder.Entity("DAL.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -236,7 +369,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("DAL.Model.User", null)
+                    b.HasOne("DAL.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -245,7 +378,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("DAL.Model.User", null)
+                    b.HasOne("DAL.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -260,7 +393,7 @@ namespace DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DAL.Model.User", null)
+                    b.HasOne("DAL.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -269,7 +402,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("DAL.Model.User", null)
+                    b.HasOne("DAL.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace DAL.Model
+namespace DAL.Models
 {
     public sealed class User : IdentityUser<int>
     {

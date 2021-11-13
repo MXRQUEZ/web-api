@@ -1,4 +1,4 @@
-﻿namespace DAL.Model
+﻿namespace DAL.Models
 {
     public static class Roles
     {

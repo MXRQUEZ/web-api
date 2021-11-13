@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DAL.Model;
-using Microsoft.AspNetCore.Identity;
+﻿using System.Collections.Generic;
+using DAL.Models;
 
 namespace DAL.Interfaces
 {
     public interface IRepository<T> where T : class
     {
-        IEnumerable<T> GetAllUsers();
+        Dictionary<Platforms, string[]> GetTopPlatforms();
+        public IEnumerable<Product> GetProducts();
     }
 }

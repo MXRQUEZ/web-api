@@ -4,8 +4,16 @@ namespace Business.DTO
 {
     public sealed class UserCredentialsDTO
     {
+        /// <summary>
+        /// Your email
+        /// </summary>
+        /// <example>example_mail@gmail.com</example>
         [Required] [EmailAddress] public string Email { get; set; }
 
+        /// <summary>
+        /// Your password. At least upper case letter, lower case letter, number and special character (e.g. !@#$%^&amp;*) must be used
+        /// </summary>
+        /// <example>_SkJwNif2345</example>
         [Required]
         [RegularExpression(
             @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{6,20}$",

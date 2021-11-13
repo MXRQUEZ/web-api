@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -6,20 +7,18 @@ using AutoMapper;
 using Business.DTO;
 using Business.Interfaces;
 using DAL.Interfaces;
-using DAL.Model;
+using DAL.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Business.Services
 {
     public sealed class UserService : IUserService
     {
-        private readonly IRepository<User> _userRepository;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
 
-        public UserService(IRepository<User> userRepository, IMapper mapper, UserManager<User> userManager)
+        public UserService(IMapper mapper, UserManager<User> userManager)
         {
-            _userRepository = userRepository;
             _mapper = mapper;
             _userManager = userManager;
         }
@@ -27,14 +26,15 @@ namespace Business.Services
         public string GetUsers()
         {
             var i = 1;
-            var users = _userRepository.GetAllUsers().Select(user => $"{i++}. {user.UserName}").ToList();
-            var usersInfo = new StringBuilder();
-            foreach (var userInfo in users)
+            IEnumerable<User> users = _userManager.Users;
+            var usersInfo = users.Select(user => $"{i++}. {user.UserName}").ToList();
+            var usersInfoStr = new StringBuilder();
+            foreach (var userInfo in usersInfo)
             {
-                usersInfo.Append($"{userInfo}{Environment.NewLine}");
+                usersInfoStr.Append($"{userInfo}{Environment.NewLine}");
             }
 
-            return usersInfo.ToString();
+            return usersInfoStr.ToString();
         }
 
         public async Task<UserDTO> UpdateUserAsync(string userId, UserDTO userDto)

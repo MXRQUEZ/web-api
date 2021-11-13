@@ -17,14 +17,44 @@ namespace WebAPI.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Updates user profile
+        /// </summary>
+        /// <param name="userDto" example="
+        /// {
+        ///     Email: example_mail@example.com,
+        ///     UserName: YourNickName,
+        ///     PhoneNumber: 375292678085,
+        ///     DateOfBirth: 28/03/2002,
+        ///     AddressDelivery: Minsk, Voronyanskogo,
+        ///     Gender: Male
+        /// }
+        /// ">Profile update params</param>
+        /// <response code="200">Your profile was successfully changed</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Can't change your profile right now, come back later</response>
         [HttpPut("update-profile")]
+        [ProducesResponseType(typeof(UserDTO), 200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
         [Authorize]
         public async Task<UserDTO> UpdateProfile([FromBody] UserDTO userDto)
         {
             return await _userService.UpdateUserAsync(UserHelper.GetIdByClaims(User.Claims), userDto);
         }
 
+        /// <summary>
+        /// Changes user`s password
+        /// </summary>
+        /// <param name="oldPassword" example="_SkJwNif2345">Old password</param>
+        /// <param name="newPassword" example="_SkJwNif23456">New password</param>
+        /// <response code="200">Password was successfully changed</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Can't change your password right now, come back later</response>
         [HttpPatch("change-password")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
         [Authorize]
         public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
         {
