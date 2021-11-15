@@ -48,6 +48,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="oldPassword" example="_SkJwNif2345">Old password</param>
         /// <param name="newPassword" example="_SkJwNif23456">New password</param>
+        /// <param name="confirmationPassword" example="_SkJwNif23456">Your password confirmation</param>
         /// <response code="200">Password was successfully changed</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Can't change your password right now, come back later</response>
@@ -56,10 +57,10 @@ namespace WebAPI.Controllers
         [ProducesResponseType(401)]
         [ProducesResponseType(500)]
         [Authorize]
-        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
+        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword, string confirmationPassword)
         {
-            var result = await _userService.ChangePasswordAsync(UserHelper.GetIdByClaims(User.Claims), oldPassword, newPassword);
-            return result ? Ok() : Unauthorized();
+            await _userService.ChangePasswordAsync(UserHelper.GetIdByClaims(User.Claims), oldPassword, newPassword, confirmationPassword);
+            return Ok();
         }
     }
 }

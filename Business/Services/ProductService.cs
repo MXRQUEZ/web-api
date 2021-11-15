@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net;
 using System.Text;
-using System.Threading.Tasks;
+using AutoMapper;
 using Business.DTO;
+using Business.Exceptions;
 using Business.Interfaces;
 using DAL.Interfaces;
 using DAL.Models;
-using IMapper = AutoMapper.IMapper;
 
 namespace Business.Services
 {
@@ -43,12 +43,12 @@ namespace Business.Services
         {
             if (term is null)
             {
-                throw new ArgumentNullException(nameof(term));
+                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.BadParameter + nameof(term));
             }
 
             if (limit < 0 || offset < 0)
             {
-                throw new ArgumentException($"{nameof(limit)} and {nameof(offset)} can't be less than 0");
+                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.BadParameter + $"{nameof(limit)} or {nameof(offset)}");
             }
 
             if (limit == 0)
@@ -60,7 +60,6 @@ namespace Business.Services
             term = term.ToLower();
             foreach (var product in _productRepository.GetProducts())
             {
-
                 if (offset > 0)
                 {
                     offset--;

@@ -8,8 +8,8 @@ namespace DAL.UserContext
     {
         public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
         {
-            const string ADMIN_EMAIL = "admin@gmail.com";
-            const string ADMIN_PASSWORD = "_Aa123456";
+            const string AdminEmail = "admin@gmail.com";
+            const string AdminPassword = "_Aa123456";
             if (await roleManager.FindByNameAsync(Roles.ADMIN) == null)
             {
                 await roleManager.CreateAsync(new IdentityRole<int>(Roles.ADMIN));
@@ -19,15 +19,15 @@ namespace DAL.UserContext
                 await roleManager.CreateAsync(new IdentityRole<int>(Roles.USER));
             }
 
-            if (await userManager.FindByNameAsync(ADMIN_EMAIL) == null)
+            if (await userManager.FindByNameAsync(AdminEmail) == null)
             {
                 var admin = new User
                 {
-                    Email = ADMIN_EMAIL, 
-                    UserName = ADMIN_EMAIL,
+                    Email = AdminEmail, 
+                    UserName = AdminEmail,
                     EmailConfirmed = true,
                 };
-                var result = await userManager.CreateAsync(admin, ADMIN_PASSWORD);
+                var result = await userManager.CreateAsync(admin, AdminPassword);
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(admin, Roles.ADMIN);

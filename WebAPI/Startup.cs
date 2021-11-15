@@ -36,12 +36,15 @@ namespace WebAPI
                 app.UseDeveloperExceptionPage();
                 app.UseSwaggerSetup();
             }
+            else
+            {
+                app.UseExceptionHandler("/error");
+            }
 
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseSerilogRequestLogging();
             app.UseEndpoints(endpoints =>
             {
