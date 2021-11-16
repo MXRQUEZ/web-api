@@ -3,26 +3,31 @@ using Business.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace WebAPI.Controllers
 {
     [AllowAnonymous]
     [ApiExplorerSettings(IgnoreApi = true)]
-    public class ErrorController : ControllerBase
+    public class ErrorController : Controller
     {
         [Route("/error")]
-        public ErrorResponse Error()
+        public ActionResult<ErrorResponse> Error()
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exception = context.Error;
             var code = (int)HttpStatusCode.InternalServerError;
 
             if (exception is HttpStatusException httpStatusException)
-                code = (int)httpStatusException.Status;
+            {
+                code = (int) httpStatusException.Status;
+                Response.StatusCode = code;
+                return new ErrorResponse(exception);
+            }
 
             Response.StatusCode = code;
 
-            return new ErrorResponse(exception);
+            return View("~/Views/Error.cshtml");
         }
     }
 }

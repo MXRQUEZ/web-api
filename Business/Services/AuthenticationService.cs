@@ -47,7 +47,7 @@ namespace Business.Services
             var user = _mapper.Map<User>(userCredentialsDto);
 
             var result = await _userManager.CreateAsync(user, user.PasswordHash);
-            if (!result.Succeeded) throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Failed);
+            if (!result.Succeeded) throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
 
             await _userManager.AddToRoleAsync(user, "user");
 

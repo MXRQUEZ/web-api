@@ -25,20 +25,17 @@ namespace WebAPI
             services.AddJwtToken(Configuration);
             services.SetupHealthCheck(Configuration.GetConnectionString("DefaultConnection"));
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            services.AddServiceCollections();
+            services.AddRequired();
             services.SetupSwagger();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseExceptionHandler("/error");
+
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
                 app.UseSwaggerSetup();
-            }
-            else
-            {
-                app.UseExceptionHandler("/error");
             }
 
             app.UseHttpsRedirection();
@@ -49,6 +46,7 @@ namespace WebAPI
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapRazorPages();
                 endpoints.MapHealthChecks("/hc");
             });
         }

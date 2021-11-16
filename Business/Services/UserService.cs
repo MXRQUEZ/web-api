@@ -46,7 +46,7 @@ namespace Business.Services
             var result = await _userManager.UpdateAsync(newUser);
             return result.Succeeded 
                 ? _mapper.Map<UserDTO>(newUser)
-                : throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Failed);
+                : throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
         }
 
         public async Task<bool> ChangePasswordAsync(string userId, string oldPassword, string newPassword, string confirmationPassword)

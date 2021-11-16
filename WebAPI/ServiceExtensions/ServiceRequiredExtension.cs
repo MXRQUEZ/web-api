@@ -8,11 +8,12 @@ using Serilog;
 
 namespace WebAPI.ServiceExtensions
 {
-    public static class ServiceCollectionsExtensions
+    public static class ServiceRequiredExtension
     {
-        public static void AddServiceCollections(this IServiceCollection services)
+        public static void AddRequired(this IServiceCollection services)
         {
             services.AddControllers();
+            services.AddRazorPages();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddSingleton(Log.Logger);
             services.AddScoped<IUserService, UserService>();

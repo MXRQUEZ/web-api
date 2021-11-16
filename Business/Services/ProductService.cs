@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 using AutoMapper;
@@ -43,15 +44,15 @@ namespace Business.Services
         {
             if (term is null)
             {
-                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.BadParameter + nameof(term));
+                throw new ArgumentNullException(nameof(term));
             }
 
             if (limit < 0 || offset < 0)
             {
-                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.BadParameter + $"{nameof(limit)} or {nameof(offset)}");
+                throw new ArgumentException($"{nameof(limit)} or {nameof(offset)}");
             }
 
-            if (limit == 0)
+            if (limit == 0 || offset > _productRepository.GetProducts().Count())
             {
                 return new List<ProductDTO>();
             }
