@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using DAL.Model;
+using DAL.Models;
 
 namespace Business.Interfaces
 {

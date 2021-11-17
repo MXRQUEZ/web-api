@@ -1,5 +1,5 @@
 ﻿using Business.Interfaces;
-using DAL.Model;
+using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Serilog;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +16,18 @@ namespace WebAPI.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Changes user`s password
+        /// </summary>
+        /// <response code="200">User were represented successfully</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">You don't have rights for this request</response>
+        /// <response code="500">Come back later</response>
         [HttpGet("get-info")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(500)]
         [Authorize(Roles = Roles.ADMIN)]
         public string GetInfo()
         {

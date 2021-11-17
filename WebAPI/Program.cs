@@ -1,7 +1,9 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
-using DAL.Model;
+using Business.Exceptions;
+using DAL.Models;
 using DAL.UserContext;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;

@@ -1,25 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Business.DTO;
+using Business.Exceptions;
 using Business.Interfaces;
-using DAL.Interfaces;
-using DAL.Model;
+using DAL.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Business.Services
 {
     public sealed class UserService : IUserService
     {
-        private readonly IRepository<User> _userRepository;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
 
-        public UserService(IRepository<User> userRepository, IMapper mapper, UserManager<User> userManager)
+        public UserService(IMapper mapper, UserManager<User> userManager)
         {
-            _userRepository = userRepository;
             _mapper = mapper;
             _userManager = userManager;
         }
@@ -27,36 +27,40 @@ namespace Business.Services
         public string GetUsers()
         {
             var i = 1;
-            var users = _userRepository.GetAllUsers().Select(user => $"{i++}. {user.UserName}").ToList();
-            var usersInfo = new StringBuilder();
-            foreach (var userInfo in users)
+            IEnumerable<User> users = _userManager.Users;
+            var usersInfo = users.Select(user => $"{i++}. {user.UserName}").ToList();
+            var usersInfoStr = new StringBuilder();
+            foreach (var userInfo in usersInfo)
             {
-                usersInfo.Append($"{userInfo}{Environment.NewLine}");
+                usersInfoStr.Append($"{userInfo}{Environment.NewLine}");
             }
 
-            return usersInfo.ToString();
+            return usersInfoStr.ToString();
         }
 
         public async Task<UserDTO> UpdateUserAsync(string userId, UserDTO userDto)
         {
             var oldUser = await _userManager.FindByIdAsync(userId);
-            if (oldUser is null) return null;
+            if (oldUser is null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);
             var newUser = _mapper.Map(userDto, oldUser);
             var result = await _userManager.UpdateAsync(newUser);
-            return result.Succeeded ? _mapper.Map<UserDTO>(newUser) : null;
+            return result.Succeeded 
+                ? _mapper.Map<UserDTO>(newUser)
+                : throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
         }
 
-        public async Task<bool> ChangePasswordAsync(string userId, string oldPassword, string newPassword)
+        public async Task<bool> ChangePasswordAsync(string userId, string oldPassword, string newPassword, string confirmationPassword)
         {
+            if (newPassword != confirmationPassword) 
+                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.WrongCofirmationPassword);
             var user = await _userManager.FindByIdAsync(userId);
-            if (user is null) return false;
+            if (user is null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);
 
             var isRightPassword = await _userManager.CheckPasswordAsync(user, oldPassword);
-            if (!isRightPassword) return false;
+            if (!isRightPassword) throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.WrongPassword);
 
             await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
             return true;
-
         }
     }
 }

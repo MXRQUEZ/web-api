@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace DAL.Model
+namespace DAL.Models
 {
     public sealed class User : IdentityUser<int>
     {
-        public int Age { get; set; }
+        public string Gender { get; set; }
+        public string DateOfBirth { get; set; }
         public string AddressDelivery { get; set; }
     }
 }
