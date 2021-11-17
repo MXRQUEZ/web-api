@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Business.DTO;
 using Business.Exceptions;
@@ -58,7 +59,6 @@ namespace Business.Services
             }
 
             var termProducts = new List<ProductDTO>();
-            term = term.ToLower();
             foreach (var product in _productRepository.GetProducts())
             {
                 if (offset > 0)
@@ -67,11 +67,10 @@ namespace Business.Services
                     continue;
                 }
 
-                var lowerCaseProductName = product.Name.ToLower();
                 if (limit <= 0) break;
                 limit--;
 
-                if (lowerCaseProductName.Contains(term))
+                if (product.Name.Contains(term, StringComparison.CurrentCultureIgnoreCase))
                 {
                     
                     termProducts.Add(_mapper.Map<ProductDTO>(product));
@@ -79,6 +78,38 @@ namespace Business.Services
             }
 
             return termProducts;
+        }
+
+        public async Task<ProductDTO> FindByIdAsync(int id)
+        {
+            var product = await _productRepository.FindByIdAsync(id);
+            if (product is null) throw new ArgumentException("There is no product with this id");
+            return _mapper.Map<ProductDTO>(product);
+        }
+
+        public async Task<ProductDTO> AddAsync(ProductDTO newProductDto)
+        {
+            var newProduct = _mapper.Map<Product>(newProductDto);
+            var product = await _productRepository.AddAsync(newProduct);
+            if (product is null)
+                throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
+            return _mapper.Map<ProductDTO>(product);
+        }
+
+        public async Task<ProductDTO> UpdateAsync(ProductDTO productDtoUpdate)
+        {
+            var oldProduct = _productRepository.GetProducts().FirstOrDefault(p => p.Name == productDtoUpdate.Name);
+            if (oldProduct is null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);
+            var newProduct = _mapper.Map(productDtoUpdate, oldProduct);
+            var result = await _productRepository.UpdateAsync(newProduct);
+            return _mapper.Map<ProductDTO>(result);
+        }
+
+        public async Task<bool> DeleteByIdAsync(int id)
+        {
+            var isUserFound = await _productRepository.DeleteByIdAsync(id);
+            if (!isUserFound) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);
+            return true;
         }
     }
 }

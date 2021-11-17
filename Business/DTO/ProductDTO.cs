@@ -8,7 +8,6 @@ namespace Business.DTO
         /// Product name
         /// </summary>
         /// <example>"My Best Game"</example>
-        [RegularExpression(@"^[a-zA-Z]*$", ErrorMessage = "Name must contain only letters")]
         public string Name { get; set; }
         /// <summary>
         /// Product platform. Use numbers to chose platform
@@ -41,5 +40,50 @@ namespace Business.DTO
         /// </example>
         [RegularExpression(@"^[1-5]*$", ErrorMessage = "Numbers must be from 1 to 5 only")]
         public int TotalRating { get; set; }
+
+        /// <summary>
+        /// Product genre
+        /// </summary>
+        /// <example>
+        /// ["Shooter", "Racing"] or else
+        /// </example>
+        public string Genre { get; set; }
+
+        /// <summary>
+        /// Product rating
+        /// </summary>
+        /// <example>
+        /// 0 - All;
+        /// 6 - 6+;
+        /// 12 - 12+;
+        /// 18 - 18+.;
+        /// </example>
+        public int Rating { get; set; }
+
+        /// <summary>
+        /// Product price
+        /// </summary>
+        /// <example>
+        /// 100$
+        /// </example>
+
+        public string Price { get; set; }
+
+        /// <summary>
+        /// Products in storage
+        /// </summary>
+
+        public int Count { get; set; }
+
+        /// <summary>
+        /// Link to logo picture
+        /// </summary>
+        public string Logo { get; set; }
+
+        /// <summary>
+        /// Link to background picture
+        /// </summary>
+
+        public string Background { get; set; }
     }
 }

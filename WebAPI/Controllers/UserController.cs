@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<UserDTO> UpdateProfile([FromBody] UserDTO userDto)
         {
-            return await _userService.UpdateUserAsync(UserHelper.GetIdByClaims(User.Claims), userDto);
+            return await _userService.UpdateAsync(UserHelper.GetIdByClaims(User.Claims), userDto);
         }
 
         /// <summary>

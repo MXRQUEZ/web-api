@@ -38,7 +38,7 @@ namespace Business.Services
             return usersInfoStr.ToString();
         }
 
-        public async Task<UserDTO> UpdateUserAsync(string userId, UserDTO userDto)
+        public async Task<UserDTO> UpdateAsync(string userId, UserDTO userDto)
         {
             var oldUser = await _userManager.FindByIdAsync(userId);
             if (oldUser is null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);

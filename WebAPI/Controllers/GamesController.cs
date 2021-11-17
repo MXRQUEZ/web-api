@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Business.DTO;
 using Business.Interfaces;
+using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -47,5 +49,39 @@ namespace WebAPI.Controllers
             return _productService.SearchProducts(term, limit, offset);
         }
 
+        /// <summary>
+        /// Find product by Id
+        /// </summary>
+        /// <response code="200">Searching was successful OK</response>
+        /// <response code="400">Bad parameter</response>
+        /// <response code="500">Can't get this request right now, come back later</response>
+        [HttpGet("id")]
+        [AllowAnonymous]
+        public async Task<ProductDTO> FindProductById(int id)
+        {
+            return await _productService.FindByIdAsync(id);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = Roles.ADMIN)]
+        public async Task<ProductDTO> AddProduct([FromBody] ProductDTO newProduct)
+        {
+            return await _productService.AddAsync(newProduct);
+        }
+
+        [HttpPut]
+        [Authorize(Roles = Roles.ADMIN)]
+        public async Task<ProductDTO> UpdateProduct(ProductDTO productDtoUpdate)
+        {
+            return await _productService.UpdateAsync(productDtoUpdate);
+        }
+
+        [HttpDelete("id")]
+        [Authorize(Roles = Roles.ADMIN)]
+        public async Task<IActionResult> DeleteProductById(int id)
+        {
+            await _productService.DeleteByIdAsync(id);
+            return Ok();
+        }
     }
 }
