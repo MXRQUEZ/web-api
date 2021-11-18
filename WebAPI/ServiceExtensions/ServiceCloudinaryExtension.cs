@@ -10,10 +10,9 @@ namespace WebAPI.ServiceExtensions
     {
         public static void AddCloudinary(this IServiceCollection services, IConfiguration configuration)
         {
-            var cloudinaryOptions = configuration.GetSection("CloudinaryAccountOptions");
-            var cloudName = cloudinaryOptions["CloudinaryName"];
-            var apiKey = cloudinaryOptions["CloudinaryApiKey"];
-            var apiSecret = cloudinaryOptions["CloudinaryApiSecret"];
+            var cloudName = configuration.GetValue<string>("CloudinaryAccount:CloudName");
+            var apiKey = configuration.GetValue<string>("CloudinaryAccount:ApiKey");
+            var apiSecret = configuration.GetValue<string>("CloudinaryAccount:ApiSecret");
 
             if (new[] { cloudName, apiKey, apiSecret }.Any(string.IsNullOrWhiteSpace))
             {

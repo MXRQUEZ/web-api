@@ -34,9 +34,6 @@ namespace WebAPI.Controllers
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Can't change your profile right now, come back later</response>
         [HttpPut("update-profile")]
-        [ProducesResponseType(typeof(UserDTO), 200)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(500)]
         [Authorize]
         public async Task<UserDTO> UpdateProfile([FromBody] UserDTO userDto)
         {
@@ -53,9 +50,6 @@ namespace WebAPI.Controllers
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Can't change your password right now, come back later</response>
         [HttpPatch("change-password")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(500)]
         [Authorize]
         public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword, string confirmationPassword)
         {

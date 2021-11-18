@@ -7,10 +7,10 @@ namespace Business.Interfaces
     public interface IProductService
     {
         string GetTopPlatforms();
-        List<ProductDTO> SearchProducts(string term, int limit, int offset);
-        Task<ProductDTO> FindByIdAsync(int id);
-        Task<ProductDTO> AddAsync(ProductDTO newProductDto);
-        Task<ProductDTO> UpdateAsync(ProductDTO productDtoUpdate);
+        List<ProductOutputDTO> SearchProducts(string term, int limit, int offset);
+        Task<ProductOutputDTO> FindByIdAsync(int id);
+        Task<ProductOutputDTO> AddAsync(ProductInputDTO newProductDto);
+        Task<ProductOutputDTO> UpdateAsync(ProductInputDTO productDtoUpdate);
         Task<bool> DeleteByIdAsync(int id);
     }
 }

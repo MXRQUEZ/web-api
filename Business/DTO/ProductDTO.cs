@@ -1,14 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Business.DTO
 {
-    public sealed class ProductDTO
+    [Index(nameof(Name), IsUnique = true)]
+    public class ProductDTO
     {
         /// <summary>
         /// Product name
         /// </summary>
         /// <example>"My Best Game"</example>
         public string Name { get; set; }
+
         /// <summary>
         /// Product platform. Use numbers to chose platform
         /// </summary>
@@ -38,6 +41,7 @@ namespace Business.DTO
         /// 4 - good;
         /// 5 - masterpiece.
         /// </example>
+
         [RegularExpression(@"^[1-5]*$", ErrorMessage = "Numbers must be from 1 to 5 only")]
         public int TotalRating { get; set; }
 
@@ -47,6 +51,7 @@ namespace Business.DTO
         /// <example>
         /// ["Shooter", "Racing"] or else
         /// </example>
+
         public string Genre { get; set; }
 
         /// <summary>
@@ -56,8 +61,9 @@ namespace Business.DTO
         /// 0 - All;
         /// 6 - 6+;
         /// 12 - 12+;
-        /// 18 - 18+.;
+        /// 18 - 18+.
         /// </example>
+        
         public int Rating { get; set; }
 
         /// <summary>
@@ -74,16 +80,5 @@ namespace Business.DTO
         /// </summary>
 
         public int Count { get; set; }
-
-        /// <summary>
-        /// Link to logo picture
-        /// </summary>
-        public string Logo { get; set; }
-
-        /// <summary>
-        /// Link to background picture
-        /// </summary>
-
-        public string Background { get; set; }
     }
 }

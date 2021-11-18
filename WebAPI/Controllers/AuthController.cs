@@ -33,9 +33,6 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad parameters</response>
         /// <response code="500">Can't sign up right now, come back later</response>
         [HttpPost("sign-up")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(500)]
         [AllowAnonymous]
         public async Task<IActionResult> SignUp([FromBody] UserCredentialsDTO userCredentialsDto)
         {
@@ -57,9 +54,6 @@ namespace WebAPI.Controllers
         /// <response code="401">Wrong email or password.</response>
         /// <response code="500">Can't change your profile right now, come back later</response>
         [HttpPost("sign-in")]
-        [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(500)]
         [AllowAnonymous]
         public async Task<IActionResult> SignIn([FromBody] UserCredentialsDTO userCredentialsDto)
         {
@@ -76,9 +70,6 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad parameters</response>
         /// <response code="500">Can't confirm your email right now, come back later</response>
         [HttpGet("email-confirmation")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(int id, string token)
         {

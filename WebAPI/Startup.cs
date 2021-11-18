@@ -22,7 +22,7 @@ namespace WebAPI
         {
             services.AddDbContext();
             services.AddIdentity();
-            //services.AddCloudinary(Configuration);
+            services.AddCloudinary(Configuration);
             services.AddJwtToken(Configuration);
             services.SetupHealthCheck(Configuration.GetConnectionString("DefaultConnection"));
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -39,7 +39,7 @@ namespace WebAPI
                 app.UseSwaggerSetup();
             }
 
-            //app.UseStaticFiles();
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();
