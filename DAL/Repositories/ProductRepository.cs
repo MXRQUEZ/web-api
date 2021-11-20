@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repositories
 {
-    public sealed class ProductRepository : IRepository<Product>, IDisposable
+    public sealed class ProductRepository : IProductRepository<Product>, IDisposable
     {
         private readonly ApplicationDbContext _db;
 
@@ -18,45 +18,26 @@ namespace DAL.Repositories
             _db = context;
         }
 
-        public Dictionary<Platforms, string[]> GetTopPlatforms()
+        public IEnumerable<string> GetProductsByPlatform(Platform platform)
         {
-            var pc = GetPlatformProducts(Platforms.PersonalComputer);
-            var mobile = GetPlatformProducts(Platforms.Mobile);
-            var ps = GetPlatformProducts(Platforms.PlayStation);
-            var xbox = GetPlatformProducts(Platforms.Xbox);
-            var nintendo = GetPlatformProducts(Platforms.Nintendo);
-
-            var platforms = new Dictionary<Platforms, string[]>
-            {
-                {Platforms.PersonalComputer, pc},
-                {Platforms.Mobile, mobile},
-                {Platforms.PlayStation, ps},
-                {Platforms.Xbox, xbox},
-                {Platforms.Nintendo, nintendo}
-            };
-
-            return platforms
-                .OrderByDescending(p => p.Value.Length)
-                .Take(3)
-                .ToDictionary(p => p.Key, p => p.Value);
-
-            string[] GetPlatformProducts(Platforms platform)
-            {
-                return _db.Products
-                    .Where(p => p.Platform == (int)platform)
+            return _db.Products
+                    .Where(p => p.Platform == platform)
                     .Select(p => p.Name)
-                    .ToArray();
-            }
+                    .AsNoTracking();
         }
 
-        public IEnumerable<Product> GetProducts()
+        public IQueryable<Product> GetAllProducts()
         {
-            return _db.Products;
+            return _db.Products
+                .Include(r => r.Ratings)
+                .OrderBy(on => on.Name)
+                .AsNoTracking();
         }
 
         public async Task<Product> FindByIdAsync(int id)
         {
-            return await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
+            return await _db.Products
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<Product> AddAsync(Product newProduct)

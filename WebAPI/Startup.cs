@@ -26,8 +26,8 @@ namespace WebAPI
             services.AddJwtToken(Configuration);
             services.SetupHealthCheck(Configuration.GetConnectionString("DefaultConnection"));
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            services.AddRequired();
             services.SetupSwagger();
+            services.AddRequired();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

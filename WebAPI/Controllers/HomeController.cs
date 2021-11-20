@@ -1,8 +1,11 @@
 ﻿using Business.Interfaces;
+using Business.Parameters;
 using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Serilog;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using WebAPI.Filters;
 
 namespace WebAPI.Controllers
 {
@@ -24,11 +27,12 @@ namespace WebAPI.Controllers
         /// <response code="403">You don't have rights for this request</response>
         /// <response code="500">Come back later</response>
         [HttpGet("get-info")]
-        [Authorize(Roles = Roles.ADMIN)]
-        public string GetInfo()
+        [Authorize(Roles = Role.Admin)]
+        [ServiceFilter(typeof(PagesValidationFilter))]
+        public string GetInfo([FromQuery] PageParameters pageParameters)
         {
             Logger.ForContext<HomeController>().Information("request: GetInfo");
-            return _userService.GetUsers();
+            return _userService.GetUsers(pageParameters);
         }
     }
 }

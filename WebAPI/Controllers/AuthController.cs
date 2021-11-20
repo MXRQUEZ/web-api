@@ -1,8 +1,5 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Business.DTO;
-using Business.Exceptions;
 using Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -50,7 +47,7 @@ namespace WebAPI.Controllers
         ///     Password: Your_Password1234,
         /// }
         /// ">Sign in params</param>
-        /// <response code="200">Your profile was successfully changed</response>
+        /// <response code="200">You are with us!</response>
         /// <response code="401">Wrong email or password.</response>
         /// <response code="500">Can't change your profile right now, come back later</response>
         [HttpPost("sign-in")]

@@ -31,7 +31,7 @@ namespace WebAPI
                     {
                         var userManager = services.GetRequiredService<UserManager<User>>();
                         var rolesManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
-                        await DataSeed.InitializeAsync(userManager, rolesManager);
+                        await UsersDataSeed.InitializeAsync(userManager, rolesManager);
                     }
                     catch (Exception ex)
                     {

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211117121510_AddProductDescription")]
-    partial class AddProductDescription
+    [Migration("20211120171230_GenresToInt")]
+    partial class GenresToInt
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -37,8 +37,8 @@ namespace DAL.Migrations
                     b.Property<string>("DateCreated")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Genre")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Genre")
+                        .HasColumnType("int");
 
                     b.Property<string>("Logo")
                         .HasColumnType("nvarchar(max)");
@@ -49,8 +49,8 @@ namespace DAL.Migrations
                     b.Property<int>("Platform")
                         .HasColumnType("int");
 
-                    b.Property<string>("Price")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
@@ -69,129 +69,147 @@ namespace DAL.Migrations
                         new
                         {
                             Id = 1,
-                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background1_zmonut.jpg",
+                            Background = "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg",
                             Count = 1,
                             DateCreated = "28/03/2019",
-                            Genre = "Action",
-                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg",
+                            Genre = 0,
+                            Logo = "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg",
                             Name = "PC Product1",
-                            Platform = 1,
-                            Price = "200$",
-                            Rating = 18,
-                            TotalRating = 5
+                            Platform = 0,
+                            Price = 200,
+                            Rating = 3,
+                            TotalRating = 0
                         },
                         new
                         {
                             Id = 2,
-                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background2_cv26wh.jpg",
+                            Background = "/mxrquez/image/upload/v1637149583/background2_cv26wh.jpg",
                             Count = 1,
                             DateCreated = "28/03/2020",
-                            Genre = "Shooter",
-                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/logo2_utcyoi.jpg",
+                            Genre = 1,
+                            Logo = "/mxrquez/image/upload/v1637149584/logo2_utcyoi.jpg",
                             Name = "PC Product2",
-                            Platform = 1,
-                            Price = "100$",
-                            Rating = 12,
-                            TotalRating = 4
+                            Platform = 0,
+                            Price = 100,
+                            Rating = 2,
+                            TotalRating = 0
                         },
                         new
                         {
                             Id = 3,
-                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background3_s58qsc.jpg",
+                            Background = "/mxrquez/image/upload/v1637149583/background3_s58qsc.jpg",
                             Count = 3,
                             DateCreated = "28/03/2021",
-                            Genre = "Shooter",
-                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149585/logo3_idvylc.jpg",
+                            Genre = 2,
+                            Logo = "/mxrquez/image/upload/v1637149585/logo3_idvylc.jpg",
                             Name = "PC Product3",
-                            Platform = 1,
-                            Price = "50$",
-                            Rating = 6,
-                            TotalRating = 3
+                            Platform = 0,
+                            Price = 50,
+                            Rating = 1,
+                            TotalRating = 0
                         },
                         new
                         {
                             Id = 4,
-                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background4_n7epnc.jpg",
+                            Background = "/mxrquez/image/upload/v1637149583/background4_n7epnc.jpg",
                             Count = 2,
                             DateCreated = "28/03/2018",
-                            Genre = "Strategy",
-                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149587/logo4_avqczq.jpg",
+                            Genre = 0,
+                            Logo = "/mxrquez/image/upload/v1637149587/logo4_avqczq.jpg",
                             Name = "Mobile Product1",
-                            Platform = 2,
-                            Price = "10$",
+                            Platform = 1,
+                            Price = 10,
                             Rating = 0,
-                            TotalRating = 3
+                            TotalRating = 0
                         },
                         new
                         {
                             Id = 5,
-                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149586/background5_cilkad.jpg",
+                            Background = "/mxrquez/image/upload/v1637149586/background5_cilkad.jpg",
                             Count = 1,
                             DateCreated = "28/03/2021",
-                            Genre = "Action",
-                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149585/logo5_lmvhi1.jpg",
+                            Genre = 1,
+                            Logo = "/mxrquez/image/upload/v1637149585/logo5_lmvhi1.jpg",
                             Name = "Mobile Product2",
-                            Platform = 2,
-                            Price = "20$",
-                            Rating = 12,
-                            TotalRating = 5
+                            Platform = 1,
+                            Price = 20,
+                            Rating = 2,
+                            TotalRating = 0
                         },
                         new
                         {
                             Id = 6,
-                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background6_shsn1b.jpg",
+                            Background = "/mxrquez/image/upload/v1637149583/background6_shsn1b.jpg",
                             Count = 1,
                             DateCreated = "28/03/2021",
-                            Genre = "Shooter",
-                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149587/logo6_tjbwjn.jpg",
+                            Genre = 2,
+                            Logo = "/mxrquez/image/upload/v1637149587/logo6_tjbwjn.jpg",
                             Name = "PS Product1",
-                            Platform = 4,
-                            Price = "300$",
-                            Rating = 12,
-                            TotalRating = 5
+                            Platform = 2,
+                            Price = 300,
+                            Rating = 2,
+                            TotalRating = 0
                         },
                         new
                         {
                             Id = 7,
-                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background1_zmonut.jpg",
+                            Background = "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg",
                             Count = 2,
                             DateCreated = "28/03/2021",
-                            Genre = "Casual",
-                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg",
+                            Genre = 3,
+                            Logo = "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg",
                             Name = "PS Product2",
-                            Platform = 4,
-                            Price = "200$",
-                            Rating = 12,
-                            TotalRating = 4
+                            Platform = 2,
+                            Price = 200,
+                            Rating = 2,
+                            TotalRating = 0
                         },
                         new
                         {
                             Id = 8,
-                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/background8_mqb9le.jpg",
+                            Background = "/mxrquez/image/upload/v1637149584/background8_mqb9le.jpg",
                             Count = 1,
                             DateCreated = "28/03/2021",
-                            Genre = "Shooter",
-                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149594/logo8_c296hm.jpg",
+                            Genre = 4,
+                            Logo = "/mxrquez/image/upload/v1637149594/logo8_c296hm.jpg",
                             Name = "Xbox Product1",
-                            Platform = 8,
-                            Price = "200$",
-                            Rating = 18,
-                            TotalRating = 5
+                            Platform = 3,
+                            Price = 200,
+                            Rating = 3,
+                            TotalRating = 0
                         },
                         new
                         {
                             Id = 9,
-                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/background9_f9fsd8.jpg",
+                            Background = "/mxrquez/image/upload/v1637149584/background9_f9fsd8.jpg",
                             Count = 4,
                             DateCreated = "28/03/2018",
-                            Genre = "Racing",
-                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149587/logo9_k894ri.jpg",
+                            Genre = 4,
+                            Logo = "/mxrquez/image/upload/v1637149587/logo9_k894ri.jpg",
                             Name = "Nintendo Product1",
-                            Platform = 16,
-                            Price = "50$",
+                            Platform = 4,
+                            Price = 50,
                             Rating = 0,
-                            TotalRating = 4
+                            TotalRating = 0
                         });
+                });
+
+            modelBuilder.Entity("DAL.Models.ProductRating", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProductRating");
                 });
 
             modelBuilder.Entity("DAL.Models.User", b =>
@@ -400,6 +418,25 @@ namespace DAL.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("DAL.Models.ProductRating", b =>
+                {
+                    b.HasOne("DAL.Models.Product", "Product")
+                        .WithMany("Ratings")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DAL.Models.User", "User")
+                        .WithMany("Ratings")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
@@ -449,6 +486,16 @@ namespace DAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DAL.Models.Product", b =>
+                {
+                    b.Navigation("Ratings");
+                });
+
+            modelBuilder.Entity("DAL.Models.User", b =>
+                {
+                    b.Navigation("Ratings");
                 });
 #pragma warning restore 612, 618
         }

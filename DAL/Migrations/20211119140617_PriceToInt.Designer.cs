@@ -4,14 +4,16 @@ using DAL.UserContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211119140617_PriceToInt")]
+    partial class PriceToInt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,8 +37,8 @@ namespace DAL.Migrations
                     b.Property<string>("DateCreated")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("Genre")
-                        .HasColumnType("int");
+                    b.Property<string>("Genre")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Logo")
                         .HasColumnType("nvarchar(max)");
@@ -70,12 +72,12 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg",
                             Count = 1,
                             DateCreated = "28/03/2019",
-                            Genre = 1,
+                            Genre = "Action",
                             Logo = "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg",
                             Name = "PC Product1",
-                            Platform = 0,
+                            Platform = 1,
                             Price = 200,
-                            Rating = 3,
+                            Rating = 18,
                             TotalRating = 0
                         },
                         new
@@ -84,12 +86,12 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background2_cv26wh.jpg",
                             Count = 1,
                             DateCreated = "28/03/2020",
-                            Genre = 5,
+                            Genre = "Shooter",
                             Logo = "/mxrquez/image/upload/v1637149584/logo2_utcyoi.jpg",
                             Name = "PC Product2",
-                            Platform = 0,
+                            Platform = 1,
                             Price = 100,
-                            Rating = 2,
+                            Rating = 12,
                             TotalRating = 0
                         },
                         new
@@ -98,12 +100,12 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background3_s58qsc.jpg",
                             Count = 3,
                             DateCreated = "28/03/2021",
-                            Genre = 3,
+                            Genre = "Shooter",
                             Logo = "/mxrquez/image/upload/v1637149585/logo3_idvylc.jpg",
                             Name = "PC Product3",
-                            Platform = 0,
+                            Platform = 1,
                             Price = 50,
-                            Rating = 1,
+                            Rating = 6,
                             TotalRating = 0
                         },
                         new
@@ -112,10 +114,10 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background4_n7epnc.jpg",
                             Count = 2,
                             DateCreated = "28/03/2018",
-                            Genre = 3,
+                            Genre = "Strategy",
                             Logo = "/mxrquez/image/upload/v1637149587/logo4_avqczq.jpg",
                             Name = "Mobile Product1",
-                            Platform = 1,
+                            Platform = 2,
                             Price = 10,
                             Rating = 0,
                             TotalRating = 0
@@ -126,12 +128,12 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149586/background5_cilkad.jpg",
                             Count = 1,
                             DateCreated = "28/03/2021",
-                            Genre = 4,
+                            Genre = "Action",
                             Logo = "/mxrquez/image/upload/v1637149585/logo5_lmvhi1.jpg",
                             Name = "Mobile Product2",
-                            Platform = 1,
+                            Platform = 2,
                             Price = 20,
-                            Rating = 2,
+                            Rating = 12,
                             TotalRating = 0
                         },
                         new
@@ -140,12 +142,12 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background6_shsn1b.jpg",
                             Count = 1,
                             DateCreated = "28/03/2021",
-                            Genre = 1,
+                            Genre = "Shooter",
                             Logo = "/mxrquez/image/upload/v1637149587/logo6_tjbwjn.jpg",
                             Name = "PS Product1",
-                            Platform = 2,
+                            Platform = 4,
                             Price = 300,
-                            Rating = 2,
+                            Rating = 12,
                             TotalRating = 0
                         },
                         new
@@ -154,12 +156,12 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg",
                             Count = 2,
                             DateCreated = "28/03/2021",
-                            Genre = 2,
+                            Genre = "Casual",
                             Logo = "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg",
                             Name = "PS Product2",
-                            Platform = 2,
+                            Platform = 4,
                             Price = 200,
-                            Rating = 2,
+                            Rating = 12,
                             TotalRating = 0
                         },
                         new
@@ -168,12 +170,12 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149584/background8_mqb9le.jpg",
                             Count = 1,
                             DateCreated = "28/03/2021",
-                            Genre = 2,
+                            Genre = "Shooter",
                             Logo = "/mxrquez/image/upload/v1637149594/logo8_c296hm.jpg",
                             Name = "Xbox Product1",
-                            Platform = 3,
+                            Platform = 8,
                             Price = 200,
-                            Rating = 3,
+                            Rating = 18,
                             TotalRating = 0
                         },
                         new
@@ -182,10 +184,10 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149584/background9_f9fsd8.jpg",
                             Count = 4,
                             DateCreated = "28/03/2018",
-                            Genre = 2,
+                            Genre = "Racing",
                             Logo = "/mxrquez/image/upload/v1637149587/logo9_k894ri.jpg",
                             Name = "Nintendo Product1",
-                            Platform = 4,
+                            Platform = 16,
                             Price = 50,
                             Rating = 0,
                             TotalRating = 0

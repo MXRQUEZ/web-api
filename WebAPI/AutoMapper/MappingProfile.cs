@@ -36,7 +36,6 @@ namespace WebAPI.AutoMapper
                 .ForMember(dest => dest.Name, source => source.MapFrom(source => source.Name))
                 .ForMember(dest => dest.Platform, source => source.MapFrom(source => source.Platform))
                 .ForMember(dest => dest.DateCreated, source => source.MapFrom(source => source.DateCreated))
-                .ForMember(dest => dest.TotalRating, source => source.MapFrom(source => source.TotalRating))
                 .ForMember(dest => dest.Genre, source => source.MapFrom(source => source.Genre))
                 .ForMember(dest => dest.Rating, source => source.MapFrom(source => source.Rating))
                 .ForMember(dest => dest.Price, source => source.MapFrom(source => source.Price))
@@ -45,16 +44,17 @@ namespace WebAPI.AutoMapper
                 .ForMember(dest => dest.Name, source => source.MapFrom(source => source.Name))
                 .ForMember(dest => dest.Platform, source => source.MapFrom(source => source.Platform))
                 .ForMember(dest => dest.DateCreated, source => source.MapFrom(source => source.DateCreated))
-                .ForMember(dest => dest.TotalRating, source => source.MapFrom(source => source.TotalRating))
                 .ForMember(dest => dest.Genre, source => source.MapFrom(source => source.Genre))
                 .ForMember(dest => dest.Rating, source => source.MapFrom(source => source.Rating))
                 .ForMember(dest => dest.Price, source => source.MapFrom(source => source.Price))
                 .ForMember(dest => dest.Count, source => source.MapFrom(source => source.Count));
 
             CreateMap<Product, ProductOutputDTO>()
+                .ForMember(dest => dest.TotalRating, source => source.MapFrom(source => source.TotalRating))
                 .ForMember(dest => dest.Logo, source => source.MapFrom(source => source.Logo))
                 .ForMember(dest => dest.Background, source => source.MapFrom(source => source.Background));
             CreateMap<ProductOutputDTO, Product>()
+                .ForMember(dest => dest.TotalRating, source => source.MapFrom(source => source.TotalRating))
                 .ForMember(dest => dest.Logo, source => source.MapFrom(source => source.Logo))
                 .ForMember(dest => dest.Background, source => source.MapFrom(source => source.Background));
         }

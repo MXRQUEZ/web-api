@@ -4,14 +4,16 @@ using DAL.UserContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211120173241_EntitiesFixed")]
+    partial class EntitiesFixed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,7 +72,7 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg",
                             Count = 1,
                             DateCreated = "28/03/2019",
-                            Genre = 1,
+                            Genre = 0,
                             Logo = "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg",
                             Name = "PC Product1",
                             Platform = 0,
@@ -84,7 +86,7 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background2_cv26wh.jpg",
                             Count = 1,
                             DateCreated = "28/03/2020",
-                            Genre = 5,
+                            Genre = 1,
                             Logo = "/mxrquez/image/upload/v1637149584/logo2_utcyoi.jpg",
                             Name = "PC Product2",
                             Platform = 0,
@@ -98,7 +100,7 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background3_s58qsc.jpg",
                             Count = 3,
                             DateCreated = "28/03/2021",
-                            Genre = 3,
+                            Genre = 2,
                             Logo = "/mxrquez/image/upload/v1637149585/logo3_idvylc.jpg",
                             Name = "PC Product3",
                             Platform = 0,
@@ -112,7 +114,7 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background4_n7epnc.jpg",
                             Count = 2,
                             DateCreated = "28/03/2018",
-                            Genre = 3,
+                            Genre = 0,
                             Logo = "/mxrquez/image/upload/v1637149587/logo4_avqczq.jpg",
                             Name = "Mobile Product1",
                             Platform = 1,
@@ -126,7 +128,7 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149586/background5_cilkad.jpg",
                             Count = 1,
                             DateCreated = "28/03/2021",
-                            Genre = 4,
+                            Genre = 1,
                             Logo = "/mxrquez/image/upload/v1637149585/logo5_lmvhi1.jpg",
                             Name = "Mobile Product2",
                             Platform = 1,
@@ -140,7 +142,7 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background6_shsn1b.jpg",
                             Count = 1,
                             DateCreated = "28/03/2021",
-                            Genre = 1,
+                            Genre = 2,
                             Logo = "/mxrquez/image/upload/v1637149587/logo6_tjbwjn.jpg",
                             Name = "PS Product1",
                             Platform = 2,
@@ -154,7 +156,7 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg",
                             Count = 2,
                             DateCreated = "28/03/2021",
-                            Genre = 2,
+                            Genre = 3,
                             Logo = "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg",
                             Name = "PS Product2",
                             Platform = 2,
@@ -168,7 +170,7 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149584/background8_mqb9le.jpg",
                             Count = 1,
                             DateCreated = "28/03/2021",
-                            Genre = 2,
+                            Genre = 4,
                             Logo = "/mxrquez/image/upload/v1637149594/logo8_c296hm.jpg",
                             Name = "Xbox Product1",
                             Platform = 3,
@@ -182,7 +184,7 @@ namespace DAL.Migrations
                             Background = "/mxrquez/image/upload/v1637149584/background9_f9fsd8.jpg",
                             Count = 4,
                             DateCreated = "28/03/2018",
-                            Genre = 2,
+                            Genre = 4,
                             Logo = "/mxrquez/image/upload/v1637149587/logo9_k894ri.jpg",
                             Name = "Nintendo Product1",
                             Platform = 4,

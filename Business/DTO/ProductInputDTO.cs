@@ -1,19 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Business.DTO
 {
     public sealed class ProductInputDTO : ProductDTO
     {
-        /// <summary>
-        /// Link to logo picture
-        /// </summary>
-       
+        [Required]
         public IFormFile Logo { get; set; }
 
-        /// <summary>
-        /// Link to background picture
-        /// </summary>
-
+        [Required]
         public IFormFile Background { get; set; }
     }
 }

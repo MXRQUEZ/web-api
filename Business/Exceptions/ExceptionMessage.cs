@@ -2,7 +2,8 @@
 {
     public static class ExceptionMessage
     {
-        public const string NotFound = "Not found";
+        public const string UserNotFound = "User not found";
+        public const string ProductNotFound = "Product not found";
         public const string WrongEmail = "There is no such mail registered";
         public const string ConfirmationFailed = "Confirmation failed";
         public const string WrongPassword = "Password is incorrect";
