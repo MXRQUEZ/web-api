@@ -10,7 +10,7 @@ namespace WebAPI.ServiceExtensions
 {
     public static class ServiceSwaggerExtension
     {
-        public static void SetupSwagger(this IServiceCollection services)
+        public static void AddSwaggerSetup(this IServiceCollection services)
         {
             services.AddSwaggerGen(setup =>
             {

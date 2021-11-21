@@ -6,6 +6,7 @@ using Business.DTO;
 using Business.Exceptions;
 using Business.Interfaces;
 using DAL.Models;
+using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

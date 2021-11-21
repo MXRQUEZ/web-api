@@ -2,13 +2,14 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DAL.Models;
+using DAL.Models.Entities;
 
 namespace DAL.Interfaces
 {
-    public interface IProductRepository<T> where T : class
+    public interface IProductRepository
     {
-        IQueryable<Product> GetAllProducts();
-        IEnumerable<string> GetProductsByPlatform(Platform platform);
+        IQueryable<Product> GetAll();
+        IEnumerable<string> GetAllByPlatform(Platform platform);
         Task<Product> FindByIdAsync(int id);
         Task<Product> AddAsync(Product newProduct);
         Task<Product> UpdateAsync(Product productUpdate);

@@ -21,7 +21,7 @@ namespace WebAPI.ServiceExtensions
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped(typeof(IProductRepository<Product>), typeof(ProductRepository));
+            services.AddScoped(typeof(IProductRepository), typeof(ProductRepository));
         }
     }
 }

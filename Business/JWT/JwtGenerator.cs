@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Business.Interfaces;
 using DAL.Models;
+using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;

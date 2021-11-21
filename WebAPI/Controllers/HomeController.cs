@@ -20,12 +20,13 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Changes user`s password
+        /// Represents users in database
         /// </summary>
-        /// <response code="200">User were represented successfully</response>
+        /// <response code="200">Success</response>
+        /// <response code="400">Bad parameters</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="403">You don't have rights for this request</response>
-        /// <response code="500">Come back later</response>
+        /// <response code="403">You don't have enough rights for this request</response>
+        /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpGet("get-info")]
         [Authorize(Roles = Role.Admin)]
         [ServiceFilter(typeof(PagesValidationFilter))]

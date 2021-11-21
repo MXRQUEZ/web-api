@@ -5,10 +5,10 @@ namespace Business.DTO
 {
     public sealed class ProductInputDTO : ProductDTO
     {
-        [Required]
+        [Required(ErrorMessage = "Logo image must be loaded")]
         public IFormFile Logo { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Background image must be specified")]
         public IFormFile Background { get; set; }
     }
 }

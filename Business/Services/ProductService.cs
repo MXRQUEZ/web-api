@@ -14,7 +14,9 @@ using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using DAL.Interfaces;
 using DAL.Models;
+using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Business.Services
 {
@@ -22,10 +24,10 @@ namespace Business.Services
     {
         private readonly Cloudinary _cloudinary;
         private readonly IMapper _mapper;
-        private readonly IProductRepository<Product> _productRepository;
+        private readonly IProductRepository _productRepository;
         private readonly UserManager<User> _userManager;
 
-        public ProductService(IProductRepository<Product> productRepository, IMapper mapper, Cloudinary cloudinary,
+        public ProductService(IProductRepository productRepository, IMapper mapper, Cloudinary cloudinary,
             UserManager<User> userManager)
         {
             _productRepository = productRepository;
@@ -36,11 +38,11 @@ namespace Business.Services
 
         public string GetTopPlatforms()
         {
-            var pc = _productRepository.GetProductsByPlatform(Platform.PersonalComputer);
-            var mobile = _productRepository.GetProductsByPlatform(Platform.Mobile);
-            var ps = _productRepository.GetProductsByPlatform(Platform.PlayStation);
-            var xbox = _productRepository.GetProductsByPlatform(Platform.Xbox);
-            var nintendo = _productRepository.GetProductsByPlatform(Platform.Nintendo);
+            var pc = _productRepository.GetAllByPlatform(Platform.PersonalComputer);
+            var mobile = _productRepository.GetAllByPlatform(Platform.Mobile);
+            var ps = _productRepository.GetAllByPlatform(Platform.PlayStation);
+            var xbox = _productRepository.GetAllByPlatform(Platform.Xbox);
+            var nintendo = _productRepository.GetAllByPlatform(Platform.Nintendo);
 
             var platforms = new Dictionary<Platform, IEnumerable<string>>
             {
@@ -62,20 +64,21 @@ namespace Business.Services
             return platformsStr.ToString();
         }
 
-        public List<ProductOutputDTO> SearchProducts(string term, int? limit, int? offset, PageParameters productParameters)
+        public List<ProductOutputDTO> SearchProducts(string term, int? limit, int? offset, PageParameters pageParameters)
         {
             var productsList = PagedList<Product>.ToPagedList(
-                _productRepository.GetAllProducts(),
-                     productParameters.PageNumber,
-                     productParameters.PageSize);
+                _productRepository.GetAll(),
+                     pageParameters.PageNumber,
+                     pageParameters.PageSize);
 
-            if (term is null) throw new ArgumentNullException(nameof(term));
+            if (term.IsNullOrEmpty()) throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.NullValue);
 
             var productsCount = productsList.Count;
             limit ??= productsCount;
             offset ??= 0;
 
-            if (limit < 0 || offset < 0) throw new ArgumentException($"{nameof(limit)} or {nameof(offset)}");
+            if (limit < 0 || offset < 0) throw new HttpStatusException(
+                HttpStatusCode.BadRequest, $"{ExceptionMessage.BadParameter}s {nameof(limit)} and {nameof(offset)} can't be less than 0");
 
             if (limit == 0 || offset > productsCount) return new List<ProductOutputDTO>();
 
@@ -206,13 +209,14 @@ namespace Business.Services
         private Product GetProduct(string productName, int rating = 0)
         {
             if (rating is > 100 or < 0)
-                throw new ArgumentException("Rating can't be more than 100 or less than 0");
+                throw new HttpStatusException(HttpStatusCode.BadRequest, $"{ExceptionMessage.BadParameter}." +
+                                                                         "Rating can't be more than 100 or less than 0");
 
-            if (productName is null)
-                throw new ArgumentNullException(nameof(productName), "can't be null");
+            if (productName.IsNullOrEmpty())
+                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.NullValue);
 
             var product = _productRepository
-                .GetAllProducts()
+                .GetAll()
                 .FirstOrDefault(p => p.Name == productName);
 
             if (product is null)
@@ -224,7 +228,7 @@ namespace Business.Services
         public List<ProductOutputDTO> SearchProductsByFilters(
             PageParameters pageParameters, Genre genre, Rating rating, bool ratingAscending, bool priceAscending)
         {
-            var products = _productRepository.GetAllProducts().Where(r => r.Rating >= rating);
+            var products = _productRepository.GetAll().Where(r => r.Rating >= rating);
 
             if (genre != Genre.All)
                 products = products.Where(g => g.Genre == genre);

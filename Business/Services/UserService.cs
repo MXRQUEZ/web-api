@@ -10,8 +10,9 @@ using Business.Exceptions;
 using Business.Helpers;
 using Business.Interfaces;
 using Business.Parameters;
-using DAL.Models;
+using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Business.Services
 {
@@ -51,9 +52,12 @@ namespace Business.Services
                 : throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
         }
 
-        public async Task<bool> ChangePasswordAsync(string userId, string oldPassword, string newPassword,
+        public async Task ChangePasswordAsync(string userId, string oldPassword, string newPassword,
             string confirmationPassword)
         {
+            if (oldPassword.IsNullOrEmpty() || newPassword.IsNullOrEmpty() || confirmationPassword.IsNullOrEmpty())
+                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.NullValue);
+
             if (newPassword != confirmationPassword)
                 throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.WrongCofirmationPassword);
             var user = await _userManager.FindByIdAsync(userId);
@@ -63,7 +67,6 @@ namespace Business.Services
                 throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.WrongPassword);
 
             await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
-            return true;
         }
     }
 }

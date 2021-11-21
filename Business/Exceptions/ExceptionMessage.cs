@@ -12,5 +12,6 @@
         public const string Fail = "Something went wrong...";
         public const string Unauthorized = "You are unauthorized";
         public const string BadParameter = "Bad parameter";
+        public const string NullValue = "Values can't be empty";
     }
 }

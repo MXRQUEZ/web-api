@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Business.DTO;
 using DAL.Models;
+using DAL.Models.Entities;
 
 namespace WebAPI.AutoMapper
 {

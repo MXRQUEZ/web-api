@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Business.Exceptions;
 using DAL.Models;
+using DAL.Models.Entities;
 using DAL.UserContext;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;

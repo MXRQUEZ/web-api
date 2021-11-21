@@ -12,7 +12,7 @@ namespace Business.DTO
         /// </summary>
         /// <example>"My Best Game"</example>
         
-        [Required]
+        [Required(ErrorMessage = "Name must be specified")]
         public string Name { get; set; }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace Business.DTO
         /// </summary>
         /// <example>dd/mm/yyyy</example>
         
-        [Required]
+        [Required(ErrorMessage = "Date of creation must be specified")]
         [RegularExpression(@"^([012]\d|30|31)/(0\d|10|11|12)/\d{4}$", ErrorMessage = "Date must be dd/mm/yyyy")]
         public string DateCreated { get; set; }
 
@@ -52,14 +52,14 @@ namespace Business.DTO
         /// Product price(in dollars equivalent)
         /// </summary>
 
-        [Required]
+        [Required(ErrorMessage = "Price must be specified")]
         public int Price { get; set; }
 
         /// <summary>
         /// Products in storage
         /// </summary>
 
-        [Required]
+        [Required(ErrorMessage = "Count must be specified")]
         public int Count { get; set; }
     }
 }

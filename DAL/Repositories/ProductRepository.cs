@@ -4,12 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using DAL.Interfaces;
 using DAL.Models;
+using DAL.Models.Entities;
 using DAL.UserContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repositories
 {
-    public sealed class ProductRepository : IProductRepository<Product>, IDisposable
+    public sealed class ProductRepository : IProductRepository, IDisposable
     {
         private readonly ApplicationDbContext _db;
 
@@ -18,7 +19,7 @@ namespace DAL.Repositories
             _db = context;
         }
 
-        public IEnumerable<string> GetProductsByPlatform(Platform platform)
+        public IEnumerable<string> GetAllByPlatform(Platform platform)
         {
             return _db.Products
                     .Where(p => p.Platform == platform)
@@ -26,7 +27,7 @@ namespace DAL.Repositories
                     .AsNoTracking();
         }
 
-        public IQueryable<Product> GetAllProducts()
+        public IQueryable<Product> GetAll()
         {
             return _db.Products
                 .Include(r => r.Ratings)

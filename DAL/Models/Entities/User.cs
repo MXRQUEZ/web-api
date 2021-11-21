@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 
-namespace DAL.Models
+namespace DAL.Models.Entities
 {
     public sealed class User : IdentityUser<int>
     {

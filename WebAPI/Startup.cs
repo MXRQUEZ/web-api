@@ -24,9 +24,9 @@ namespace WebAPI
             services.AddIdentity();
             services.AddCloudinary(Configuration);
             services.AddJwtToken(Configuration);
-            services.SetupHealthCheck(Configuration.GetConnectionString("DefaultConnection"));
+            services.AddHealthCheckSetup(Configuration.GetConnectionString("DefaultConnection"));
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            services.SetupSwagger();
+            services.AddSwaggerSetup();
             services.AddRequired();
         }
 
