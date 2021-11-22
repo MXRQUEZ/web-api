@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Business.DTO;
 using Business.Interfaces;
+using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -22,8 +24,6 @@ namespace WebAPI.Controllers
         /// <response code="200">Top platforms were successfully changed</response>
         /// <response code="500">Can't represent it right now, come back later</response>
         [HttpGet("top-platforms")]
-        [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(500)]
         [AllowAnonymous]
         public string GetTopPlatforms()
         {
@@ -39,13 +39,45 @@ namespace WebAPI.Controllers
         /// <response code="200">Searching was successful</response>
         /// <response code="500">Can't get this request right now, come back later</response>
         [HttpGet("search-product")]
-        [ProducesResponseType(typeof(ProductDTO), 200)]
-        [ProducesResponseType(500)]
         [AllowAnonymous]
-        public List<ProductDTO> SearchProducts(string term, int limit, int offset)
+        public List<ProductOutputDTO> SearchProducts(string term, int limit, int offset)
         {
             return _productService.SearchProducts(term, limit, offset);
         }
 
+        /// <summary>
+        /// Find product by Id
+        /// </summary>
+        /// <response code="200">Searching was successful OK</response>
+        /// <response code="400">Bad parameter</response>
+        /// <response code="500">Can't get this request right now, come back later</response>
+        [HttpGet("id")]
+        [AllowAnonymous]
+        public async Task<ProductOutputDTO> FindProductById(int id)
+        {
+            return await _productService.FindByIdAsync(id);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = Roles.ADMIN)]
+        public async Task<ProductOutputDTO> AddProduct([FromForm] ProductInputDTO newProduct)
+        {
+            return await _productService.AddAsync(newProduct);
+        }
+
+        [HttpPut]
+        [Authorize(Roles = Roles.ADMIN)]
+        public async Task<ProductOutputDTO> UpdateProduct([FromForm] ProductInputDTO productDtoUpdate)
+        {
+            return await _productService.UpdateAsync(productDtoUpdate);
+        }
+
+        [HttpDelete("id")]
+        [Authorize(Roles = Roles.ADMIN)]
+        public async Task<IActionResult> DeleteProductById(int id)
+        {
+            await _productService.DeleteByIdAsync(id);
+            return Ok();
+        }
     }
 }

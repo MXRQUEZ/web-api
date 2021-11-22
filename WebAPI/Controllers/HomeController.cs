@@ -24,10 +24,6 @@ namespace WebAPI.Controllers
         /// <response code="403">You don't have rights for this request</response>
         /// <response code="500">Come back later</response>
         [HttpGet("get-info")]
-        [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(500)]
         [Authorize(Roles = Roles.ADMIN)]
         public string GetInfo()
         {

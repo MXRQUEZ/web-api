@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 using DAL.Interfaces;
 using DAL.Models;
 using DAL.UserContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repositories
 {
@@ -51,6 +52,35 @@ namespace DAL.Repositories
         public IEnumerable<Product> GetProducts()
         {
             return _db.Products;
+        }
+
+        public async Task<Product> FindByIdAsync(int id)
+        {
+            return await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<Product> AddAsync(Product newProduct)
+        {
+            await _db.Products.AddAsync(newProduct);
+            await _db.SaveChangesAsync();
+            return newProduct;
+        }
+
+        public async Task<Product> UpdateAsync(Product productUpdate)
+        {
+            _db.Products.Update(productUpdate);
+            await _db.SaveChangesAsync();
+            return productUpdate;
+        }
+
+        public async Task<bool> DeleteByIdAsync(int id)
+        {
+            var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
+            if (product is null) return false;
+
+            _db.Products.Remove(product);
+            await _db.SaveChangesAsync();
+            return true;
         }
 
         public void Dispose()

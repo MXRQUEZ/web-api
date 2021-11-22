@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211111224931_AddIdentity")]
-    partial class AddIdentity
+    [Migration("20211117121510_AddProductDescription")]
+    partial class AddProductDescription
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,180 @@ namespace DAL.Migrations
                 .HasAnnotation("ProductVersion", "5.0.12")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("DAL.Model.User", b =>
+            modelBuilder.Entity("DAL.Models.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Background")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DateCreated")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Genre")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Logo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Platform")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Price")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalRating")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name", "Platform", "DateCreated", "TotalRating", "Genre", "Rating", "Price")
+                        .HasFilter("[Price] IS NOT NULL");
+
+                    b.ToTable("Products");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background1_zmonut.jpg",
+                            Count = 1,
+                            DateCreated = "28/03/2019",
+                            Genre = "Action",
+                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg",
+                            Name = "PC Product1",
+                            Platform = 1,
+                            Price = "200$",
+                            Rating = 18,
+                            TotalRating = 5
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background2_cv26wh.jpg",
+                            Count = 1,
+                            DateCreated = "28/03/2020",
+                            Genre = "Shooter",
+                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/logo2_utcyoi.jpg",
+                            Name = "PC Product2",
+                            Platform = 1,
+                            Price = "100$",
+                            Rating = 12,
+                            TotalRating = 4
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background3_s58qsc.jpg",
+                            Count = 3,
+                            DateCreated = "28/03/2021",
+                            Genre = "Shooter",
+                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149585/logo3_idvylc.jpg",
+                            Name = "PC Product3",
+                            Platform = 1,
+                            Price = "50$",
+                            Rating = 6,
+                            TotalRating = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background4_n7epnc.jpg",
+                            Count = 2,
+                            DateCreated = "28/03/2018",
+                            Genre = "Strategy",
+                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149587/logo4_avqczq.jpg",
+                            Name = "Mobile Product1",
+                            Platform = 2,
+                            Price = "10$",
+                            Rating = 0,
+                            TotalRating = 3
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149586/background5_cilkad.jpg",
+                            Count = 1,
+                            DateCreated = "28/03/2021",
+                            Genre = "Action",
+                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149585/logo5_lmvhi1.jpg",
+                            Name = "Mobile Product2",
+                            Platform = 2,
+                            Price = "20$",
+                            Rating = 12,
+                            TotalRating = 5
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background6_shsn1b.jpg",
+                            Count = 1,
+                            DateCreated = "28/03/2021",
+                            Genre = "Shooter",
+                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149587/logo6_tjbwjn.jpg",
+                            Name = "PS Product1",
+                            Platform = 4,
+                            Price = "300$",
+                            Rating = 12,
+                            TotalRating = 5
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background1_zmonut.jpg",
+                            Count = 2,
+                            DateCreated = "28/03/2021",
+                            Genre = "Casual",
+                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg",
+                            Name = "PS Product2",
+                            Platform = 4,
+                            Price = "200$",
+                            Rating = 12,
+                            TotalRating = 4
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/background8_mqb9le.jpg",
+                            Count = 1,
+                            DateCreated = "28/03/2021",
+                            Genre = "Shooter",
+                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149594/logo8_c296hm.jpg",
+                            Name = "Xbox Product1",
+                            Platform = 8,
+                            Price = "200$",
+                            Rating = 18,
+                            TotalRating = 5
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Background = "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/background9_f9fsd8.jpg",
+                            Count = 4,
+                            DateCreated = "28/03/2018",
+                            Genre = "Racing",
+                            Logo = "https://res.cloudinary.com/mxrquez/image/upload/v1637149587/logo9_k894ri.jpg",
+                            Name = "Nintendo Product1",
+                            Platform = 16,
+                            Price = "50$",
+                            Rating = 0,
+                            TotalRating = 4
+                        });
+                });
+
+            modelBuilder.Entity("DAL.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -238,7 +411,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("DAL.Model.User", null)
+                    b.HasOne("DAL.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -247,7 +420,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("DAL.Model.User", null)
+                    b.HasOne("DAL.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -262,7 +435,7 @@ namespace DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DAL.Model.User", null)
+                    b.HasOne("DAL.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -271,7 +444,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("DAL.Model.User", null)
+                    b.HasOne("DAL.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

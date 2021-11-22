@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Business.DTO;
 using Business.Exceptions;
 using Business.Interfaces;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using DAL.Interfaces;
 using DAL.Models;
 
@@ -16,11 +19,13 @@ namespace Business.Services
     {
         private readonly IRepository<Product> _productRepository;
         private readonly IMapper _mapper;
+        private readonly Cloudinary _cloudinary;
 
-        public ProductService(IRepository<Product> productRepository, IMapper mapper)
+        public ProductService(IRepository<Product> productRepository, IMapper mapper, Cloudinary cloudinary)
         {
             _productRepository = productRepository;
             _mapper = mapper;
+            _cloudinary = cloudinary;
         }
 
         public string GetTopPlatforms()
@@ -40,7 +45,7 @@ namespace Business.Services
             return platformsStr.ToString();
         }
 
-        public List<ProductDTO> SearchProducts(string term, int limit, int offset)
+        public List<ProductOutputDTO> SearchProducts(string term, int limit, int offset)
         {
             if (term is null)
             {
@@ -54,11 +59,10 @@ namespace Business.Services
 
             if (limit == 0 || offset > _productRepository.GetProducts().Count())
             {
-                return new List<ProductDTO>();
+                return new List<ProductOutputDTO>();
             }
 
-            var termProducts = new List<ProductDTO>();
-            term = term.ToLower();
+            var termProducts = new List<ProductOutputDTO>();
             foreach (var product in _productRepository.GetProducts())
             {
                 if (offset > 0)
@@ -67,18 +71,78 @@ namespace Business.Services
                     continue;
                 }
 
-                var lowerCaseProductName = product.Name.ToLower();
                 if (limit <= 0) break;
                 limit--;
 
-                if (lowerCaseProductName.Contains(term))
+                if (product.Name.Contains(term, StringComparison.CurrentCultureIgnoreCase))
                 {
                     
-                    termProducts.Add(_mapper.Map<ProductDTO>(product));
+                    termProducts.Add(_mapper.Map<ProductOutputDTO>(product));
                 }
             }
 
             return termProducts;
+        }
+
+        public async Task<ProductOutputDTO> FindByIdAsync(int id)
+        {
+            var product = await _productRepository.FindByIdAsync(id);
+            if (product is null) throw new ArgumentException("There is no product with this id");
+            return _mapper.Map<ProductOutputDTO>(product);
+        }
+
+        public async Task<ProductOutputDTO> AddAsync(ProductInputDTO newProductDto)
+        {
+            var newProduct = _mapper.Map<Product>(newProductDto);
+
+            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams()
+            {
+                File = new FileDescription(newProduct.Name + "_logo", newProductDto.Logo.OpenReadStream())
+            });
+
+            newProduct.Logo = downloadResult.Url.AbsolutePath;
+
+            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams()
+            {
+                File = new FileDescription(newProduct.Name + "_background", newProductDto.Background.OpenReadStream())
+            });
+
+            newProduct.Background = downloadResult.Url.AbsolutePath;
+
+            var product = await _productRepository.AddAsync(newProduct);
+            if (product is null)
+                throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
+            return _mapper.Map<ProductOutputDTO>(product);
+        }
+
+        public async Task<ProductOutputDTO> UpdateAsync(ProductInputDTO productDtoUpdate)
+        {
+            var oldProduct = _productRepository.GetProducts().FirstOrDefault(p => p.Name == productDtoUpdate.Name);
+            if (oldProduct is null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);
+            var newProduct = _mapper.Map(productDtoUpdate, oldProduct);
+
+            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams()
+            {
+                File = new FileDescription(newProduct.Name + "_logo", productDtoUpdate.Logo.OpenReadStream())
+            });
+
+            newProduct.Logo = downloadResult.Url.AbsolutePath;
+
+            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams()
+            {
+                File = new FileDescription(newProduct.Name + "_background", productDtoUpdate.Background.OpenReadStream())
+            });
+
+            newProduct.Background = downloadResult.Url.AbsolutePath;
+            var result = await _productRepository.UpdateAsync(newProduct);
+            return _mapper.Map<ProductOutputDTO>(result);
+        }
+
+        public async Task<bool> DeleteByIdAsync(int id)
+        {
+            var isUserFound = await _productRepository.DeleteByIdAsync(id);
+            if (!isUserFound) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);
+            return true;
         }
     }
 }
