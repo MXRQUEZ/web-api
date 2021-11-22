@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DAL.ApplicationContext;
 using DAL.Interfaces;
-using DAL.Models;
 using DAL.Models.Entities;
-using DAL.UserContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repositories
 {
-    public sealed class ProductRepository : IProductRepository, IDisposable
+    public sealed class ProductRepository : IRepository<Product>, IDisposable
     {
         private readonly ApplicationDbContext _db;
 
@@ -19,26 +17,11 @@ namespace DAL.Repositories
             _db = context;
         }
 
-        public IEnumerable<string> GetAllByPlatform(Platform platform)
-        {
-            return _db.Products
-                    .Where(p => p.Platform == platform)
-                    .Select(p => p.Name)
-                    .AsNoTracking();
-        }
-
         public IQueryable<Product> GetAll()
         {
             return _db.Products
-                .Include(r => r.Ratings)
                 .OrderBy(on => on.Name)
                 .AsNoTracking();
-        }
-
-        public async Task<Product> FindByIdAsync(int id)
-        {
-            return await _db.Products
-                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<Product> AddAsync(Product newProduct)
@@ -55,14 +38,10 @@ namespace DAL.Repositories
             return productUpdate;
         }
 
-        public async Task<bool> DeleteByIdAsync(int id)
+        public async Task DeleteAsync(Product product)
         {
-            var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
-            if (product is null) return false;
-
             _db.Products.Remove(product);
             await _db.SaveChangesAsync();
-            return true;
         }
 
         public void Dispose()

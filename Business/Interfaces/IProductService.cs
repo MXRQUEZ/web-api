@@ -16,7 +16,5 @@ namespace Business.Interfaces
         Task<ProductOutputDTO> AddAsync(ProductInputDTO newProductDto);
         Task<ProductOutputDTO> UpdateAsync(ProductInputDTO productDtoUpdate);
         Task DeleteByIdAsync(int id);
-        Task DeleteRatingAsync(string userId, string productName);
-        Task<ProductOutputDTO> RateAsync(string userId, int rating, string productName);
     }
 }

@@ -15,7 +15,7 @@ using CloudinaryDotNet.Actions;
 using DAL.Interfaces;
 using DAL.Models;
 using DAL.Models.Entities;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Business.Services
@@ -24,25 +24,22 @@ namespace Business.Services
     {
         private readonly Cloudinary _cloudinary;
         private readonly IMapper _mapper;
-        private readonly IProductRepository _productRepository;
-        private readonly UserManager<User> _userManager;
+        private readonly IRepository<Product> _productRepository;
 
-        public ProductService(IProductRepository productRepository, IMapper mapper, Cloudinary cloudinary,
-            UserManager<User> userManager)
+        public ProductService(IRepository<Product> productRepository, IMapper mapper, Cloudinary cloudinary)
         {
             _productRepository = productRepository;
             _mapper = mapper;
             _cloudinary = cloudinary;
-            _userManager = userManager;
         }
 
         public string GetTopPlatforms()
         {
-            var pc = _productRepository.GetAllByPlatform(Platform.PersonalComputer);
-            var mobile = _productRepository.GetAllByPlatform(Platform.Mobile);
-            var ps = _productRepository.GetAllByPlatform(Platform.PlayStation);
-            var xbox = _productRepository.GetAllByPlatform(Platform.Xbox);
-            var nintendo = _productRepository.GetAllByPlatform(Platform.Nintendo);
+            var pc = GetAllByPlatform(Platform.PersonalComputer);
+            var mobile = GetAllByPlatform(Platform.Mobile);
+            var ps = GetAllByPlatform(Platform.PlayStation);
+            var xbox = GetAllByPlatform(Platform.Xbox);
+            var nintendo = GetAllByPlatform(Platform.Nintendo);
 
             var platforms = new Dictionary<Platform, IEnumerable<string>>
             {
@@ -54,7 +51,8 @@ namespace Business.Services
             };
 
             var platformsStr = new StringBuilder();
-            foreach (var (platform, products) in platforms.OrderByDescending(p => p.Value.Count()).Take(3))
+            foreach (var (platform, products) in platforms
+                .OrderByDescending(p => p.Value.Count()).Take(3))
             {
                 var productsStr = new StringBuilder();
                 foreach (var product in products) productsStr.Append($"{product}\n");
@@ -62,11 +60,19 @@ namespace Business.Services
             }
 
             return platformsStr.ToString();
+
+            IEnumerable<string> GetAllByPlatform(Platform platform)
+            {
+                return _productRepository
+                    .GetAll()
+                    .Where(p => p.Platform.Equals(platform))
+                    .Select(p => p.Name);
+            }
         }
 
         public List<ProductOutputDTO> SearchProducts(string term, int? limit, int? offset, PageParameters pageParameters)
         {
-            var productsList = PagedList<Product>.ToPagedList(
+            var productsList = new PagedList<Product>(
                 _productRepository.GetAll(),
                      pageParameters.PageNumber,
                      pageParameters.PageSize);
@@ -103,7 +109,7 @@ namespace Business.Services
 
         public async Task<ProductOutputDTO> FindByIdAsync(int id)
         {
-            var product = await _productRepository.FindByIdAsync(id);
+            var product = await _productRepository.GetAll().FirstOrDefaultAsync(p => p.Id.Equals(id));
             if (product is null)
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
             return _mapper.Map<ProductOutputDTO>(product);
@@ -135,7 +141,12 @@ namespace Business.Services
 
         public async Task<ProductOutputDTO> UpdateAsync(ProductInputDTO productDtoUpdate)
         {
-            var oldProduct = GetProduct(productDtoUpdate.Name);
+            var oldProduct = await _productRepository
+                .GetAll()
+                .FirstOrDefaultAsync(p => p.Name.Equals(productDtoUpdate.Name));
+
+            if (oldProduct is null)
+                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
 
             var newProduct = _mapper.Map(productDtoUpdate, oldProduct);
 
@@ -159,79 +170,22 @@ namespace Business.Services
 
         public async Task DeleteByIdAsync(int id)
         {
-            var isProductFound = await _productRepository.DeleteByIdAsync(id);
-            if (!isProductFound)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
-        }
-
-        public async Task<ProductOutputDTO> RateAsync(string userId, int rating, string productName)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            var product = GetProduct(productName, rating);
-
+            var product = await _productRepository.GetAll().FirstOrDefaultAsync(p => p.Id.Equals(id));
             if (product is null)
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
 
-            var userRating = product.Ratings.FirstOrDefault(r => r.User == user);
-            if (userRating is null)
-                product.Ratings.Add(new ProductRating {Product = product, User = user, Rating = rating});
-            else
-                userRating.Rating = rating;
-
-            product.TotalRating = product.Ratings.Sum(r => r.Rating) / product.Ratings.Count;
-            var result = await _productRepository.UpdateAsync(product);
-
-            return _mapper.Map<ProductOutputDTO>(result);
-        }
-
-        public async Task DeleteRatingAsync(string userId, string productName)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            var product = GetProduct(productName);
-
-            var userRating = product.Ratings.FirstOrDefault(r => r.User == user);
-            if (userRating is null)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
-
-            product.Ratings.Remove(userRating);
-
-            var ratingsCount = product.Ratings.Count;
-            if (ratingsCount == 0)
-                product.TotalRating = 0;
-            else
-                product.TotalRating = product.Ratings.Sum(r => r.Rating) / ratingsCount;
-
-            await _productRepository.UpdateAsync(product);
-        }
-
-        private Product GetProduct(string productName, int rating = 0)
-        {
-            if (rating is > 100 or < 0)
-                throw new HttpStatusException(HttpStatusCode.BadRequest, $"{ExceptionMessage.BadParameter}." +
-                                                                         "Rating can't be more than 100 or less than 0");
-
-            if (productName.IsNullOrEmpty())
-                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.NullValue);
-
-            var product = _productRepository
-                .GetAll()
-                .FirstOrDefault(p => p.Name == productName);
-
-            if (product is null)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
-
-            return product;
+            await _productRepository.DeleteAsync(product);
         }
 
         public List<ProductOutputDTO> SearchProductsByFilters(
             PageParameters pageParameters, Genre genre, Rating rating, bool ratingAscending, bool priceAscending)
         {
-            var products = _productRepository.GetAll().Where(r => r.Rating >= rating);
+            var products = _productRepository
+                .GetAll()
+                .Where(r => r.Rating >= rating);
 
             if (genre != Genre.All)
-                products = products.Where(g => g.Genre == genre);
+                products = products.Where(g => g.Genre.Equals(genre));
 
             products = ratingAscending 
             ? products.OrderBy(r => r.TotalRating) 
@@ -241,7 +195,7 @@ namespace Business.Services
                 ? products.OrderBy(p => p.Price) 
                 : products.OrderByDescending(p => p.Price);
 
-            var productsList = PagedList<Product>.ToPagedList(
+            var productsList = new PagedList<Product>(
                 products,
                 pageParameters.PageNumber,
                 pageParameters.PageSize);

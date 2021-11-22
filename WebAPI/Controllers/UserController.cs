@@ -5,7 +5,6 @@ using Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using WebAPI.Filters;
 
 namespace WebAPI.Controllers
 {

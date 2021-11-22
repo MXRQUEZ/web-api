@@ -15,10 +15,12 @@ namespace WebAPI.Controllers
     public class GamesController : BaseController
     {
         private readonly IProductService _productService;
+        private readonly IRatingService _ratingService;
 
-        public GamesController(IProductService productService, ILogger logger) : base(logger)
+        public GamesController(IProductService productService, IRatingService ratingService, ILogger logger) : base(logger)
         {
             _productService = productService;
+            _ratingService = ratingService;
         }
 
         /// <summary>
@@ -120,9 +122,9 @@ namespace WebAPI.Controllers
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPost("rating")]
         [Authorize]
-        public async Task<ProductOutputDTO> RateProduct(int rating, string productName)
+        public async Task<ProductOutputDTO> RateProduct(int rating, int productId)
         {
-            return await _productService.RateAsync(UserHelper.GetIdByClaims(User.Claims), rating, productName);
+            return await _ratingService.RateAsync(UserHelper.GetIdByClaims(User.Claims), rating, productId);
         }
 
         /// <summary>
@@ -134,9 +136,9 @@ namespace WebAPI.Controllers
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpDelete("rating")]
         [Authorize]
-        public async Task<IActionResult> DeleteProductRating(string productName)
+        public async Task<IActionResult> DeleteProductRating(int productId)
         {
-            await _productService.DeleteRatingAsync(UserHelper.GetIdByClaims(User.Claims), productName);
+            await _ratingService.DeleteRatingAsync(UserHelper.GetIdByClaims(User.Claims), productId);
             return NoContent();
         }
 

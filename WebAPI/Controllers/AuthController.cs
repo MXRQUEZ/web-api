@@ -4,7 +4,6 @@ using Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using WebAPI.Filters;
 
 namespace WebAPI.Controllers
 {
@@ -20,13 +19,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Sign up
         /// </summary>
-        /// <param name="userCredentialsDto" example=
-        /// "
-        /// {
-        ///     Email: example_mail@example.com,
-        ///     Password: Your_Password1234,
-        /// }
-        /// ">Sign up parameters</param>
+        /// <param name="userCredentialsDto">Sign up parameters</param>
         /// <response code="200">You are signed up with us</response>
         /// <response code="400">Bad parameters</response>
         /// <response code="500">Server has some issues. Please, come back later</response>

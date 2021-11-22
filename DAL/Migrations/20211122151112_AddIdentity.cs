@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DAL.Migrations
 {
-    public partial class PriceToInt : Migration
+    public partial class AddIdentity : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -60,7 +60,7 @@ namespace DAL.Migrations
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Platform = table.Column<int>(type: "int", nullable: false),
                     DateCreated = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Genre = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Genre = table.Column<int>(type: "int", nullable: false),
                     Rating = table.Column<int>(type: "int", nullable: false),
                     Logo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Background = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -196,12 +196,6 @@ namespace DAL.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProductRating_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -209,15 +203,15 @@ namespace DAL.Migrations
                 columns: new[] { "Id", "Background", "Count", "DateCreated", "Genre", "Logo", "Name", "Platform", "Price", "Rating", "TotalRating" },
                 values: new object[,]
                 {
-                    { 1, "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg", 1, "28/03/2019", "Action", "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg", "PC Product1", 1, 200, 18, 0 },
-                    { 2, "/mxrquez/image/upload/v1637149583/background2_cv26wh.jpg", 1, "28/03/2020", "Shooter", "/mxrquez/image/upload/v1637149584/logo2_utcyoi.jpg", "PC Product2", 1, 100, 12, 0 },
-                    { 3, "/mxrquez/image/upload/v1637149583/background3_s58qsc.jpg", 3, "28/03/2021", "Shooter", "/mxrquez/image/upload/v1637149585/logo3_idvylc.jpg", "PC Product3", 1, 50, 6, 0 },
-                    { 4, "/mxrquez/image/upload/v1637149583/background4_n7epnc.jpg", 2, "28/03/2018", "Strategy", "/mxrquez/image/upload/v1637149587/logo4_avqczq.jpg", "Mobile Product1", 2, 10, 0, 0 },
-                    { 5, "/mxrquez/image/upload/v1637149586/background5_cilkad.jpg", 1, "28/03/2021", "Action", "/mxrquez/image/upload/v1637149585/logo5_lmvhi1.jpg", "Mobile Product2", 2, 20, 12, 0 },
-                    { 6, "/mxrquez/image/upload/v1637149583/background6_shsn1b.jpg", 1, "28/03/2021", "Shooter", "/mxrquez/image/upload/v1637149587/logo6_tjbwjn.jpg", "PS Product1", 4, 300, 12, 0 },
-                    { 7, "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg", 2, "28/03/2021", "Casual", "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg", "PS Product2", 4, 200, 12, 0 },
-                    { 8, "/mxrquez/image/upload/v1637149584/background8_mqb9le.jpg", 1, "28/03/2021", "Shooter", "/mxrquez/image/upload/v1637149594/logo8_c296hm.jpg", "Xbox Product1", 8, 200, 18, 0 },
-                    { 9, "/mxrquez/image/upload/v1637149584/background9_f9fsd8.jpg", 4, "28/03/2018", "Racing", "/mxrquez/image/upload/v1637149587/logo9_k894ri.jpg", "Nintendo Product1", 16, 50, 0, 0 }
+                    { 1, "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg", 1, "28/03/2019", 1, "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg", "PC Product1", 0, 200, 3, 0 },
+                    { 2, "/mxrquez/image/upload/v1637149583/background2_cv26wh.jpg", 1, "28/03/2020", 5, "/mxrquez/image/upload/v1637149584/logo2_utcyoi.jpg", "PC Product2", 0, 100, 2, 0 },
+                    { 3, "/mxrquez/image/upload/v1637149583/background3_s58qsc.jpg", 3, "28/03/2021", 3, "/mxrquez/image/upload/v1637149585/logo3_idvylc.jpg", "PC Product3", 0, 50, 1, 0 },
+                    { 4, "/mxrquez/image/upload/v1637149583/background4_n7epnc.jpg", 2, "28/03/2018", 3, "/mxrquez/image/upload/v1637149587/logo4_avqczq.jpg", "Mobile Product1", 1, 10, 0, 0 },
+                    { 5, "/mxrquez/image/upload/v1637149586/background5_cilkad.jpg", 1, "28/03/2021", 4, "/mxrquez/image/upload/v1637149585/logo5_lmvhi1.jpg", "Mobile Product2", 1, 20, 2, 0 },
+                    { 6, "/mxrquez/image/upload/v1637149583/background6_shsn1b.jpg", 1, "28/03/2021", 1, "/mxrquez/image/upload/v1637149587/logo6_tjbwjn.jpg", "PS Product1", 2, 300, 2, 0 },
+                    { 7, "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg", 2, "28/03/2021", 2, "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg", "PS Product2", 2, 200, 2, 0 },
+                    { 8, "/mxrquez/image/upload/v1637149584/background8_mqb9le.jpg", 1, "28/03/2021", 2, "/mxrquez/image/upload/v1637149594/logo8_c296hm.jpg", "Xbox Product1", 3, 200, 3, 0 },
+                    { 9, "/mxrquez/image/upload/v1637149584/background9_f9fsd8.jpg", 4, "28/03/2018", 2, "/mxrquez/image/upload/v1637149587/logo9_k894ri.jpg", "Nintendo Product1", 4, 50, 0, 0 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -268,7 +262,7 @@ namespace DAL.Migrations
                 name: "IX_Products_Name_Platform_DateCreated_TotalRating_Genre_Rating_Price",
                 table: "Products",
                 columns: new[] { "Name", "Platform", "DateCreated", "TotalRating", "Genre", "Rating", "Price" },
-                filter: "[Price] IS NOT NULL");
+                filter: "[DateCreated] IS NOT NULL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -292,13 +286,13 @@ namespace DAL.Migrations
                 name: "ProductRating");
 
             migrationBuilder.DropTable(
+                name: "Products");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Products");
         }
     }
 }

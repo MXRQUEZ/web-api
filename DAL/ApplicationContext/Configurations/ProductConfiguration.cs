@@ -1,45 +1,20 @@
 ﻿using DAL.Models;
 using DAL.Models.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DAL.UserContext
+namespace DAL.ApplicationContext.Configurations
 {
-    public sealed class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
+    public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
-        public ApplicationDbContext(DbContextOptions options) : base(options)
+        public void Configure(EntityTypeBuilder<Product> builder)
         {
-            Database.EnsureCreated();
-        }
-
-        public DbSet<Product> Products { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<ProductRating>()
-                .HasKey(r => new { r.ProductId, r.UserId });
-
-            modelBuilder.Entity<ProductRating>()
-                .HasOne(r => r.User)
-                .WithMany(u => u.Ratings)
-                .HasForeignKey(r => r.UserId);
-
-            modelBuilder.Entity<ProductRating>()
-                .HasOne(r => r.Product)
-                .WithMany(u => u.Ratings)
-                .HasForeignKey(r => r.ProductId);
-
-            modelBuilder.Entity<Product>()
+            builder
                 .HasIndex(p => new { p.Name, p.Platform, p.DateCreated, p.TotalRating, p.Genre, p.Rating, p.Price })
                 .HasFilter("[Name] IS NOT NULL")
-                .HasFilter("[DateCreated] IS NOT NULL")
-                .HasFilter("[Genre] IS NOT NULL")
-                .HasFilter("[Price] IS NOT NULL");
+                .HasFilter("[DateCreated] IS NOT NULL");
 
-            modelBuilder.Entity<Product>()
+            builder
                 .HasData(
                     new Product
                     {
@@ -167,6 +142,7 @@ namespace DAL.UserContext
                         Price = 50,
                         Rating = Rating.All
                     });
+
         }
     }
 }

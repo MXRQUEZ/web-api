@@ -61,7 +61,7 @@ namespace Business.Services
 
         public async Task<bool> ConfirmEmailAsync(int id, string token)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
             if (user is null)
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.UserNotFound);
 

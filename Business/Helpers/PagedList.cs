@@ -14,23 +14,19 @@ namespace Business.Helpers
         public bool HasPrevious => CurrentPage > 1;
         public bool HasNext => CurrentPage < TotalPages;
 
-        public PagedList(IEnumerable<T> items, int count, int pageNumber, int pageSize)
+        public PagedList(IQueryable<T> source, int pageNumber, int pageSize)
         {
-            TotalCount = count;
+            var items = source
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+            TotalCount = source.Count();
             PageSize = pageSize;
             CurrentPage = pageNumber;
-            TotalPages = (int) Math.Ceiling(count / (double) pageSize);
+            TotalPages = (int)Math.Ceiling(TotalCount / (double)PageSize);
 
             AddRange(items);
         }
 
-        public static PagedList<T> ToPagedList(IQueryable<T> source, int pageNumber, int pageSize)
-        {
-            var count = source.Count();
-            var items = source.Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize);
-
-            return new PagedList<T>(items, count, pageNumber, pageSize);
-        }
     }
 }

@@ -24,8 +24,6 @@ namespace DAL.Models.Entities
 
         public int Count { get; set; }
 
-        public List<ProductRating> Ratings { get; set; } = new();
-
         public int TotalRating { get; set; }
     }
 }

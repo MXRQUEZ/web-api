@@ -27,6 +27,7 @@ namespace WebAPI.Filters
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
-        { }
+        {
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using DAL.Models;
 using DAL.Models.Entities;
 
 namespace Business.Interfaces
