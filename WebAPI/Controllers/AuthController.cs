@@ -7,6 +7,7 @@ using Serilog;
 
 namespace WebAPI.Controllers
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     public sealed class AuthController : BaseController
     {
         private readonly IAuthenticationService _authenticationService;

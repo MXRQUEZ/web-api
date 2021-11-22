@@ -4,12 +4,12 @@ using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Serilog;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using WebAPI.Filters;
 
 namespace WebAPI.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
+    [ApiExplorerSettings(GroupName = "v4")]
     public sealed class HomeController : BaseController
     {
         private readonly IUserService _userService;

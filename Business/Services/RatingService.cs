@@ -39,17 +39,9 @@ namespace Business.Services
                 await _ratingRepository.UpdateAsync(userRating);
             }
 
-            var allProductRatings = _ratingRepository
-                .GetAll()
-                .Where(r => r.ProductId.Equals(productId));
+            product = await RecalculateRatingAsync(product, productId);
 
-            var ratingsSum = await allProductRatings.SumAsync(r => r.Rating);
-            var ratingsCount = await allProductRatings.CountAsync();
-
-            product.TotalRating = ratingsSum / ratingsCount;
-            var result = await _productRepository.UpdateAsync(product);
-
-            return _mapper.Map<ProductOutputDTO>(result);
+            return _mapper.Map<ProductOutputDTO>(product);
         }
 
         public async Task DeleteRatingAsync(string userId, int productId)
@@ -65,21 +57,7 @@ namespace Business.Services
 
             await _ratingRepository.DeleteAsync(userRating);
 
-            var allProductRatings = _ratingRepository
-                .GetAll()
-                .Where(r => r.ProductId.Equals(productId));
-
-            var ratingsCount = await allProductRatings.CountAsync();
-
-            if (ratingsCount == 0)
-                product.TotalRating = 0;
-            else
-            {
-                var ratingsSum = await allProductRatings.SumAsync(r => r.Rating);
-                product.TotalRating = ratingsSum / ratingsCount;
-            }
-
-            await _productRepository.UpdateAsync(product);
+            await RecalculateRatingAsync(product, productId);
         }
 
         private async Task<Product> GetProductAsync(int productId, int rating = 0)
@@ -96,6 +74,22 @@ namespace Business.Services
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
 
             return product;
+        }
+
+        private async Task<Product> RecalculateRatingAsync(Product product, int productId)
+        {
+            var allProductRatings = _ratingRepository
+                .GetAll()
+                .Where(r => r.ProductId.Equals(productId));
+
+            var ratingsSum = await allProductRatings.SumAsync(r => r.Rating);
+            var ratingsCount = await allProductRatings.CountAsync();
+
+            product.TotalRating = ratingsCount != 0
+                ? ratingsSum / ratingsCount 
+                : 0;
+
+            return await _productRepository.UpdateAsync(product);
         }
     }
 }

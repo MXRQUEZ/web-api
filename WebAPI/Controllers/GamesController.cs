@@ -12,6 +12,7 @@ using WebAPI.Filters;
 
 namespace WebAPI.Controllers
 {
+    [ApiExplorerSettings(GroupName = "v3")]
     public class GamesController : BaseController
     {
         private readonly IProductService _productService;

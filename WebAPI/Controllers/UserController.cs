@@ -8,6 +8,7 @@ using Serilog;
 
 namespace WebAPI.Controllers
 {
+    [ApiExplorerSettings(GroupName = "v2")]
     public sealed class UserController : BaseController
     {
         private readonly IUserService _userService;
