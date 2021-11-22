@@ -1,5 +1,7 @@
 ﻿using System.IO;
+using DAL.ApplicationContext;
 using DAL.Models;
+using DAL.Models.Entities;
 using DAL.UserContext;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

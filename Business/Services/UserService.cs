@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Business.DTO;
 using Business.Exceptions;
+using Business.Helpers;
 using Business.Interfaces;
-using DAL.Models;
+using Business.Parameters;
+using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Business.Services
 {
@@ -24,16 +25,16 @@ namespace Business.Services
             _userManager = userManager;
         }
 
-        public string GetUsers()
+        public string GetUsers(PageParameters pageParameters)
         {
+            var usersList = new PagedList<User>(
+                _userManager.Users,
+                pageParameters.PageNumber,
+                pageParameters.PageSize);
             var i = 1;
-            IEnumerable<User> users = _userManager.Users;
-            var usersInfo = users.Select(user => $"{i++}. {user.UserName}").ToList();
+            var usersInfo = usersList.Select(user => $"{i++}. {user.UserName} - {user.Email}");
             var usersInfoStr = new StringBuilder();
-            foreach (var userInfo in usersInfo)
-            {
-                usersInfoStr.Append($"{userInfo}{Environment.NewLine}");
-            }
+            foreach (var userInfo in usersInfo) usersInfoStr.Append($"{userInfo}\n");
 
             return usersInfoStr.ToString();
         }
@@ -41,26 +42,29 @@ namespace Business.Services
         public async Task<UserDTO> UpdateAsync(string userId, UserDTO userDto)
         {
             var oldUser = await _userManager.FindByIdAsync(userId);
-            if (oldUser is null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);
+            if (oldUser is null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.UserNotFound);
             var newUser = _mapper.Map(userDto, oldUser);
             var result = await _userManager.UpdateAsync(newUser);
-            return result.Succeeded 
+            return result.Succeeded
                 ? _mapper.Map<UserDTO>(newUser)
                 : throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
         }
 
-        public async Task<bool> ChangePasswordAsync(string userId, string oldPassword, string newPassword, string confirmationPassword)
+        public async Task ChangePasswordAsync(string userId, string oldPassword, string newPassword,
+            string confirmationPassword)
         {
-            if (newPassword != confirmationPassword) 
+            if (oldPassword.IsNullOrEmpty() || newPassword.IsNullOrEmpty() || confirmationPassword.IsNullOrEmpty())
+                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.NullValue);
+
+            if (newPassword != confirmationPassword)
                 throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.WrongCofirmationPassword);
             var user = await _userManager.FindByIdAsync(userId);
-            if (user is null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);
 
             var isRightPassword = await _userManager.CheckPasswordAsync(user, oldPassword);
-            if (!isRightPassword) throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.WrongPassword);
+            if (!isRightPassword)
+                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.WrongPassword);
 
             await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
-            return true;
         }
     }
 }

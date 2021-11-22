@@ -24,10 +24,10 @@ namespace WebAPI
             services.AddIdentity();
             services.AddCloudinary(Configuration);
             services.AddJwtToken(Configuration);
-            services.SetupHealthCheck(Configuration.GetConnectionString("DefaultConnection"));
+            services.AddHealthCheckSetup(Configuration.GetConnectionString("DefaultConnection"));
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddSwaggerSetup();
             services.AddRequired();
-            services.SetupSwagger();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

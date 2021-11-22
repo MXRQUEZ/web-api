@@ -18,13 +18,11 @@ namespace Business.Services
                 Text = message
             };
 
-            using (var client = new SmtpClient())
-            {
-                await client.ConnectAsync("smtp.gmail.com", 465, true);
-                await client.AuthenticateAsync("rom63760@gmail.com", "789173max");
-                await client.SendAsync(emailMessage);
-                await client.DisconnectAsync(true);
-            }
+            using var client = new SmtpClient();
+            await client.ConnectAsync("smtp.gmail.com", 465, true);
+            await client.AuthenticateAsync("rom63760@gmail.com", "789173max");
+            await client.SendAsync(emailMessage);
+            await client.DisconnectAsync(true);
         }
     }
 }

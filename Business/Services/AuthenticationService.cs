@@ -6,6 +6,7 @@ using Business.DTO;
 using Business.Exceptions;
 using Business.Interfaces;
 using DAL.Models;
+using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,11 +14,10 @@ namespace Business.Services
 {
     public sealed class AuthenticationService : IAuthenticationService
     {
+        private readonly IJwtGenerator _jwtGenerator;
         private readonly IMapper _mapper;
 
         private readonly UserManager<User> _userManager;
-
-        private readonly IJwtGenerator _jwtGenerator;
 
         public AuthenticationService(IMapper mapper, UserManager<User> userManager, IJwtGenerator jwtGenerator)
         {
@@ -32,7 +32,7 @@ namespace Business.Services
             if (user == null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.WrongEmail);
 
             var isRightPassword = await _userManager.CheckPasswordAsync(user, userCredentialsDto.Password);
-            if (!isRightPassword) 
+            if (!isRightPassword)
                 throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.WrongPassword);
 
             var isEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
@@ -47,7 +47,8 @@ namespace Business.Services
             var user = _mapper.Map<User>(userCredentialsDto);
 
             var result = await _userManager.CreateAsync(user, user.PasswordHash);
-            if (!result.Succeeded) throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
+            if (!result.Succeeded)
+                throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
 
             await _userManager.AddToRoleAsync(user, "user");
 
@@ -60,9 +61,9 @@ namespace Business.Services
 
         public async Task<bool> ConfirmEmailAsync(int id, string token)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
             if (user is null)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);
+                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.UserNotFound);
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
             if (!result.Succeeded)

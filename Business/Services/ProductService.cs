@@ -7,19 +7,24 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Business.DTO;
 using Business.Exceptions;
+using Business.Helpers;
 using Business.Interfaces;
+using Business.Parameters;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using DAL.Interfaces;
 using DAL.Models;
+using DAL.Models.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Business.Services
 {
-    public class ProductService : IProductService
+    public sealed class ProductService : IProductService
     {
-        private readonly IRepository<Product> _productRepository;
-        private readonly IMapper _mapper;
         private readonly Cloudinary _cloudinary;
+        private readonly IMapper _mapper;
+        private readonly IRepository<Product> _productRepository;
 
         public ProductService(IRepository<Product> productRepository, IMapper mapper, Cloudinary cloudinary)
         {
@@ -30,40 +35,61 @@ namespace Business.Services
 
         public string GetTopPlatforms()
         {
-            var platforms = _productRepository.GetTopPlatforms();
+            var pc = GetAllByPlatform(Platform.PersonalComputer);
+            var mobile = GetAllByPlatform(Platform.Mobile);
+            var ps = GetAllByPlatform(Platform.PlayStation);
+            var xbox = GetAllByPlatform(Platform.Xbox);
+            var nintendo = GetAllByPlatform(Platform.Nintendo);
+
+            var platforms = new Dictionary<Platform, IEnumerable<string>>
+            {
+                {Platform.PersonalComputer, pc},
+                {Platform.Mobile, mobile},
+                {Platform.PlayStation, ps},
+                {Platform.Xbox, xbox},
+                {Platform.Nintendo, nintendo}
+            };
+
             var platformsStr = new StringBuilder();
-            foreach (var (platform, products) in platforms)
+            foreach (var (platform, products) in platforms
+                .OrderByDescending(p => p.Value.Count()).Take(3))
             {
                 var productsStr = new StringBuilder();
-                foreach (var product in products)
-                {
-                    productsStr.Append($"{product}\n");
-                }
+                foreach (var product in products) productsStr.Append($"{product}\n");
                 platformsStr.Append($"{platform} =\n{productsStr}\n");
             }
 
             return platformsStr.ToString();
+
+            IEnumerable<string> GetAllByPlatform(Platform platform)
+            {
+                return _productRepository
+                    .GetAll()
+                    .Where(p => p.Platform.Equals(platform))
+                    .Select(p => p.Name);
+            }
         }
 
-        public List<ProductOutputDTO> SearchProducts(string term, int limit, int offset)
+        public List<ProductOutputDTO> SearchProducts(string term, int? limit, int? offset, PageParameters pageParameters)
         {
-            if (term is null)
-            {
-                throw new ArgumentNullException(nameof(term));
-            }
+            var productsList = new PagedList<Product>(
+                _productRepository.GetAll(),
+                     pageParameters.PageNumber,
+                     pageParameters.PageSize);
 
-            if (limit < 0 || offset < 0)
-            {
-                throw new ArgumentException($"{nameof(limit)} or {nameof(offset)}");
-            }
+            if (term.IsNullOrEmpty()) throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.NullValue);
 
-            if (limit == 0 || offset > _productRepository.GetProducts().Count())
-            {
-                return new List<ProductOutputDTO>();
-            }
+            var productsCount = productsList.Count;
+            limit ??= productsCount;
+            offset ??= 0;
+
+            if (limit < 0 || offset < 0) throw new HttpStatusException(
+                HttpStatusCode.BadRequest, $"{ExceptionMessage.BadParameter}s {nameof(limit)} and {nameof(offset)} can't be less than 0");
+
+            if (limit == 0 || offset > productsCount) return new List<ProductOutputDTO>();
 
             var termProducts = new List<ProductOutputDTO>();
-            foreach (var product in _productRepository.GetProducts())
+            foreach (var product in productsList)
             {
                 if (offset > 0)
                 {
@@ -75,10 +101,7 @@ namespace Business.Services
                 limit--;
 
                 if (product.Name.Contains(term, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    
                     termProducts.Add(_mapper.Map<ProductOutputDTO>(product));
-                }
             }
 
             return termProducts;
@@ -86,8 +109,9 @@ namespace Business.Services
 
         public async Task<ProductOutputDTO> FindByIdAsync(int id)
         {
-            var product = await _productRepository.FindByIdAsync(id);
-            if (product is null) throw new ArgumentException("There is no product with this id");
+            var product = await _productRepository.GetAll().FirstOrDefaultAsync(p => p.Id.Equals(id));
+            if (product is null)
+                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
             return _mapper.Map<ProductOutputDTO>(product);
         }
 
@@ -95,14 +119,14 @@ namespace Business.Services
         {
             var newProduct = _mapper.Map<Product>(newProductDto);
 
-            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams()
+            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
             {
                 File = new FileDescription(newProduct.Name + "_logo", newProductDto.Logo.OpenReadStream())
             });
 
             newProduct.Logo = downloadResult.Url.AbsolutePath;
 
-            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams()
+            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
             {
                 File = new FileDescription(newProduct.Name + "_background", newProductDto.Background.OpenReadStream())
             });
@@ -117,20 +141,26 @@ namespace Business.Services
 
         public async Task<ProductOutputDTO> UpdateAsync(ProductInputDTO productDtoUpdate)
         {
-            var oldProduct = _productRepository.GetProducts().FirstOrDefault(p => p.Name == productDtoUpdate.Name);
-            if (oldProduct is null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);
+            var oldProduct = await _productRepository
+                .GetAll()
+                .FirstOrDefaultAsync(p => p.Name.Equals(productDtoUpdate.Name));
+
+            if (oldProduct is null)
+                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
+
             var newProduct = _mapper.Map(productDtoUpdate, oldProduct);
 
-            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams()
+            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
             {
                 File = new FileDescription(newProduct.Name + "_logo", productDtoUpdate.Logo.OpenReadStream())
             });
 
             newProduct.Logo = downloadResult.Url.AbsolutePath;
 
-            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams()
+            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
             {
-                File = new FileDescription(newProduct.Name + "_background", productDtoUpdate.Background.OpenReadStream())
+                File = new FileDescription(newProduct.Name + "_background",
+                    productDtoUpdate.Background.OpenReadStream())
             });
 
             newProduct.Background = downloadResult.Url.AbsolutePath;
@@ -138,11 +168,39 @@ namespace Business.Services
             return _mapper.Map<ProductOutputDTO>(result);
         }
 
-        public async Task<bool> DeleteByIdAsync(int id)
+        public async Task DeleteByIdAsync(int id)
         {
-            var isUserFound = await _productRepository.DeleteByIdAsync(id);
-            if (!isUserFound) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.NotFound);
-            return true;
+            var product = await _productRepository.GetAll().FirstOrDefaultAsync(p => p.Id.Equals(id));
+            if (product is null)
+                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
+
+            await _productRepository.DeleteAsync(product);
+        }
+
+        public List<ProductOutputDTO> SearchProductsByFilters(
+            PageParameters pageParameters, Genre genre, Rating rating, bool ratingAscending, bool priceAscending)
+        {
+            var products = _productRepository
+                .GetAll()
+                .Where(r => r.Rating >= rating);
+
+            if (genre != Genre.All)
+                products = products.Where(g => g.Genre.Equals(genre));
+
+            products = ratingAscending 
+            ? products.OrderBy(r => r.TotalRating) 
+            : products.OrderByDescending(r => r.TotalRating);
+
+            products = priceAscending 
+                ? products.OrderBy(p => p.Price) 
+                : products.OrderByDescending(p => p.Price);
+
+            var productsList = new PagedList<Product>(
+                products,
+                pageParameters.PageNumber,
+                pageParameters.PageSize);
+
+            return productsList.Select(product => _mapper.Map<ProductOutputDTO>(product)).ToList();
         }
     }
 }

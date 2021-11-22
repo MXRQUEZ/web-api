@@ -1,10 +1,11 @@
 ﻿using Business.Interfaces;
 using Business.Services;
 using DAL.Interfaces;
-using DAL.Models;
+using DAL.Models.Entities;
 using DAL.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using WebAPI.Filters;
 
 namespace WebAPI.ServiceExtensions
 {
@@ -16,10 +17,13 @@ namespace WebAPI.ServiceExtensions
             services.AddRazorPages();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddSingleton(Log.Logger);
+            services.AddScoped<PagesValidationFilter>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped(typeof(IRepository<Product>), typeof(ProductRepository));
+            services.AddScoped(typeof(IRepository<ProductRating>), typeof(RatingRepository));
         }
     }
 }

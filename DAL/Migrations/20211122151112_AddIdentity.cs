@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DAL.Migrations
 {
-    public partial class AddProductDescription : Migration
+    public partial class AddIdentity : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -60,13 +60,13 @@ namespace DAL.Migrations
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Platform = table.Column<int>(type: "int", nullable: false),
                     DateCreated = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    TotalRating = table.Column<int>(type: "int", nullable: false),
-                    Genre = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Genre = table.Column<int>(type: "int", nullable: false),
                     Rating = table.Column<int>(type: "int", nullable: false),
                     Logo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Background = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Count = table.Column<int>(type: "int", nullable: false)
+                    Price = table.Column<int>(type: "int", nullable: false),
+                    Count = table.Column<int>(type: "int", nullable: false),
+                    TotalRating = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -179,20 +179,39 @@ namespace DAL.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ProductRating",
+                columns: table => new
+                {
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductRating", x => new { x.ProductId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_ProductRating_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "Products",
                 columns: new[] { "Id", "Background", "Count", "DateCreated", "Genre", "Logo", "Name", "Platform", "Price", "Rating", "TotalRating" },
                 values: new object[,]
                 {
-                    { 1, "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background1_zmonut.jpg", 1, "28/03/2019", "Action", "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg", "PC Product1", 1, "200$", 18, 5 },
-                    { 2, "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background2_cv26wh.jpg", 1, "28/03/2020", "Shooter", "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/logo2_utcyoi.jpg", "PC Product2", 1, "100$", 12, 4 },
-                    { 3, "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background3_s58qsc.jpg", 3, "28/03/2021", "Shooter", "https://res.cloudinary.com/mxrquez/image/upload/v1637149585/logo3_idvylc.jpg", "PC Product3", 1, "50$", 6, 3 },
-                    { 4, "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background4_n7epnc.jpg", 2, "28/03/2018", "Strategy", "https://res.cloudinary.com/mxrquez/image/upload/v1637149587/logo4_avqczq.jpg", "Mobile Product1", 2, "10$", 0, 3 },
-                    { 5, "https://res.cloudinary.com/mxrquez/image/upload/v1637149586/background5_cilkad.jpg", 1, "28/03/2021", "Action", "https://res.cloudinary.com/mxrquez/image/upload/v1637149585/logo5_lmvhi1.jpg", "Mobile Product2", 2, "20$", 12, 5 },
-                    { 6, "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background6_shsn1b.jpg", 1, "28/03/2021", "Shooter", "https://res.cloudinary.com/mxrquez/image/upload/v1637149587/logo6_tjbwjn.jpg", "PS Product1", 4, "300$", 12, 5 },
-                    { 7, "https://res.cloudinary.com/mxrquez/image/upload/v1637149583/background1_zmonut.jpg", 2, "28/03/2021", "Casual", "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg", "PS Product2", 4, "200$", 12, 4 },
-                    { 8, "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/background8_mqb9le.jpg", 1, "28/03/2021", "Shooter", "https://res.cloudinary.com/mxrquez/image/upload/v1637149594/logo8_c296hm.jpg", "Xbox Product1", 8, "200$", 18, 5 },
-                    { 9, "https://res.cloudinary.com/mxrquez/image/upload/v1637149584/background9_f9fsd8.jpg", 4, "28/03/2018", "Racing", "https://res.cloudinary.com/mxrquez/image/upload/v1637149587/logo9_k894ri.jpg", "Nintendo Product1", 16, "50$", 0, 4 }
+                    { 1, "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg", 1, "28/03/2019", 1, "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg", "PC Product1", 0, 200, 3, 0 },
+                    { 2, "/mxrquez/image/upload/v1637149583/background2_cv26wh.jpg", 1, "28/03/2020", 5, "/mxrquez/image/upload/v1637149584/logo2_utcyoi.jpg", "PC Product2", 0, 100, 2, 0 },
+                    { 3, "/mxrquez/image/upload/v1637149583/background3_s58qsc.jpg", 3, "28/03/2021", 3, "/mxrquez/image/upload/v1637149585/logo3_idvylc.jpg", "PC Product3", 0, 50, 1, 0 },
+                    { 4, "/mxrquez/image/upload/v1637149583/background4_n7epnc.jpg", 2, "28/03/2018", 3, "/mxrquez/image/upload/v1637149587/logo4_avqczq.jpg", "Mobile Product1", 1, 10, 0, 0 },
+                    { 5, "/mxrquez/image/upload/v1637149586/background5_cilkad.jpg", 1, "28/03/2021", 4, "/mxrquez/image/upload/v1637149585/logo5_lmvhi1.jpg", "Mobile Product2", 1, 20, 2, 0 },
+                    { 6, "/mxrquez/image/upload/v1637149583/background6_shsn1b.jpg", 1, "28/03/2021", 1, "/mxrquez/image/upload/v1637149587/logo6_tjbwjn.jpg", "PS Product1", 2, 300, 2, 0 },
+                    { 7, "/mxrquez/image/upload/v1637149583/background1_zmonut.jpg", 2, "28/03/2021", 2, "/mxrquez/image/upload/v1637149584/logo1_oefz4s.jpg", "PS Product2", 2, 200, 2, 0 },
+                    { 8, "/mxrquez/image/upload/v1637149584/background8_mqb9le.jpg", 1, "28/03/2021", 2, "/mxrquez/image/upload/v1637149594/logo8_c296hm.jpg", "Xbox Product1", 3, 200, 3, 0 },
+                    { 9, "/mxrquez/image/upload/v1637149584/background9_f9fsd8.jpg", 4, "28/03/2018", 2, "/mxrquez/image/upload/v1637149587/logo9_k894ri.jpg", "Nintendo Product1", 4, 50, 0, 0 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -235,10 +254,15 @@ namespace DAL.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductRating_UserId",
+                table: "ProductRating",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_Name_Platform_DateCreated_TotalRating_Genre_Rating_Price",
                 table: "Products",
                 columns: new[] { "Name", "Platform", "DateCreated", "TotalRating", "Genre", "Rating", "Price" },
-                filter: "[Price] IS NOT NULL");
+                filter: "[DateCreated] IS NOT NULL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -257,6 +281,9 @@ namespace DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "ProductRating");
 
             migrationBuilder.DropTable(
                 name: "Products");

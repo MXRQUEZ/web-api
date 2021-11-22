@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Business.Exceptions;
 using DAL.Models;
+using DAL.Models.Entities;
 using DAL.UserContext;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -31,7 +32,7 @@ namespace WebAPI
                     {
                         var userManager = services.GetRequiredService<UserManager<User>>();
                         var rolesManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
-                        await DataSeed.InitializeAsync(userManager, rolesManager);
+                        await UsersDataSeed.InitializeAsync(userManager, rolesManager);
                     }
                     catch (Exception ex)
                     {

@@ -8,13 +8,15 @@ namespace Business.DTO
         /// Your email
         /// </summary>
         /// <example>example_mail@gmail.com</example>
-        [Required] [EmailAddress] public string Email { get; set; }
+        [Required(ErrorMessage = "Email must be specified")] 
+        [EmailAddress] 
+        public string Email { get; set; }
 
         /// <summary>
         /// Your password. At least upper case letter, lower case letter, number and special character (e.g. !@#$%^&amp;*) must be used
         /// </summary>
         /// <example>_SkJwNif2345</example>
-        [Required]
+        [Required(ErrorMessage = "Password must be specified")]
         [RegularExpression(
             @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{6,20}$",
             ErrorMessage =

@@ -6,7 +6,7 @@ namespace WebAPI.ServiceExtensions
 {
     public static class ServiceHealthCheckExtension
     {
-        public static void SetupHealthCheck(this IServiceCollection services, string connectionString)
+        public static void AddHealthCheckSetup(this IServiceCollection services, string connectionString)
         {
             services.AddHealthChecks()
                 .AddCheck(

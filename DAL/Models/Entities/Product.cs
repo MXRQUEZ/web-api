@@ -1,4 +1,6 @@
-﻿namespace DAL.Models
+﻿using System.Collections.Generic;
+
+namespace DAL.Models.Entities
 {
     public sealed class Product
     {
@@ -6,22 +8,22 @@
 
         public string Name { get; set; }
 
-        public int Platform { get; set; }
+        public Platform Platform { get; set; }
 
         public string DateCreated { get; set; }
 
-        public int TotalRating { get; set; }
+        public Genre Genre { get; set; }
 
-        public string Genre { get; set; }
-
-        public int Rating { get; set; }
+        public Rating Rating { get; set; }
 
         public string Logo { get; set; }
 
         public string Background { get; set; }
 
-        public string Price { get; set; }
+        public int Price { get; set; }
 
         public int Count { get; set; }
+
+        public int TotalRating { get; set; }
     }
 }
