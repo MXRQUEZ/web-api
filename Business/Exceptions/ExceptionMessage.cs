@@ -4,6 +4,8 @@
     {
         public const string UserNotFound = "User not found";
         public const string ProductNotFound = "Product not found";
+        public const string OrderNotFound = "Order not found";
+        public const string ProductIsBought = "This product is bought already";
         public const string WrongEmail = "There is no such mail registered";
         public const string ConfirmationFailed = "Confirmation failed";
         public const string WrongPassword = "Password is incorrect";

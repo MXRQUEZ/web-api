@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add product
         /// </summary>
-        /// <response code="200">Success</response>
+        /// <response code="201">Success</response>
         /// <response code="400">Bad parameters</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="403">You don't have enough rights for this request</response>
@@ -86,7 +86,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update product
         /// </summary>
-        /// <response code="200">Success</response>
+        /// <response code="201">Success</response>
         /// <response code="400">Bad parameters</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="403">You don't have enough rights for this request</response>
@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Delete product by id
         /// </summary>
-        /// <response code="200">Product was deleted</response>
+        /// <response code="204">Product was deleted</response>
         /// <response code="400">Bad parameters</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="403">You don't have enough rights for this request</response>
@@ -111,13 +111,13 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> DeleteProductById(int id)
         {
             await _productService.DeleteByIdAsync(id);
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
         /// Rate product
         /// </summary>
-        /// <response code="200">Product was rated</response>
+        /// <response code="201">Product was rated</response>
         /// <response code="400">Bad parameter</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
@@ -146,7 +146,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Represents filtered products
         /// </summary>
-        /// <response code="204">Success</response>
+        /// <response code="200">Success</response>
         /// <response code="400">Bad parameters</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpGet("list")]

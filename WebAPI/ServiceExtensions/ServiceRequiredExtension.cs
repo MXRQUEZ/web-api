@@ -3,7 +3,7 @@ using Business.Interfaces;
 using Business.Services;
 using DAL.Interfaces;
 using DAL.Models.Entities;
-using DAL.Repositories;
+using DAL.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using WebAPI.Filters;
@@ -28,12 +28,14 @@ namespace WebAPI.ServiceExtensions
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IOrderService, OrderService>();
         }
 
         public static void AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped(typeof(IRepository<Product>), typeof(ProductRepository));
-            services.AddScoped(typeof(IRepository<ProductRating>), typeof(RatingRepository));
+            services.AddScoped(typeof(IRepository<Product>), typeof(BaseRepository<Product>));
+            services.AddScoped(typeof(IRepository<ProductRating>), typeof(BaseRepository<ProductRating>));
+            services.AddScoped(typeof(IRepository<Order>), typeof(BaseRepository<Order>));
         }
     }
 }

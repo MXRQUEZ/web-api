@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// Updates user profile
         /// </summary>
         /// <param name="userDto">Profile update params</param>
-        /// <response code="200">Profile was updated</response>
+        /// <response code="201">Profile was updated</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPut("update-profile")]

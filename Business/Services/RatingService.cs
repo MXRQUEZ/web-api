@@ -23,20 +23,20 @@ namespace Business.Services
             _mapper = mapper;
         }
 
-        public async Task<ProductOutputDTO> RateAsync(string userId, int rating, int productId)
+        public async Task<ProductOutputDTO> RateAsync(string userIdStr, int rating, int productId)
         {
             var product = await GetProductAsync(productId, rating);
-            var userIntId = int.Parse(userId);
+            var userId = int.Parse(userIdStr);
             var userRating = await _ratingRepository
-                .GetAll()
-                .FirstOrDefaultAsync(r => r.ProductId.Equals(productId) && r.UserId.Equals(userIntId));
+                .GetAll(false)
+                .FirstOrDefaultAsync(r => r.ProductId.Equals(productId) && r.UserId.Equals(userId));
 
             if (userRating is null)
-                await _ratingRepository.AddAsync(new ProductRating { ProductId = productId, UserId = userIntId, Rating = rating });
+                await _ratingRepository.AddAndSaveAsync(new ProductRating { ProductId = productId, UserId = userId, Rating = rating });
             else
             {
                 userRating.Rating = rating;
-                await _ratingRepository.UpdateAsync(userRating);
+                await _ratingRepository.UpdateAndSaveAsync(userRating);
             }
 
             product = await RecalculateRatingAsync(product, productId);
@@ -44,18 +44,18 @@ namespace Business.Services
             return _mapper.Map<ProductOutputDTO>(product);
         }
 
-        public async Task DeleteRatingAsync(string userId, int productId)
+        public async Task DeleteRatingAsync(string userIdStr, int productId)
         {
             var product = await GetProductAsync(productId);
-            var userIntId = int.Parse(userId);
+            var userId = int.Parse(userIdStr);
             var userRating = await _ratingRepository
-                .GetAll()
-                .FirstOrDefaultAsync(r => r.ProductId.Equals(productId) && r.UserId.Equals(userIntId));
+                .GetAll(false)
+                .FirstOrDefaultAsync(r => r.ProductId.Equals(productId) && r.UserId.Equals(userId));
 
             if (userRating is null)
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
 
-            await _ratingRepository.DeleteAsync(userRating);
+            await _ratingRepository.DeleteAndSaveAsync(userRating);
 
             await RecalculateRatingAsync(product, productId);
         }
@@ -67,7 +67,7 @@ namespace Business.Services
                                                                          "Rating can't be more than 100 or less than 0");
 
             var product = await _productRepository
-                .GetAll()
+                .GetAll(false)
                 .FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product is null)
@@ -79,7 +79,7 @@ namespace Business.Services
         private async Task<Product> RecalculateRatingAsync(Product product, int productId)
         {
             var allProductRatings = _ratingRepository
-                .GetAll()
+                .GetAll(false)
                 .Where(r => r.ProductId.Equals(productId));
 
             var ratingsSum = await allProductRatings.SumAsync(r => r.Rating);
@@ -89,7 +89,8 @@ namespace Business.Services
                 ? ratingsSum / ratingsCount 
                 : 0;
 
-            return await _productRepository.UpdateAsync(product);
+            await _productRepository.UpdateAndSaveAsync(product);
+            return product;
         }
     }
 }
