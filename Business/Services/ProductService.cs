@@ -175,9 +175,13 @@ namespace Business.Services
             if (product is null)
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
 
-            var rating = await _ratingRepository.GetAll(false).FirstOrDefaultAsync(r => r.ProductId.Equals(id));
+            var ratings = _ratingRepository.GetAll(false);
+            var rating = await ratings.FirstOrDefaultAsync(r => r.ProductId.Equals(id));
             if (rating is not null)
-                _ratingRepository.Delete(rating);
+            {
+                var deleteRatings = ratings.Where(r => r.ProductId.Equals(id));
+                _ratingRepository.DeleteRange(deleteRatings);
+            }
 
             await _productRepository.DeleteAndSaveAsync(product);
         }

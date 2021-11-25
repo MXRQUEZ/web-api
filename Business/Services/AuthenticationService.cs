@@ -5,6 +5,7 @@ using AutoMapper;
 using Business.DTO;
 using Business.Exceptions;
 using Business.Interfaces;
+using Business.JWT;
 using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +14,12 @@ namespace Business.Services
 {
     public sealed class AuthenticationService : IAuthenticationService
     {
-        private readonly IJwtGenerator _jwtGenerator;
+        private readonly JwtGenerator _jwtGenerator;
         private readonly IMapper _mapper;
 
         private readonly UserManager<User> _userManager;
 
-        public AuthenticationService(IMapper mapper, UserManager<User> userManager, IJwtGenerator jwtGenerator)
+        public AuthenticationService(IMapper mapper, UserManager<User> userManager, JwtGenerator jwtGenerator)
         {
             _mapper = mapper;
             _userManager = userManager;

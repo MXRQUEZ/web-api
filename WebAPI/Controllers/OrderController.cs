@@ -19,10 +19,11 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Find product by Id
+        /// Order product
         /// </summary>
         /// <response code="201">Ordered</response>
         /// <response code="400">Bad parameters</response>
+        /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPost("orders")]
         [Authorize]
@@ -32,10 +33,11 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Find product by Id
+        /// Represents your order
         /// </summary>
         /// <response code="200">Success</response>
         /// <response code="400">Bad parameters</response>
+        /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpGet("orders")]
         [Authorize]
@@ -45,10 +47,11 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Find product by Id
+        /// Update ordered product
         /// </summary>
         /// <response code="201">Updated</response>
         /// <response code="400">Bad parameters</response>
+        /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPut("orders")]
         [Authorize]
@@ -58,10 +61,11 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Find product by Id
+        /// Delete product from order by Id
         /// </summary>
         /// <response code="204">Deleted</response>
         /// <response code="400">Bad parameters</response>
+        /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpDelete("orders")]
         [Authorize]
@@ -72,10 +76,11 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Find product by Id
+        /// Pay for your order
         /// </summary>
         /// <response code="201">Paid</response>
         /// <response code="400">Bad parameters</response>
+        /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPost("buy")]
         [Authorize]

@@ -13,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Business.JWT
 {
-    public sealed class JwtGenerator : IJwtGenerator
+    public sealed class JwtGenerator
     {
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;

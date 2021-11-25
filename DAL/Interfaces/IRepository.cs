@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DAL.Interfaces
@@ -12,6 +13,7 @@ namespace DAL.Interfaces
         Task DeleteAndSaveAsync(T item);
         void Update(T itemUpdate);
         void Delete(T item);
+        void DeleteRange(IEnumerable<T> items);
         Task SaveAsync();
     }
 }

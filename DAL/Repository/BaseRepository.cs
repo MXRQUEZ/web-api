@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DAL.ApplicationContext;
@@ -59,6 +60,11 @@ namespace DAL.Repository
         public void Delete(T item)
         {
             _db.Set<T>().Remove(item);
+        }
+
+        public void DeleteRange(IEnumerable<T> items)
+        {
+            _db.Set<T>().RemoveRange(items);
         }
 
         public void Dispose()

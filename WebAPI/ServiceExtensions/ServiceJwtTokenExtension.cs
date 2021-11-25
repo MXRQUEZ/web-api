@@ -35,7 +35,8 @@ namespace WebAPI.ServiceExtensions
                         ClockSkew = TimeSpan.Zero
                     };
                 });
-            services.AddScoped<IJwtGenerator, JwtGenerator>();
+
+            services.AddScoped<JwtGenerator>();
         }
     }
 }
