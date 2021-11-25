@@ -7,6 +7,7 @@ using Serilog;
 
 namespace WebAPI.Controllers
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     public sealed class AuthController : BaseController
     {
         private readonly IAuthenticationService _authenticationService;
@@ -20,7 +21,7 @@ namespace WebAPI.Controllers
         /// Sign up
         /// </summary>
         /// <param name="userCredentialsDto">Sign up parameters</param>
-        /// <response code="200">You are signed up with us</response>
+        /// <response code="200">You are signed up!</response>
         /// <response code="400">Bad parameters</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPost("sign-up")]

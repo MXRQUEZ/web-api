@@ -25,10 +25,12 @@ namespace Business.Services
         private readonly Cloudinary _cloudinary;
         private readonly IMapper _mapper;
         private readonly IRepository<Product> _productRepository;
+        private readonly IRepository<ProductRating> _ratingRepository;
 
-        public ProductService(IRepository<Product> productRepository, IMapper mapper, Cloudinary cloudinary)
+        public ProductService(IRepository<Product> productRepository, IRepository<ProductRating> ratingRepository, IMapper mapper, Cloudinary cloudinary)
         {
             _productRepository = productRepository;
+            _ratingRepository = ratingRepository;
             _mapper = mapper;
             _cloudinary = cloudinary;
         }
@@ -64,7 +66,8 @@ namespace Business.Services
             IEnumerable<string> GetAllByPlatform(Platform platform)
             {
                 return _productRepository
-                    .GetAll()
+                    .GetAll(false)
+                    .OrderBy(on => on.Name)
                     .Where(p => p.Platform.Equals(platform))
                     .Select(p => p.Name);
             }
@@ -73,7 +76,7 @@ namespace Business.Services
         public List<ProductOutputDTO> SearchProducts(string term, int? limit, int? offset, PageParameters pageParameters)
         {
             var productsList = new PagedList<Product>(
-                _productRepository.GetAll(),
+                _productRepository.GetAll(false).OrderBy(on => on.Name),
                      pageParameters.PageNumber,
                      pageParameters.PageSize);
 
@@ -109,7 +112,7 @@ namespace Business.Services
 
         public async Task<ProductOutputDTO> FindByIdAsync(int id)
         {
-            var product = await _productRepository.GetAll().FirstOrDefaultAsync(p => p.Id.Equals(id));
+            var product = await _productRepository.GetAll(false).FirstOrDefaultAsync(p => p.Id.Equals(id));
             if (product is null)
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
             return _mapper.Map<ProductOutputDTO>(product);
@@ -133,16 +136,13 @@ namespace Business.Services
 
             newProduct.Background = downloadResult.Url.AbsolutePath;
 
-            var product = await _productRepository.AddAsync(newProduct);
-            if (product is null)
-                throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
-            return _mapper.Map<ProductOutputDTO>(product);
+            return _mapper.Map<ProductOutputDTO>(newProduct);
         }
 
         public async Task<ProductOutputDTO> UpdateAsync(ProductInputDTO productDtoUpdate)
         {
             var oldProduct = await _productRepository
-                .GetAll()
+                .GetAll(false)
                 .FirstOrDefaultAsync(p => p.Name.Equals(productDtoUpdate.Name));
 
             if (oldProduct is null)
@@ -164,24 +164,34 @@ namespace Business.Services
             });
 
             newProduct.Background = downloadResult.Url.AbsolutePath;
-            var result = await _productRepository.UpdateAsync(newProduct);
-            return _mapper.Map<ProductOutputDTO>(result);
+            await _productRepository.UpdateAndSaveAsync(newProduct);
+
+            return _mapper.Map<ProductOutputDTO>(newProduct);
         }
 
         public async Task DeleteByIdAsync(int id)
         {
-            var product = await _productRepository.GetAll().FirstOrDefaultAsync(p => p.Id.Equals(id));
+            var product = await _productRepository.GetAll(false).FirstOrDefaultAsync(p => p.Id.Equals(id));
             if (product is null)
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
 
-            await _productRepository.DeleteAsync(product);
+            var ratings = _ratingRepository.GetAll(false);
+            var rating = await ratings.FirstOrDefaultAsync(r => r.ProductId.Equals(id));
+            if (rating is not null)
+            {
+                var deleteRatings = ratings.Where(r => r.ProductId.Equals(id));
+                _ratingRepository.DeleteRange(deleteRatings);
+            }
+
+            await _productRepository.DeleteAndSaveAsync(product);
         }
 
         public List<ProductOutputDTO> SearchProductsByFilters(
             PageParameters pageParameters, Genre genre, Rating rating, bool ratingAscending, bool priceAscending)
         {
             var products = _productRepository
-                .GetAll()
+                .GetAll(false)
+                .OrderBy(on => on.Name)
                 .Where(r => r.Rating >= rating);
 
             if (genre != Genre.All)

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace DAL.Models.Entities
+﻿namespace DAL.Models.Entities
 {
     public sealed class Product
     {

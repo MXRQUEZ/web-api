@@ -13,6 +13,8 @@ namespace DAL.ApplicationContext
         }
 
         public DbSet<Product> Products { get; set; }
+        public DbSet<ProductRating> Ratings { get; set; }
+        public DbSet<Order> Orders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -20,6 +22,7 @@ namespace DAL.ApplicationContext
 
             modelBuilder.ApplyConfiguration(new RatingConfiguration());
             modelBuilder.ApplyConfiguration(new ProductConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderItemConfiguration());
         }
     }
 }

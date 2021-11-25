@@ -23,63 +23,41 @@ namespace Business.Services
             _mapper = mapper;
         }
 
-        public async Task<ProductOutputDTO> RateAsync(string userId, int rating, int productId)
+        public async Task<ProductOutputDTO> RateAsync(string userIdStr, int rating, int productId)
         {
             var product = await GetProductAsync(productId, rating);
-            var userIntId = int.Parse(userId);
+            var userId = int.Parse(userIdStr);
             var userRating = await _ratingRepository
-                .GetAll()
-                .FirstOrDefaultAsync(r => r.ProductId.Equals(productId) && r.UserId.Equals(userIntId));
+                .GetAll(false)
+                .FirstOrDefaultAsync(r => r.ProductId.Equals(productId) && r.UserId.Equals(userId));
 
             if (userRating is null)
-                await _ratingRepository.AddAsync(new ProductRating { ProductId = productId, UserId = userIntId, Rating = rating });
+                await _ratingRepository.AddAndSaveAsync(new ProductRating { ProductId = productId, UserId = userId, Rating = rating });
             else
             {
                 userRating.Rating = rating;
-                await _ratingRepository.UpdateAsync(userRating);
+                await _ratingRepository.UpdateAndSaveAsync(userRating);
             }
 
-            var allProductRatings = _ratingRepository
-                .GetAll()
-                .Where(r => r.ProductId.Equals(productId));
+            product = await RecalculateRatingAsync(product, productId);
 
-            var ratingsSum = await allProductRatings.SumAsync(r => r.Rating);
-            var ratingsCount = await allProductRatings.CountAsync();
-
-            product.TotalRating = ratingsSum / ratingsCount;
-            var result = await _productRepository.UpdateAsync(product);
-
-            return _mapper.Map<ProductOutputDTO>(result);
+            return _mapper.Map<ProductOutputDTO>(product);
         }
 
-        public async Task DeleteRatingAsync(string userId, int productId)
+        public async Task DeleteRatingAsync(string userIdStr, int productId)
         {
             var product = await GetProductAsync(productId);
-            var userIntId = int.Parse(userId);
+            var userId = int.Parse(userIdStr);
             var userRating = await _ratingRepository
-                .GetAll()
-                .FirstOrDefaultAsync(r => r.ProductId.Equals(productId) && r.UserId.Equals(userIntId));
+                .GetAll(false)
+                .FirstOrDefaultAsync(r => r.ProductId.Equals(productId) && r.UserId.Equals(userId));
 
             if (userRating is null)
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
 
-            await _ratingRepository.DeleteAsync(userRating);
+            await _ratingRepository.DeleteAndSaveAsync(userRating);
 
-            var allProductRatings = _ratingRepository
-                .GetAll()
-                .Where(r => r.ProductId.Equals(productId));
-
-            var ratingsCount = await allProductRatings.CountAsync();
-
-            if (ratingsCount == 0)
-                product.TotalRating = 0;
-            else
-            {
-                var ratingsSum = await allProductRatings.SumAsync(r => r.Rating);
-                product.TotalRating = ratingsSum / ratingsCount;
-            }
-
-            await _productRepository.UpdateAsync(product);
+            await RecalculateRatingAsync(product, productId);
         }
 
         private async Task<Product> GetProductAsync(int productId, int rating = 0)
@@ -89,12 +67,29 @@ namespace Business.Services
                                                                          "Rating can't be more than 100 or less than 0");
 
             var product = await _productRepository
-                .GetAll()
+                .GetAll(false)
                 .FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product is null)
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
 
+            return product;
+        }
+
+        private async Task<Product> RecalculateRatingAsync(Product product, int productId)
+        {
+            var allProductRatings = _ratingRepository
+                .GetAll(false)
+                .Where(r => r.ProductId.Equals(productId));
+
+            var ratingsSum = await allProductRatings.SumAsync(r => r.Rating);
+            var ratingsCount = await allProductRatings.CountAsync();
+
+            product.TotalRating = ratingsCount != 0
+                ? ratingsSum / ratingsCount 
+                : 0;
+
+            await _productRepository.UpdateAndSaveAsync(product);
             return product;
         }
     }

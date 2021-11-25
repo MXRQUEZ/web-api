@@ -5,7 +5,7 @@ namespace Business.Interfaces
 {
     public interface IRatingService
     {
-        Task<ProductOutputDTO> RateAsync(string userId, int rating, int productId);
-        Task DeleteRatingAsync(string userId, int productId);
+        Task<ProductOutputDTO> RateAsync(string userIdStr, int rating, int productId);
+        Task DeleteRatingAsync(string userIdStr, int productId);
     }
 }

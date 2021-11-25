@@ -14,7 +14,11 @@ namespace WebAPI.ServiceExtensions
         {
             services.AddSwaggerGen(setup =>
             {
-                setup.SwaggerDoc("v1", new OpenApiInfo {Title = "Web", Version = "v1"});
+                setup.SwaggerDoc("v1", new OpenApiInfo {Title = "Auth", Version = "v1"});
+                setup.SwaggerDoc("v2", new OpenApiInfo {Title = "User", Version = "v2"});
+                setup.SwaggerDoc("v3", new OpenApiInfo {Title = "Games", Version = "v3"});
+                setup.SwaggerDoc("v4", new OpenApiInfo {Title = "Home", Version = "v4"});
+                setup.SwaggerDoc("v5", new OpenApiInfo { Title = "Order", Version = "v5" });
                 var jwtSecurityScheme = new OpenApiSecurityScheme
                 {
                     Scheme = "bearer",
@@ -47,7 +51,14 @@ namespace WebAPI.ServiceExtensions
         public static void UseSwaggerSetup(this IApplicationBuilder app)
         {
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPI"));
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Auth");
+                c.SwaggerEndpoint("/swagger/v2/swagger.json", "User");
+                c.SwaggerEndpoint("/swagger/v3/swagger.json", "Games");
+                c.SwaggerEndpoint("/swagger/v4/swagger.json", "Home");
+                c.SwaggerEndpoint("/swagger/v5/swagger.json", "Order");
+            });
         }
     }
 }
