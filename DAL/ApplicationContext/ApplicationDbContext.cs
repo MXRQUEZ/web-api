@@ -10,6 +10,7 @@ namespace DAL.ApplicationContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
+            Database.EnsureCreated();
         }
 
         public DbSet<Product> Products { get; set; }

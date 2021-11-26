@@ -3,12 +3,12 @@ using Business.DTO;
 
 namespace Business.Interfaces
 {
-    public interface IAuthenticationService
+    public interface IAuthService
     {
         Task<string> SignInAsync(UserCredentialsDTO userCredentialsDto);
 
-        Task<bool> SignUpAsync(UserCredentialsDTO userCredentialsDto);
+        Task SignUpAsync(UserCredentialsDTO userCredentialsDto);
 
-        Task<bool> ConfirmEmailAsync(int id, string token);
+        Task ConfirmEmailAsync(string id, string token);
     }
 }

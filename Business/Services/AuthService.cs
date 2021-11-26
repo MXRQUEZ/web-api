@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using AutoMapper;
 using Business.DTO;
 using Business.Exceptions;
@@ -8,18 +10,18 @@ using Business.Interfaces;
 using Business.JWT;
 using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Business.Services
 {
-    public sealed class AuthenticationService : IAuthenticationService
+    public sealed class AuthService : IAuthService
     {
         private readonly JwtGenerator _jwtGenerator;
         private readonly IMapper _mapper;
 
         private readonly UserManager<User> _userManager;
 
-        public AuthenticationService(IMapper mapper, UserManager<User> userManager, JwtGenerator jwtGenerator)
+        public AuthService(IMapper mapper, UserManager<User> userManager, JwtGenerator jwtGenerator)
         {
             _mapper = mapper;
             _userManager = userManager;
@@ -42,7 +44,7 @@ namespace Business.Services
             return await _jwtGenerator.GenerateTokenAsync(user);
         }
 
-        public async Task<bool> SignUpAsync(UserCredentialsDTO userCredentialsDto)
+        public async Task SignUpAsync(UserCredentialsDTO userCredentialsDto)
         {
             var user = _mapper.Map<User>(userCredentialsDto);
 
@@ -53,22 +55,42 @@ namespace Business.Services
             await _userManager.AddToRoleAsync(user, "user");
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var tokenBytes = Encoding.UTF8.GetBytes(token);
+            var tokenEncoded = WebEncoders.Base64UrlEncode(tokenBytes);
+
+            const int port = 44340;
+            const string localhost = "localhost";
+            const string scheme = "https";
+            const string authPath = "api/Auth/email-confirmation";
+
+            var confirmationUri = new UriBuilder
+            {
+                Port = port,
+                Host = localhost,
+                Scheme = scheme,
+                Path = authPath
+            };
+            var query = HttpUtility.ParseQueryString(confirmationUri.Query);
+            query["id"] = user.Id.ToString();
+            query["token"] = tokenEncoded;
+            confirmationUri.Query = query.ToString()!;
+
             await EmailService.SendEmailAsync(user.Email, "Confirm your account",
-                $"Please, confirm your account registration. Your userId is {user.Id}{Environment.NewLine}" +
-                $"Your token:{Environment.NewLine}{token}");
-            return true;
+                $"Verify your account by clicking the <a href='{confirmationUri}'>link</a>");
         }
 
-        public async Task<bool> ConfirmEmailAsync(int id, string token)
+        public async Task ConfirmEmailAsync(string id, string token)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
+            var tokenDecodedBytes = WebEncoders.Base64UrlDecode(token);
+            var tokenDecodedString = Encoding.UTF8.GetString(tokenDecodedBytes);
+
+            var user = await _userManager.FindByIdAsync(id);
             if (user is null)
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.UserNotFound);
 
-            var result = await _userManager.ConfirmEmailAsync(user, token);
+            var result = await _userManager.ConfirmEmailAsync(user, tokenDecodedString);
             if (!result.Succeeded)
                 throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.ConfirmationFailed);
-            return true;
         }
     }
 }
