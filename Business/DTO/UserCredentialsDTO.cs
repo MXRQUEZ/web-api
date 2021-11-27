@@ -20,7 +20,8 @@ namespace Business.DTO
         [RegularExpression(
             @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{6,20}$",
             ErrorMessage =
-                "Passwords must be at least 6 characters and contain the followings: upper case letter, lower case letter, number and special character (e.g. !@#$%^&*)")]
+                "Passwords must be at least 6 characters and contain the followings: upper case letter, lower case letter, number " +
+                "and special character (e.g. !@#$%^&*)")]
         public string Password { get; set; }
     }
 }

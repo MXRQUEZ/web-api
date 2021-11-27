@@ -46,12 +46,14 @@ namespace Business.Services
 
         public async Task SignUpAsync(UserCredentialsDTO userCredentialsDto)
         {
+            var result = await _userManager.FindByEmailAsync(userCredentialsDto.Email);
+            if (result is not null)
+                throw new HttpStatusException(HttpStatusCode.BadRequest,
+                    $"{ExceptionMessage.EmailAlreadyRegistered}. {userCredentialsDto.Email}");
+
             var user = _mapper.Map<User>(userCredentialsDto);
 
-            var result = await _userManager.CreateAsync(user, user.PasswordHash);
-            if (!result.Succeeded)
-                throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
-
+            await _userManager.CreateAsync(user, user.PasswordHash);
             await _userManager.AddToRoleAsync(user, "user");
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -59,14 +61,14 @@ namespace Business.Services
             var tokenEncoded = WebEncoders.Base64UrlEncode(tokenBytes);
 
             const int port = 44340;
-            const string localhost = "localhost";
+            const string host = "localhost";
             const string scheme = "https";
             const string authPath = "api/Auth/email-confirmation";
 
             var confirmationUri = new UriBuilder
             {
                 Port = port,
-                Host = localhost,
+                Host = host,
                 Scheme = scheme,
                 Path = authPath
             };
@@ -88,9 +90,7 @@ namespace Business.Services
             if (user is null)
                 throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.UserNotFound);
 
-            var result = await _userManager.ConfirmEmailAsync(user, tokenDecodedString);
-            if (!result.Succeeded)
-                throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.ConfirmationFailed);
+            await _userManager.ConfirmEmailAsync(user, tokenDecodedString);
         }
     }
 }

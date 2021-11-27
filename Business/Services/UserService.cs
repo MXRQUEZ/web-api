@@ -31,10 +31,11 @@ namespace Business.Services
                 _userManager.Users,
                 pageParameters.PageNumber,
                 pageParameters.PageSize);
-            var i = 1;
-            var usersInfo = usersList.Select(user => $"{i++}. {user.UserName} - {user.Email}");
+
+            var usersInfo = usersList.Select(user => $"{user.UserName} - {user.Email}");
             var usersInfoStr = new StringBuilder();
-            foreach (var userInfo in usersInfo) usersInfoStr.Append($"{userInfo}\n");
+            foreach (var userInfo in usersInfo) 
+                usersInfoStr.Append($"{userInfo}\n");
 
             return usersInfoStr.ToString();
         }
@@ -44,10 +45,8 @@ namespace Business.Services
             var oldUser = await _userManager.FindByIdAsync(userId);
             if (oldUser is null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.UserNotFound);
             var newUser = _mapper.Map(userDto, oldUser);
-            var result = await _userManager.UpdateAsync(newUser);
-            return result.Succeeded
-                ? _mapper.Map<UserDTO>(newUser)
-                : throw new HttpStatusException(HttpStatusCode.InternalServerError, ExceptionMessage.Fail);
+            await _userManager.UpdateAsync(newUser);
+            return _mapper.Map<UserDTO>(newUser);
         }
 
         public async Task ChangePasswordAsync(string userId, string oldPassword, string newPassword,
