@@ -49,5 +49,18 @@ namespace WebAPI.Controllers
                 UserHelper.GetIdByClaims(User.Claims), oldPassword, newPassword, confirmationPassword);
             return Ok();
         }
+
+        /// <summary>
+        /// Represents user info
+        /// </summary>
+        /// <response code="200">Profile info was represented</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Server has some issues. Please, come back later</response>
+        [HttpGet("user")]
+        [Authorize]
+        public async Task<UserDTO> GetUserInfo()
+        {
+            return await _userService.GetUserInfo(UserHelper.GetIdByClaims(User.Claims));
+        }
     }
 }

@@ -16,6 +16,7 @@ namespace WebAPI.ServiceExtensions
         {
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddControllers();
+            services.AddMemoryCache();
             services.AddRazorPages();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddSingleton(Log.Logger);

@@ -1,4 +1,6 @@
-﻿using Business.Interfaces;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Business.Interfaces;
 using Business.Parameters;
 using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -30,10 +32,10 @@ namespace WebAPI.Controllers
         [HttpGet("get-info")]
         [Authorize(Roles = Role.Admin)]
         [ServiceFilter(typeof(PagesValidationFilter))]
-        public string GetInfo([FromQuery] PageParameters pageParameters)
+        public async Task<IEnumerable<string>> GetInfo([FromQuery] PageParameters pageParameters)
         {
             Logger.ForContext<HomeController>().Information("request: GetInfo");
-            return _userService.GetUsers(pageParameters);
+            return await _userService.GetUsersAsync(pageParameters);
         }
     }
 }

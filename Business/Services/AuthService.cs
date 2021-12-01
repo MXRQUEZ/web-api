@@ -11,6 +11,7 @@ using Business.JWT;
 using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 
 namespace Business.Services
 {
@@ -18,14 +19,21 @@ namespace Business.Services
     {
         private readonly JwtGenerator _jwtGenerator;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
+
+        private const int Port = 8080;
+        private const string Host = "localhost";
+        private const string Scheme = "http";
+        private const string AuthPath = "api/Auth/email-confirmation";
 
         private readonly UserManager<User> _userManager;
 
-        public AuthService(IMapper mapper, UserManager<User> userManager, JwtGenerator jwtGenerator)
+        public AuthService(IMapper mapper, UserManager<User> userManager, JwtGenerator jwtGenerator, IConfiguration configuration)
         {
             _mapper = mapper;
             _userManager = userManager;
             _jwtGenerator = jwtGenerator;
+            _configuration = configuration;
         }
 
         public async Task<string> SignInAsync(UserCredentialsDTO userCredentialsDto)
@@ -60,17 +68,17 @@ namespace Business.Services
             var tokenBytes = Encoding.UTF8.GetBytes(token);
             var tokenEncoded = WebEncoders.Base64UrlEncode(tokenBytes);
 
-            const int port = 44340;
-            const string host = "localhost";
-            const string scheme = "https";
-            const string authPath = "api/Auth/email-confirmation";
+            var scheme = _configuration.GetValue<string>("AuthURI:Scheme");
+            var host = _configuration.GetValue<string>("AuthURI:Host");
+            var authPath = _configuration.GetValue<string>("AuthURI:Path");
+            var port = _configuration.GetValue<int>("AuthURI:Port");
 
             var confirmationUri = new UriBuilder
             {
-                Port = port,
-                Host = host,
                 Scheme = scheme,
-                Path = authPath
+                Host = host,
+                Path = authPath,
+                Port = port
             };
             var query = HttpUtility.ParseQueryString(confirmationUri.Query);
             query["id"] = user.Id.ToString();
