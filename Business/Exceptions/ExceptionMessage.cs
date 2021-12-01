@@ -7,10 +7,9 @@
         public const string OrderNotFound = "Order not found";
         public const string ProductIsBought = "This product is bought already";
         public const string WrongEmail = "There is no such mail registered";
-        public const string ConfirmationFailed = "Confirmation failed";
+        public const string EmailAlreadyRegistered = "This email was already registered";
         public const string WrongPassword = "Password is incorrect";
         public const string WrongCofirmationPassword = "Confirmation password is incorrect";
-        public const string Fail = "Something went wrong...";
         public const string Unauthorized = "You are unauthorized";
         public const string BadParameter = "Bad parameter";
         public const string NullValue = "Values can't be empty";

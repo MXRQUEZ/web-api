@@ -10,9 +10,9 @@ namespace WebAPI.Controllers
     [ApiExplorerSettings(GroupName = "v1")]
     public sealed class AuthController : BaseController
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthService _authenticationService;
 
-        public AuthController(ILogger logger, IAuthenticationService authenticationService) : base(logger)
+        public AuthController(ILogger logger, IAuthService authenticationService) : base(logger)
         {
             _authenticationService = authenticationService;
         }
@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpGet("email-confirmation")]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail(int id, string token)
+        public async Task<IActionResult> ConfirmEmail(string id, string token)
         {
             await _authenticationService.ConfirmEmailAsync(id, token);
             return NoContent();
