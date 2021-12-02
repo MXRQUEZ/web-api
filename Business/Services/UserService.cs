@@ -22,13 +22,13 @@ namespace Business.Services
     {
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        private readonly CacheHelper<User> _cache;
+        private readonly CacheManager<User> _cache;
 
         public UserService(IMapper mapper, UserManager<User> userManager, IMemoryCache cache)
         {
             _mapper = mapper;
             _userManager = userManager;
-            _cache = new CacheHelper<User>(cache);
+            _cache = new CacheManager<User>(cache);
         }
 
         public async Task<IEnumerable<string>> GetUsersAsync(PageParameters pageParameters)
