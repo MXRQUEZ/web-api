@@ -6,6 +6,7 @@ using System.Web;
 using AutoMapper;
 using Business.DTO;
 using Business.Exceptions;
+using Business.Helpers;
 using Business.Interfaces;
 using Business.JWT;
 using DAL.Models.Entities;
@@ -85,7 +86,7 @@ namespace Business.Services
             query["token"] = tokenEncoded;
             confirmationUri.Query = query.ToString()!;
 
-            await EmailService.SendEmailAsync(user.Email, "Confirm your account",
+            await EmailSender.SendEmailAsync(user.Email, "Confirm your account",
                 $"Verify your account by clicking the <a href='{confirmationUri}'>link</a>");
         }
 

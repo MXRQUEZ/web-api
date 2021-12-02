@@ -125,7 +125,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<ProductOutputDTO> RateProduct(int rating, int productId)
         {
-            return await _ratingService.RateAsync(UserHelper.GetIdByClaims(User.Claims), rating, productId);
+            return await _ratingService.RateAsync(User.Claims.GetUserId(), rating, productId);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteProductRating(int productId)
         {
-            await _ratingService.DeleteRatingAsync(UserHelper.GetIdByClaims(User.Claims), productId);
+            await _ratingService.DeleteRatingAsync(User.Claims.GetUserId(), productId);
             return NoContent();
         }
 

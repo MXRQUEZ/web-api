@@ -4,6 +4,7 @@ using Business.Services;
 using DAL.Interfaces;
 using DAL.Models.Entities;
 using DAL.Repository;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using WebAPI.Filters;
@@ -12,7 +13,7 @@ namespace WebAPI.ServiceExtensions
 {
     public static class ServiceRequiredExtension
     {
-        public static void AddServiceCollection(this IServiceCollection services)
+        public static void AddRequiredCollection(this IServiceCollection services)
         {
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddControllers();
@@ -21,6 +22,22 @@ namespace WebAPI.ServiceExtensions
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddSingleton(Log.Logger);
             services.AddScoped<PagesValidationFilter>();
+
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+                options.MimeTypes = new[] 
+                {
+                    "text/plain",
+                    "text/css",
+                    "application/javascript",
+                    "text/html",
+                    "application/xml",
+                    "text/xml",
+                    "application/json",
+                    "text/json"
+                };
+            });
         }
 
         public static void AddServices(this IServiceCollection services)

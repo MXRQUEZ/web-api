@@ -22,13 +22,13 @@ namespace Business.Services
     {
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        private readonly IMemoryCache _cache;
+        private readonly CacheHelper<User> _cache;
 
         public UserService(IMapper mapper, UserManager<User> userManager, IMemoryCache cache)
         {
             _mapper = mapper;
             _userManager = userManager;
-            _cache = cache;
+            _cache = new CacheHelper<User>(cache);
         }
 
         public async Task<IEnumerable<string>> GetUsersAsync(PageParameters pageParameters)
@@ -44,23 +44,22 @@ namespace Business.Services
 
         public async Task<UserDTO> GetUserInfo(string userId)
         {
-            if (_cache.TryGetValue(int.Parse(userId), out User user))
+            var userCacheKey = _cache.GetCacheKey(userId);
+            var user = _cache.GetCachedData(userCacheKey);
+            if (user is not null)
                 return _mapper.Map<UserDTO>(user);
 
             user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
-            {
-                _cache.Set(user.Id, user,
-                    new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5)));
-            }
+            _cache.SetCache(userCacheKey, user);
 
             return _mapper.Map<UserDTO>(user);
         }
 
         public async Task<UserDTO> UpdateAsync(string userId, UserDTO userDto)
         {
+            var userCacheKey = _cache.GetCacheKey(userId);
+            _cache.RemoveCache(userCacheKey);
             var oldUser = await _userManager.FindByIdAsync(userId);
-            _cache.Remove(oldUser.Id);
             var newUser = _mapper.Map(userDto, oldUser);
             await _userManager.UpdateAsync(newUser);
             return _mapper.Map<UserDTO>(newUser);

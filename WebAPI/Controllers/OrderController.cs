@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<OrderOutputDTO> OrderProduct(int productId, int amount)
         {
-            return await _orderService.OrderAsync(UserHelper.GetIdByClaims(User.Claims), productId, amount);
+            return await _orderService.OrderAsync(User.Claims.GetUserId(), productId, amount);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<OrderOutputDTO> RepresentOrder(int? orderId = null)
         {
-            return await _orderService.RepresentOrderAsync(UserHelper.GetIdByClaims(User.Claims), orderId);
+            return await _orderService.RepresentOrderAsync(User.Claims.GetUserId(), orderId);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<OrderOutputDTO> UpdateOrderItem(OrderItemInputDTO orderItemDto)
         {
-            return await _orderService.UpdateOrderItemAsync(UserHelper.GetIdByClaims(User.Claims), orderItemDto);
+            return await _orderService.UpdateOrderItemAsync(User.Claims.GetUserId(), orderItemDto);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteOrderItem(int productId)
         {
-            await _orderService.DeleteOrderItemAsync(UserHelper.GetIdByClaims(User.Claims), productId);
+            await _orderService.DeleteOrderItemAsync(User.Claims.GetUserId(), productId);
             return NoContent();
         }
 
@@ -86,7 +86,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> PayOrder()
         {
-            await _orderService.PayOrderAsync(UserHelper.GetIdByClaims(User.Claims));
+            await _orderService.PayOrderAsync(User.Claims.GetUserId());
             return NoContent();
         }
     }

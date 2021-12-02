@@ -2,9 +2,9 @@
 using MailKit.Net.Smtp;
 using MimeKit;
 
-namespace Business.Services
+namespace Business.Helpers
 {
-    public static class EmailService
+    public static class EmailSender
     {
         public static async Task SendEmailAsync(string email, string subject, string message)
         {
