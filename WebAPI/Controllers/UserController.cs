@@ -1,8 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using Business.DTO;
 using Business.Helpers;
 using Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
@@ -22,14 +25,16 @@ namespace WebAPI.Controllers
         /// Updates user profile
         /// </summary>
         /// <param name="userDto">Profile update params</param>
-        /// <response code="201">Profile was updated</response>
+        /// <response code="200">Profile was updated</response>
+        /// <response code="400">Bad parameters</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPut("update-profile")]
         [Authorize]
-        public async Task<UserDTO> UpdateProfile([FromBody] UserDTO userDto)
+        public async Task<ActionResult<UserDTO>> UpdateProfile([FromBody] UserDTO userDto)
         {
-            return await _userService.UpdateAsync(User.Claims.GetUserId(), userDto);
+            var result = await _userService.UpdateAsync(User.Claims.GetUserId(), userDto);
+            return result is null ? BadRequest() : result;
         }
 
         /// <summary>
@@ -39,15 +44,17 @@ namespace WebAPI.Controllers
         /// <param name="newPassword" example="_SkJwNif23456">New password</param>
         /// <param name="confirmationPassword" example="_SkJwNif23456">Your password confirmation</param>
         /// <response code="200">Password was changed</response>
+        /// <response code="400">Bad parameters</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPatch("change-password")]
         [Authorize]
-        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword, string confirmationPassword)
+        public async Task<IActionResult> ChangePassword(
+            [Required] string oldPassword, [Required] string newPassword, [Required] string confirmationPassword)
         {
-            await _userService.ChangePasswordAsync(
+            var result = await _userService.ChangePasswordAsync(
                 User.Claims.GetUserId(), oldPassword, newPassword, confirmationPassword);
-            return Ok();
+            return result ? Ok() : BadRequest();
         }
 
         /// <summary>
@@ -58,9 +65,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpGet("user")]
         [Authorize]
-        public async Task<UserDTO> GetUserInfo()
-        {
-            return await _userService.GetUserInfo(User.Claims.GetUserId());
-        }
+        public async Task<ActionResult<UserDTO>> GetUserInfo() =>
+            await _userService.GetUserInfoAsync(User.Claims.GetUserId());
     }
 }

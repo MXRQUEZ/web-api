@@ -32,10 +32,10 @@ namespace WebAPI.Controllers
         [HttpGet("get-info")]
         [Authorize(Roles = Role.Admin)]
         [ServiceFilter(typeof(PagesValidationFilter))]
-        public async Task<IEnumerable<string>> GetInfo([FromQuery] PageParameters pageParameters)
+        public async Task<ActionResult<IEnumerable<string>>> GetInfo([FromQuery] PageParameters pageParameters)
         {
             Logger.ForContext<HomeController>().Information("request: GetInfo");
-            return await _userService.GetUsersAsync(pageParameters);
+            return Ok(await _userService.GetUsersAsync(pageParameters));
         }
     }
 }

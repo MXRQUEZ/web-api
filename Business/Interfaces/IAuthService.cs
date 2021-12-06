@@ -7,8 +7,8 @@ namespace Business.Interfaces
     {
         Task<string> SignInAsync(UserCredentialsDTO userCredentialsDto);
 
-        Task SignUpAsync(UserCredentialsDTO userCredentialsDto);
+        Task<bool> SignUpAsync(UserCredentialsDTO userCredentialsDto);
 
-        Task ConfirmEmailAsync(string id, string token);
+        Task<bool> ConfirmEmailAsync(string id, string token);
     }
 }

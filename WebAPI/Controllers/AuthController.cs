@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Business.DTO;
 using Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
@@ -21,15 +23,15 @@ namespace WebAPI.Controllers
         /// Sign up
         /// </summary>
         /// <param name="userCredentialsDto">Sign up parameters</param>
-        /// <response code="200">Please, verify your email</response>
+        /// <response code="201">Please, verify your email</response>
         /// <response code="400">Bad parameters</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPost("sign-up")]
         [AllowAnonymous]
         public async Task<IActionResult> SignUp([FromBody] UserCredentialsDTO userCredentialsDto)
         {
-            await _authenticationService.SignUpAsync(userCredentialsDto);
-            return Ok();
+            var result = await _authenticationService.SignUpAsync(userCredentialsDto);
+            return result ? Created(new Uri(Request.GetDisplayUrl()), userCredentialsDto) : BadRequest();
         }
 
         /// <summary>
@@ -44,7 +46,7 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> SignIn([FromBody] UserCredentialsDTO userCredentialsDto)
         {
             var jwt = await _authenticationService.SignInAsync(userCredentialsDto);
-            return Ok(jwt);
+            return jwt is null ? Unauthorized() : Ok(jwt);
         }
 
         /// <summary>
@@ -59,8 +61,8 @@ namespace WebAPI.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string id, string token)
         {
-            await _authenticationService.ConfirmEmailAsync(id, token);
-            return NoContent();
+            var result = await _authenticationService.ConfirmEmailAsync(id, token);
+            return result ? NoContent() : BadRequest();
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿namespace Business.Parameters
 {
-    public class PageParameters
+    public sealed class PageParameters
     {
         private const int MaxPageSize = 10;
+
         public int PageNumber { get; set; } = 1;
 
         private int _pageSize = 5;

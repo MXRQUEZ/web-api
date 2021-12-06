@@ -6,10 +6,7 @@ namespace Business.Helpers
     public sealed class CacheManager<T>
     {
         private readonly IMemoryCache _cache;
-        public CacheManager(IMemoryCache cache)
-        {
-            _cache = cache;
-        }
+        public CacheManager(IMemoryCache cache) => _cache = cache;
 
         public string GetCacheKey(string key) => $"{typeof(T)}_{key}";
 

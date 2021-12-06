@@ -12,7 +12,7 @@ namespace WebAPI.ServiceExtensions
 {
     public static class ServiceJwtTokenExtension
     {
-        public static void AddJwtToken(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddJwtToken(this IServiceCollection services, IConfiguration configuration)
         {
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             var jwtAppSettingOptions = configuration.GetSection("JwtIssuerOptions");
@@ -37,6 +37,8 @@ namespace WebAPI.ServiceExtensions
                 });
 
             services.AddScoped<JwtGenerator>();
+
+            return services;
         }
     }
 }

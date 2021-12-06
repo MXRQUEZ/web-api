@@ -10,7 +10,7 @@ namespace WebAPI.ServiceExtensions
 {
     public static class ServiceSwaggerExtension
     {
-        public static void AddSwaggerSetup(this IServiceCollection services)
+        public static IServiceCollection AddSwaggerSetup(this IServiceCollection services)
         {
             services.AddSwaggerGen(setup =>
             {
@@ -46,9 +46,11 @@ namespace WebAPI.ServiceExtensions
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 setup.IncludeXmlComments(xmlPath);
             });
+
+            return services;
         }
 
-        public static void UseSwaggerSetup(this IApplicationBuilder app)
+        public static IApplicationBuilder UseSwaggerSetup(this IApplicationBuilder app)
         {
             app.UseSwagger();
             app.UseSwaggerUI(c =>
@@ -59,6 +61,8 @@ namespace WebAPI.ServiceExtensions
                 c.SwaggerEndpoint("/swagger/v4/swagger.json", "Home");
                 c.SwaggerEndpoint("/swagger/v5/swagger.json", "Order");
             });
+
+            return app;
         }
     }
 }

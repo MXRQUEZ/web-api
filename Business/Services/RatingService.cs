@@ -44,36 +44,36 @@ namespace Business.Services
             return _mapper.Map<ProductOutputDTO>(product);
         }
 
-        public async Task DeleteRatingAsync(string userIdStr, int productId)
+        public async Task<bool> DeleteRatingAsync(string userIdStr, int productId)
         {
             var product = await GetProductAsync(productId);
+            if (product is null)
+                return false;
+
             var userId = int.Parse(userIdStr);
             var userRating = await _ratingRepository
                 .GetAll(false)
                 .FirstOrDefaultAsync(r => r.ProductId.Equals(productId) && r.UserId.Equals(userId));
 
             if (userRating is null)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
+                return false;
 
             await _ratingRepository.DeleteAndSaveAsync(userRating);
 
             await RecalculateRatingAsync(product, productId);
+            return true;
         }
 
         private async Task<Product> GetProductAsync(int productId, int rating = 0)
         {
             if (rating is > 100 or < 0)
-                throw new HttpStatusException(HttpStatusCode.BadRequest, $"{ExceptionMessage.BadParameter}." +
-                                                                         "Rating can't be more than 100 or less than 0");
+                return null;
 
             var product = await _productRepository
                 .GetAll(false)
                 .FirstOrDefaultAsync(p => p.Id == productId);
 
-            if (product is null)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
-
-            return product;
+            return product ?? null;
         }
 
         private async Task<Product> RecalculateRatingAsync(Product product, int productId)

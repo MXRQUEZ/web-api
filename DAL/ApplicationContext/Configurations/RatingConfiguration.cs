@@ -6,9 +6,7 @@ namespace DAL.ApplicationContext.Configurations
 {
     public sealed class RatingConfiguration : IEntityTypeConfiguration<ProductRating>
     {
-        public void Configure(EntityTypeBuilder<ProductRating> builder)
-        {
+        public void Configure(EntityTypeBuilder<ProductRating> builder) =>
             builder.HasKey(r => new { r.ProductId, r.UserId });
-        }
     }
 }

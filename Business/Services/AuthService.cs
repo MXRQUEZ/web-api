@@ -22,11 +22,6 @@ namespace Business.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
 
-        private const int Port = 8080;
-        private const string Host = "localhost";
-        private const string Scheme = "http";
-        private const string AuthPath = "api/Auth/email-confirmation";
-
         private readonly UserManager<User> _userManager;
 
         public AuthService(IMapper mapper, UserManager<User> userManager, JwtGenerator jwtGenerator, IConfiguration configuration)
@@ -40,25 +35,25 @@ namespace Business.Services
         public async Task<string> SignInAsync(UserCredentialsDTO userCredentialsDto)
         {
             var user = await _userManager.FindByEmailAsync(userCredentialsDto.Email);
-            if (user == null) throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.WrongEmail);
+            if (user is null) 
+                return null;
 
             var isRightPassword = await _userManager.CheckPasswordAsync(user, userCredentialsDto.Password);
             if (!isRightPassword)
-                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.WrongPassword);
+                return null;
 
             var isEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
             if (!isEmailConfirmed)
-                throw new HttpStatusException(HttpStatusCode.Unauthorized, ExceptionMessage.Unauthorized);
+                return null;
 
             return await _jwtGenerator.GenerateTokenAsync(user);
         }
 
-        public async Task SignUpAsync(UserCredentialsDTO userCredentialsDto)
+        public async Task<bool> SignUpAsync(UserCredentialsDTO userCredentialsDto)
         {
             var result = await _userManager.FindByEmailAsync(userCredentialsDto.Email);
             if (result is not null)
-                throw new HttpStatusException(HttpStatusCode.BadRequest,
-                    $"{ExceptionMessage.EmailAlreadyRegistered}. {userCredentialsDto.Email}");
+                return false;
 
             var user = _mapper.Map<User>(userCredentialsDto);
 
@@ -88,18 +83,21 @@ namespace Business.Services
 
             await EmailSender.SendEmailAsync(user.Email, "Confirm your account",
                 $"Verify your account by clicking the <a href='{confirmationUri}'>link</a>");
+
+            return true;
         }
 
-        public async Task ConfirmEmailAsync(string id, string token)
+        public async Task<bool> ConfirmEmailAsync(string id, string token)
         {
             var tokenDecodedBytes = WebEncoders.Base64UrlDecode(token);
             var tokenDecodedString = Encoding.UTF8.GetString(tokenDecodedBytes);
 
             var user = await _userManager.FindByIdAsync(id);
             if (user is null)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.UserNotFound);
+                return false;
 
             await _userManager.ConfirmEmailAsync(user, tokenDecodedString);
+            return true;
         }
     }
 }

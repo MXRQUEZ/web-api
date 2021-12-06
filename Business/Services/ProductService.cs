@@ -15,7 +15,6 @@ using DAL.Interfaces;
 using DAL.Models;
 using DAL.Models.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Business.Services
 {
@@ -69,10 +68,9 @@ namespace Business.Services
             }
         }
 
-        public async Task<IEnumerable<ProductOutputDTO>> SearchProductsAsync(string term, int? limit, int? offset, PageParameters pageParameters)
+        public async Task<IEnumerable<ProductOutputDTO>> SearchProductsAsync(
+            string term, int? limit, int? offset, PageParameters pageParameters)
         {
-            if (term.IsNullOrEmpty()) throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.NullValue);
-
             var products = await _productRepository
                 .GetAll(false)
                 .OrderBy(on => on.Name)
@@ -87,10 +85,12 @@ namespace Business.Services
             limit ??= productsCount;
             offset ??= 0;
 
-            if (limit < 0 || offset < 0) throw new HttpStatusException(
-                HttpStatusCode.BadRequest, $"{ExceptionMessage.BadParameter}s {nameof(limit)} and {nameof(offset)} can't be less than 0");
+            if (limit < 0 || offset < 0)
+                return null;
 
-            if (limit == 0 || offset > productsCount) return new List<ProductOutputDTO>();
+            if (limit == 0 || offset > productsCount) 
+                return new List<ProductOutputDTO>();
+
             var termProducts = new List<ProductOutputDTO>();
             foreach (var product in productsList)
             {
@@ -113,28 +113,15 @@ namespace Business.Services
         public async Task<ProductOutputDTO> FindByIdAsync(int id)
         {
             var product = await _productRepository.GetAll(false).FirstOrDefaultAsync(p => p.Id.Equals(id));
-            if (product is null)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
-            return _mapper.Map<ProductOutputDTO>(product);
+            return product is null ? null : _mapper.Map<ProductOutputDTO>(product);
         }
 
         public async Task<ProductOutputDTO> AddAsync(ProductInputDTO newProductDto)
         {
             var newProduct = _mapper.Map<Product>(newProductDto);
 
-            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
-            {
-                File = new FileDescription(newProduct.Name + "_logo", newProductDto.Logo.OpenReadStream())
-            });
-
-            newProduct.Logo = downloadResult.Url.AbsolutePath;
-
-            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
-            {
-                File = new FileDescription(newProduct.Name + "_background", newProductDto.Background.OpenReadStream())
-            });
-
-            newProduct.Background = downloadResult.Url.AbsolutePath;
+            newProduct = await UploadImagesAsync(newProduct, newProductDto);
+            await _productRepository.AddAndSaveAsync(newProduct);
 
             return _mapper.Map<ProductOutputDTO>(newProduct);
         }
@@ -146,34 +133,21 @@ namespace Business.Services
                 .FirstOrDefaultAsync(p => p.Name.Equals(productDtoUpdate.Name));
 
             if (oldProduct is null)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
+                return null;
 
             var newProduct = _mapper.Map(productDtoUpdate, oldProduct);
 
-            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
-            {
-                File = new FileDescription(newProduct.Name + "_logo", productDtoUpdate.Logo.OpenReadStream())
-            });
-
-            newProduct.Logo = downloadResult.Url.AbsolutePath;
-
-            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
-            {
-                File = new FileDescription(newProduct.Name + "_background",
-                    productDtoUpdate.Background.OpenReadStream())
-            });
-
-            newProduct.Background = downloadResult.Url.AbsolutePath;
+            newProduct = await UploadImagesAsync(newProduct, productDtoUpdate);
             await _productRepository.UpdateAndSaveAsync(newProduct);
 
             return _mapper.Map<ProductOutputDTO>(newProduct);
         }
 
-        public async Task DeleteByIdAsync(int id)
+        public async Task<bool> DeleteByIdAsync(int id)
         {
             var product = await _productRepository.GetAll(false).FirstOrDefaultAsync(p => p.Id.Equals(id));
             if (product is null)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.ProductNotFound);
+                return false;
 
             var ratings = _ratingRepository.GetAll(false);
             var rating = await ratings.FirstOrDefaultAsync(r => r.ProductId.Equals(id));
@@ -184,6 +158,7 @@ namespace Business.Services
             }
 
             await _productRepository.DeleteAndSaveAsync(product);
+            return true;
         }
 
         public async Task<IEnumerable<ProductOutputDTO>> SearchProductsByFiltersAsync(
@@ -211,6 +186,25 @@ namespace Business.Services
                 pageParameters.PageSize);
 
             return productsList.Select(p => _mapper.Map<ProductOutputDTO>(p));
+        }
+
+        private async Task<Product> UploadImagesAsync(Product product, ProductInputDTO productInputDto)
+        {
+            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
+            {
+                File = new FileDescription(product.Name + "_logo", productInputDto.Logo.OpenReadStream())
+            });
+
+            product.Logo = downloadResult.Url.AbsolutePath;
+
+            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
+            {
+                File = new FileDescription(product.Name + "_background", productInputDto.Background.OpenReadStream())
+            });
+
+            product.Background = downloadResult.Url.AbsolutePath;
+
+            return product;
         }
     }
 }
