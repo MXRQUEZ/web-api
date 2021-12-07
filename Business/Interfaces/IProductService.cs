@@ -15,6 +15,6 @@ namespace Business.Interfaces
         Task<ProductOutputDTO> FindByIdAsync(int id);
         Task<ProductOutputDTO> AddAsync(ProductInputDTO newProductDto);
         Task<ProductOutputDTO> UpdateAsync(ProductInputDTO productDtoUpdate);
-        Task DeleteByIdAsync(int id);
+        Task<bool> DeleteByIdAsync(int id);
     }
 }

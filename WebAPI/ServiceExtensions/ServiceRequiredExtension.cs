@@ -13,7 +13,7 @@ namespace WebAPI.ServiceExtensions
 {
     public static class ServiceRequiredExtension
     {
-        public static void AddRequiredCollection(this IServiceCollection services)
+        public static IServiceCollection AddRequiredCollection(this IServiceCollection services)
         {
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddControllers();
@@ -38,22 +38,28 @@ namespace WebAPI.ServiceExtensions
                     "text/json"
                 };
             });
+
+            return services;
         }
 
-        public static void AddServices(this IServiceCollection services)
+        public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IOrderService, OrderService>();
+
+            return services;
         }
 
-        public static void AddRepositories(this IServiceCollection services)
+        public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             services.AddScoped(typeof(IRepository<Product>), typeof(BaseRepository<Product>));
             services.AddScoped(typeof(IRepository<ProductRating>), typeof(BaseRepository<ProductRating>));
             services.AddScoped(typeof(IRepository<Order>), typeof(BaseRepository<Order>));
+
+            return services;
         }
     }
 }

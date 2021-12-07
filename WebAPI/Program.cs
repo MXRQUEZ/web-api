@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using DAL.ApplicationContext;
 using DAL.Models.Entities;
-using DAL.UserContext;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;

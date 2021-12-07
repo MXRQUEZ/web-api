@@ -43,8 +43,7 @@ namespace Business.Services
             {
                 var orderExists = userOrder.OrderItems.Any(o => o.ProductId.Equals(productId));
                 if (orderExists)
-                    throw new HttpStatusException(HttpStatusCode.BadRequest,
-                        $"{ExceptionMessage.BadParameter}! Product is in order already");
+                    return null;
             }
 
             var orderedItem = new OrderItem {ProductId = productId, OrderId = userOrder.Id, Amount = amount, IsBought = false};
@@ -62,7 +61,7 @@ namespace Business.Services
                 ? await GetUserOrderAsync(o => o.UserId.Equals(userId))
                 : await GetUserOrderAsync(o => o.Id.Equals(orderId));
 
-            return _mapper.Map<OrderOutputDTO>(userOrder);
+            return userOrder is null ? null : _mapper.Map<OrderOutputDTO>(userOrder);
         }
 
         public async Task<OrderOutputDTO> UpdateOrderItemAsync(string userIdStr, OrderItemInputDTO orderItemDto)
@@ -71,7 +70,7 @@ namespace Business.Services
             var orderItem = GetOrderItem(userOrder, orderItemDto.ProductId);
 
             if (orderItem.IsBought)
-                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.ProductIsBought);
+                return null;
 
             var itemIndex = userOrder.OrderItems.IndexOf(orderItem);
             userOrder.OrderItems[itemIndex].Amount = orderItemDto.Amount;
@@ -81,11 +80,13 @@ namespace Business.Services
             return _mapper.Map<OrderOutputDTO>(userOrder);
         }
 
-        public async Task DeleteOrderItemAsync(string userIdStr, int productId)
+        public async Task<bool> DeleteOrderItemAsync(string userIdStr, int productId)
         {
             var userOrder = await GetUserOrderAsync(userIdStr, true);
 
             var orderItem = userOrder.OrderItems.FirstOrDefault(i => i.ProductId.Equals(productId));
+            if (orderItem is null)
+                return false;
 
             userOrder.OrderItems.Remove(orderItem);
 
@@ -93,9 +94,11 @@ namespace Business.Services
                 await _orderRepository.DeleteAndSaveAsync(userOrder);
             else
                 await _orderRepository.UpdateAndSaveAsync(userOrder);
+
+            return true;
         }
 
-        public async Task PayOrderAsync(string userIdStr)
+        public async Task<bool> PayOrderAsync(string userIdStr)
         {
             var userOrder = await GetUserOrderAsync(userIdStr);
 
@@ -105,14 +108,14 @@ namespace Business.Services
                 orderItem.IsBought = true;
                 var product = await products.FirstAsync(p => p.Id.Equals(orderItem.ProductId));
                 if (orderItem.Amount > product.Count)
-                    throw new HttpStatusException(HttpStatusCode.BadRequest,
-                        $"{ExceptionMessage.BadParameter} {nameof(orderItem.Amount)}. Not enough items in storage. Please, check out later");
+                    return false;
 
                 product.Count -= orderItem.Amount;
                 _productRepository.Update(product);
             }
 
             await _orderRepository.UpdateAndSaveAsync(userOrder);
+            return true;
         }
 
         private async Task<Order> GetUserOrderAsync(string userIdStr, bool trackChanges = false)
@@ -123,10 +126,7 @@ namespace Business.Services
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.UserId.Equals(userId));
 
-            if (userOrder is null)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.OrderNotFound);
-
-            return userOrder;
+            return userOrder ?? null;
         }
 
         private async Task<Order> GetUserOrderAsync(Expression<Func<Order, bool>> expression, bool trackChanges = false)
@@ -136,19 +136,13 @@ namespace Business.Services
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(expression);
 
-            if (userOrder is null)
-                throw new HttpStatusException(HttpStatusCode.NotFound, ExceptionMessage.OrderNotFound);
-
-            return userOrder;
+            return userOrder ?? null;
         }
 
         private static OrderItem GetOrderItem(Order userOrder, int productId)
         {
             var orderItem = userOrder.OrderItems.FirstOrDefault(i => i.ProductId.Equals(productId));
-            if (orderItem is null)
-                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.OrderNotFound);
-
-            return orderItem;
+            return orderItem ?? null;
         }
     }
 }

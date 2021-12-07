@@ -7,9 +7,9 @@ namespace Business.Interfaces
 {
     public interface IUserService
     {
-        Task<UserDTO> GetUserInfo(string userId);
+        Task<UserDTO> GetUserInfoAsync(string userId);
         Task<UserDTO> UpdateAsync(string userId, UserDTO userDto);
-        Task ChangePasswordAsync(string userId, string oldPassword, string newPassword, string confirmationPassword);
+        Task<bool> ChangePasswordAsync(string userId, string oldPassword, string newPassword, string confirmationPassword);
         Task<IEnumerable<string>> GetUsersAsync(PageParameters pageParameters);
     }
 }

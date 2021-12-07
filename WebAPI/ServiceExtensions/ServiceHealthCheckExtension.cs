@@ -6,7 +6,7 @@ namespace WebAPI.ServiceExtensions
 {
     public static class ServiceHealthCheckExtension
     {
-        public static void AddHealthCheckSetup(this IServiceCollection services, string connectionString)
+        public static IServiceCollection AddHealthCheckSetup(this IServiceCollection services, string connectionString)
         {
             services.AddHealthChecks()
                 .AddCheck(
@@ -14,6 +14,8 @@ namespace WebAPI.ServiceExtensions
                     new SqlConnectionHealthCheck(connectionString),
                     HealthStatus.Unhealthy,
                     new[] { "usersdb" });
+
+            return services;
         }
     }
 }

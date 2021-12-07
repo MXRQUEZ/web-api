@@ -6,9 +6,7 @@ namespace DAL.ApplicationContext.Configurations
 {
     public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
     {
-        public void Configure(EntityTypeBuilder<OrderItem> builder)
-        {
+        public void Configure(EntityTypeBuilder<OrderItem> builder) =>
             builder.HasKey(i => new { i.ProductId, i.OrderId });
-        }
     }
 }

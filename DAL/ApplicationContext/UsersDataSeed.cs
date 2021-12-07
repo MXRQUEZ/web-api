@@ -3,23 +3,21 @@ using DAL.Models;
 using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace DAL.UserContext
+namespace DAL.ApplicationContext
 {
     public static class UsersDataSeed
     {
+        private const string AdminEmail = "admin@gmail.com";
+        private const string UserEmail = "user@gmail.com";
+        private const string Password = "_Aa123456";
+
         public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
         {
-            const string AdminEmail = "admin@gmail.com";
-            const string UserEmail = "user@gmail.com";
-            const string Password = "_Aa123456";
             if (await roleManager.FindByNameAsync(Role.Admin) == null)
-            {
                 await roleManager.CreateAsync(new IdentityRole<int>(Role.Admin));
-            }
+
             if (await roleManager.FindByNameAsync(Role.User) == null)
-            {
                 await roleManager.CreateAsync(new IdentityRole<int>(Role.User));
-            }
 
             if (await userManager.FindByNameAsync(AdminEmail) == null)
             {
@@ -39,15 +37,11 @@ namespace DAL.UserContext
 
                 var result = await userManager.CreateAsync(admin, Password);
                 if (result.Succeeded)
-                {
                     await userManager.AddToRoleAsync(admin, Role.Admin);
-                }
 
                 result = await userManager.CreateAsync(user, Password);
                 if (result.Succeeded)
-                {
                     await userManager.AddToRoleAsync(admin, Role.User);
-                }
             }
         }
     }

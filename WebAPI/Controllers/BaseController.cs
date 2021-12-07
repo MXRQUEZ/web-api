@@ -9,9 +9,6 @@ namespace WebAPI.Controllers
     {
         protected readonly ILogger Logger;
 
-        public BaseController(ILogger logger)
-        {
-            Logger = logger;
-        }
+        public BaseController(ILogger logger) => Logger = logger;
     }
 }

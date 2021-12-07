@@ -42,7 +42,7 @@ namespace Business.Services
             return usersList.Select(u => $"{u.UserName} - {u.Email}");
         }
 
-        public async Task<UserDTO> GetUserInfo(string userId)
+        public async Task<UserDTO> GetUserInfoAsync(string userId)
         {
             var userCacheKey = _cache.GetCacheKey(userId);
             var user = _cache.GetCachedData(userCacheKey);
@@ -61,25 +61,23 @@ namespace Business.Services
             _cache.RemoveCache(userCacheKey);
             var oldUser = await _userManager.FindByIdAsync(userId);
             var newUser = _mapper.Map(userDto, oldUser);
-            await _userManager.UpdateAsync(newUser);
-            return _mapper.Map<UserDTO>(newUser);
+            var result = await _userManager.UpdateAsync(newUser);
+            return result.Succeeded ? _mapper.Map<UserDTO>(newUser) : null;
         }
 
-        public async Task ChangePasswordAsync(string userId, string oldPassword, string newPassword,
+        public async Task<bool> ChangePasswordAsync(string userId, string oldPassword, string newPassword,
             string confirmationPassword)
         {
-            if (oldPassword.IsNullOrEmpty() || newPassword.IsNullOrEmpty() || confirmationPassword.IsNullOrEmpty())
-                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.NullValue);
-
             if (newPassword != confirmationPassword)
-                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.WrongCofirmationPassword);
+                return false;
             var user = await _userManager.FindByIdAsync(userId);
 
             var isRightPassword = await _userManager.CheckPasswordAsync(user, oldPassword);
             if (!isRightPassword)
-                throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.WrongPassword);
+                return false;
 
             await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+            return true;
         }
     }
 }

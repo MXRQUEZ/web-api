@@ -2,7 +2,6 @@
 using DAL.ApplicationContext;
 using DAL.Models;
 using DAL.Models.Entities;
-using DAL.UserContext;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +11,7 @@ namespace WebAPI.ServiceExtensions
 {
     public static class ServiceDbContextExtension
     {
-        public static void AddDbContext(this IServiceCollection services)
+        public static IServiceCollection AddDbContext(this IServiceCollection services)
         {
             var builder = new ConfigurationBuilder();
             builder.SetBasePath(Directory.GetCurrentDirectory());
@@ -21,9 +20,11 @@ namespace WebAPI.ServiceExtensions
             var connectionString = config.GetConnectionString("DefaultConnection");
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+
+            return services;
         }
 
-        public static void AddIdentity(this IServiceCollection services)
+        public static IServiceCollection AddIdentity(this IServiceCollection services)
         {
             services.AddIdentity<User, IdentityRole<int>>(options =>
                 {
@@ -33,6 +34,8 @@ namespace WebAPI.ServiceExtensions
                 })
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            return services;
         }
     }
 }
