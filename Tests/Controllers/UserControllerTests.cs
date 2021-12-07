@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Business.DTO;
 using Business.Interfaces;
@@ -6,7 +5,6 @@ using FakeItEasy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tests.Extensions;
-using Tests.Extensions.TestData;
 using WebAPI.Controllers;
 using Xunit;
 
@@ -18,7 +16,6 @@ namespace Tests.Controllers
         public async Task UpdateProfile_WithValidUserDto_ReturnUserDto()
         {
             //Arrange
-            var validUserDto = UserControllerTestData.ValidUserDto;
             var fakeUserService = A.Fake<IUserService>();
             var userController = new UserController(fakeUserService, null)
                 .WithTestUser();
@@ -27,7 +24,7 @@ namespace Tests.Controllers
                 .Returns(Task.FromResult(new UserDTO()));
 
             // Act
-            var actionResult = await userController.UpdateProfile(validUserDto);
+            var actionResult = await userController.UpdateProfile(new UserDTO());
 
             // Assert
             Assert.IsType<UserDTO>(actionResult.Value);
@@ -38,7 +35,6 @@ namespace Tests.Controllers
         {
             //Arrange
             var fakeUserService = A.Fake<IUserService>();
-            var invalidUserDto = UserControllerTestData.InvalidUserDto;
             var userController = new UserController(fakeUserService, null)
                 .WithTestUser();
 
@@ -46,7 +42,7 @@ namespace Tests.Controllers
                 .Returns(Task.FromResult<UserDTO>(null));
 
             // Act
-            var actionResult = await userController.UpdateProfile(invalidUserDto);
+            var actionResult = await userController.UpdateProfile(new UserDTO());
 
             // Assert
             Assert.IsType<BadRequestResult>(actionResult.Result);
@@ -62,7 +58,7 @@ namespace Tests.Controllers
             // Act
             var actualAttribute = userController
                 .GetType()
-                .GetMethod(UserControllerTestData.UpdateProfileMethodName)!
+                .GetMethod("UpdateProfile")!
                 .GetCustomAttributes(typeof(AuthorizeAttribute), true);
 
             //Assert
@@ -123,7 +119,7 @@ namespace Tests.Controllers
             // Act
             var actualAttribute = userController
                 .GetType()
-                .GetMethod(UserControllerTestData.ChangePasswordMethodName)!
+                .GetMethod("ChangePassword")!
                 .GetCustomAttributes(typeof(AuthorizeAttribute), true);
 
             //Assert
@@ -159,7 +155,7 @@ namespace Tests.Controllers
             // Act
             var actualAttribute = userController
                 .GetType()
-                .GetMethod(UserControllerTestData.GetUserInfoMethodName)!
+                .GetMethod("GetUserInfo")!
                 .GetCustomAttributes(typeof(AuthorizeAttribute), true);
 
             //Assert

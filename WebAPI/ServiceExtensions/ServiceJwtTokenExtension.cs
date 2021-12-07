@@ -36,7 +36,7 @@ namespace WebAPI.ServiceExtensions
                     };
                 });
 
-            services.AddScoped<JwtGenerator>();
+            services.AddScoped<IJwtGenerator, JwtGenerator>();
 
             return services;
         }

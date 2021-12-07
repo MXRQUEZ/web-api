@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Business.Interfaces;
 using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Business.JWT
 {
-    public sealed class JwtGenerator
+    public sealed class JwtGenerator : IJwtGenerator
     {
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;

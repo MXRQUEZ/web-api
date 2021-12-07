@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Business.DTO;
-using Business.Exceptions;
 using Business.Helpers;
 using Business.Interfaces;
 using Business.Parameters;
@@ -86,7 +84,7 @@ namespace Business.Services
             offset ??= 0;
 
             if (limit < 0 || offset < 0)
-                return null;
+                return await Task.FromResult<IEnumerable<ProductOutputDTO>>(null);
 
             if (limit == 0 || offset > productsCount) 
                 return new List<ProductOutputDTO>();
@@ -113,7 +111,9 @@ namespace Business.Services
         public async Task<ProductOutputDTO> FindByIdAsync(int id)
         {
             var product = await _productRepository.GetAll(false).FirstOrDefaultAsync(p => p.Id.Equals(id));
-            return product is null ? null : _mapper.Map<ProductOutputDTO>(product);
+            return product is null 
+                ? await Task.FromResult<ProductOutputDTO>(null)
+                : _mapper.Map<ProductOutputDTO>(product);
         }
 
         public async Task<ProductOutputDTO> AddAsync(ProductInputDTO newProductDto)
@@ -133,7 +133,7 @@ namespace Business.Services
                 .FirstOrDefaultAsync(p => p.Name.Equals(productDtoUpdate.Name));
 
             if (oldProduct is null)
-                return null;
+                return await Task.FromResult<ProductOutputDTO>(null);
 
             var newProduct = _mapper.Map(productDtoUpdate, oldProduct);
 
@@ -164,7 +164,10 @@ namespace Business.Services
         public async Task<IEnumerable<ProductOutputDTO>> SearchProductsByFiltersAsync(
             PageParameters pageParameters, Genre genre, Rating rating, bool ratingAscending, bool priceAscending)
         {
-            var products = await _productRepository.GetAll(false).OrderBy(on => on.Name).ToListAsync();
+            var products = await _productRepository
+                .GetAll(false)
+                .OrderBy(on => on.Name)
+                .ToListAsync();
             var sortedProducts =
                 products
                     .Where(r => r.Rating >= rating);

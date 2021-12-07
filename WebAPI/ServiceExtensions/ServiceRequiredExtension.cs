@@ -1,4 +1,5 @@
 ﻿using System;
+using Business.Helpers;
 using Business.Interfaces;
 using Business.Services;
 using DAL.Interfaces;
@@ -49,6 +50,14 @@ namespace WebAPI.ServiceExtensions
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IOrderService, OrderService>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddHelpers(this IServiceCollection services)
+        {
+            services.AddScoped(typeof(ICacheManager<User>), typeof(CacheManager<User>));
+            services.AddScoped<IEmailSender, EmailSender>();
 
             return services;
         }

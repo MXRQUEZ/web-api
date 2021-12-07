@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Business.DTO;
-using Business.Exceptions;
 using Business.Interfaces;
 using DAL.Interfaces;
 using DAL.Models.Entities;
@@ -73,7 +72,7 @@ namespace Business.Services
                 .GetAll(false)
                 .FirstOrDefaultAsync(p => p.Id == productId);
 
-            return product ?? null;
+            return product ?? await Task.FromResult<Product>(null);
         }
 
         private async Task<Product> RecalculateRatingAsync(Product product, int productId)
