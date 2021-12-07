@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 using WebAPI.ServiceExtensions;
 
@@ -25,7 +24,7 @@ namespace WebAPI
             services.AddJwtToken(Configuration);
             services.AddHealthCheckSetup(Configuration.GetConnectionString("DefaultConnection"));
             services.AddSwaggerSetup();
-            services.AddServiceCollection();
+            services.AddRequiredCollection();
             services.AddServices();
             services.AddRepositories();
         }
@@ -33,18 +32,14 @@ namespace WebAPI
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseExceptionHandler("/error");
-
-            if (env.IsDevelopment())
-            {
-                app.UseSwaggerSetup();
-            }
-
+            app.UseSwaggerSetup();
             app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSerilogRequestLogging();
+            app.UseResponseCompression();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

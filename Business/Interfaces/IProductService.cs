@@ -8,9 +8,9 @@ namespace Business.Interfaces
 {
     public interface IProductService
     {
-        string GetTopPlatforms();
-        List<ProductOutputDTO> SearchProducts(string term, int? limit, int? offset, PageParameters pageParameters);
-        public List<ProductOutputDTO> SearchProductsByFilters(PageParameters pageParameters,
+        Task<IEnumerable<Platform>> GetTopPlatformsAsync();
+        Task<IEnumerable<ProductOutputDTO>> SearchProductsAsync(string term, int? limit, int? offset, PageParameters pageParameters);
+        Task<IEnumerable<ProductOutputDTO>> SearchProductsByFiltersAsync(PageParameters pageParameters,
             Genre genre, Rating rating, bool ratingAscending, bool priceAscending);
         Task<ProductOutputDTO> FindByIdAsync(int id);
         Task<ProductOutputDTO> AddAsync(ProductInputDTO newProductDto);

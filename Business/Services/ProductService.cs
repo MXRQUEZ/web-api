@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Business.DTO;
@@ -35,13 +34,13 @@ namespace Business.Services
             _cloudinary = cloudinary;
         }
 
-        public string GetTopPlatforms()
+        public async Task<IEnumerable<Platform>> GetTopPlatformsAsync()
         {
-            var pc = GetAllByPlatform(Platform.PersonalComputer);
-            var mobile = GetAllByPlatform(Platform.Mobile);
-            var ps = GetAllByPlatform(Platform.PlayStation);
-            var xbox = GetAllByPlatform(Platform.Xbox);
-            var nintendo = GetAllByPlatform(Platform.Nintendo);
+            var pc = await GetAllByPlatformAsync(Platform.PersonalComputer);
+            var mobile = await GetAllByPlatformAsync(Platform.Mobile);
+            var ps = await GetAllByPlatformAsync(Platform.PlayStation);
+            var xbox = await GetAllByPlatformAsync(Platform.Xbox);
+            var nintendo = await GetAllByPlatformAsync(Platform.Nintendo);
 
             var platforms = new Dictionary<Platform, IEnumerable<string>>
             {
@@ -52,35 +51,37 @@ namespace Business.Services
                 {Platform.Nintendo, nintendo}
             };
 
-            var platformsStr = new StringBuilder();
-            foreach (var (platform, products) in platforms
-                .OrderByDescending(p => p.Value.Count()).Take(3))
-            {
-                var productsStr = new StringBuilder();
-                foreach (var product in products) productsStr.Append($"{product}\n");
-                platformsStr.Append($"{platform} =\n{productsStr}\n");
-            }
+            var topPlatforms = platforms
+                .OrderByDescending(p => p.Value.Count())
+                .Take(3)
+                .Select(p => p.Key);
 
-            return platformsStr.ToString();
+            return topPlatforms;
 
-            IEnumerable<string> GetAllByPlatform(Platform platform)
+            async Task<IEnumerable<string>> GetAllByPlatformAsync(Platform platform)
             {
-                return _productRepository
+                return await _productRepository
                     .GetAll(false)
                     .OrderBy(on => on.Name)
                     .Where(p => p.Platform.Equals(platform))
-                    .Select(p => p.Name);
+                    .Select(p => p.Name)
+                    .ToListAsync();
             }
         }
 
-        public List<ProductOutputDTO> SearchProducts(string term, int? limit, int? offset, PageParameters pageParameters)
+        public async Task<IEnumerable<ProductOutputDTO>> SearchProductsAsync(string term, int? limit, int? offset, PageParameters pageParameters)
         {
-            var productsList = new PagedList<Product>(
-                _productRepository.GetAll(false).OrderBy(on => on.Name),
-                     pageParameters.PageNumber,
-                     pageParameters.PageSize);
-
             if (term.IsNullOrEmpty()) throw new HttpStatusException(HttpStatusCode.BadRequest, ExceptionMessage.NullValue);
+
+            var products = await _productRepository
+                .GetAll(false)
+                .OrderBy(on => on.Name)
+                .ToListAsync();
+            var productsList =
+                new PagedList<Product>(
+                        products,
+                        pageParameters.PageNumber,
+                        pageParameters.PageSize);
 
             var productsCount = productsList.Count;
             limit ??= productsCount;
@@ -90,7 +91,6 @@ namespace Business.Services
                 HttpStatusCode.BadRequest, $"{ExceptionMessage.BadParameter}s {nameof(limit)} and {nameof(offset)} can't be less than 0");
 
             if (limit == 0 || offset > productsCount) return new List<ProductOutputDTO>();
-
             var termProducts = new List<ProductOutputDTO>();
             foreach (var product in productsList)
             {
@@ -186,31 +186,31 @@ namespace Business.Services
             await _productRepository.DeleteAndSaveAsync(product);
         }
 
-        public List<ProductOutputDTO> SearchProductsByFilters(
+        public async Task<IEnumerable<ProductOutputDTO>> SearchProductsByFiltersAsync(
             PageParameters pageParameters, Genre genre, Rating rating, bool ratingAscending, bool priceAscending)
         {
-            var products = _productRepository
-                .GetAll(false)
-                .OrderBy(on => on.Name)
-                .Where(r => r.Rating >= rating);
+            var products = await _productRepository.GetAll(false).OrderBy(on => on.Name).ToListAsync();
+            var sortedProducts =
+                products
+                    .Where(r => r.Rating >= rating);
 
             if (genre != Genre.All)
-                products = products.Where(g => g.Genre.Equals(genre));
+                sortedProducts = sortedProducts.Where(g => g.Genre.Equals(genre));
 
-            products = ratingAscending 
-            ? products.OrderBy(r => r.TotalRating) 
-            : products.OrderByDescending(r => r.TotalRating);
+            sortedProducts = ratingAscending 
+            ? sortedProducts.OrderBy(r => r.TotalRating) 
+            : sortedProducts.OrderByDescending(r => r.TotalRating);
 
-            products = priceAscending 
-                ? products.OrderBy(p => p.Price) 
-                : products.OrderByDescending(p => p.Price);
+            sortedProducts = priceAscending 
+                ? sortedProducts.OrderBy(p => p.Price) 
+                : sortedProducts.OrderByDescending(p => p.Price);
 
             var productsList = new PagedList<Product>(
-                products,
+                sortedProducts,
                 pageParameters.PageNumber,
                 pageParameters.PageSize);
 
-            return productsList.Select(product => _mapper.Map<ProductOutputDTO>(product)).ToList();
+            return productsList.Select(p => _mapper.Map<ProductOutputDTO>(p));
         }
     }
 }

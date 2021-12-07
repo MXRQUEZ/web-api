@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<UserDTO> UpdateProfile([FromBody] UserDTO userDto)
         {
-            return await _userService.UpdateAsync(UserHelper.GetIdByClaims(User.Claims), userDto);
+            return await _userService.UpdateAsync(User.Claims.GetUserId(), userDto);
         }
 
         /// <summary>
@@ -46,8 +46,21 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword, string confirmationPassword)
         {
             await _userService.ChangePasswordAsync(
-                UserHelper.GetIdByClaims(User.Claims), oldPassword, newPassword, confirmationPassword);
+                User.Claims.GetUserId(), oldPassword, newPassword, confirmationPassword);
             return Ok();
+        }
+
+        /// <summary>
+        /// Represents user info
+        /// </summary>
+        /// <response code="200">Profile info was represented</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Server has some issues. Please, come back later</response>
+        [HttpGet("user")]
+        [Authorize]
+        public async Task<UserDTO> GetUserInfo()
+        {
+            return await _userService.GetUserInfo(User.Claims.GetUserId());
         }
     }
 }

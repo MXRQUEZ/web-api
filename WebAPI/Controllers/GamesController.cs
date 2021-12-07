@@ -31,9 +31,9 @@ namespace WebAPI.Controllers
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpGet("top-platforms")]
         [AllowAnonymous]
-        public string GetTopPlatforms()
+        public async Task<IEnumerable<Platform>> GetTopPlatforms()
         {
-            return _productService.GetTopPlatforms();
+            return await _productService.GetTopPlatformsAsync();
         }
 
         /// <summary>
@@ -49,10 +49,10 @@ namespace WebAPI.Controllers
         [HttpGet("search-product")]
         [ServiceFilter(typeof(PagesValidationFilter))]
         [AllowAnonymous]
-        public List<ProductOutputDTO> SearchProducts(
+        public async Task<IEnumerable<ProductOutputDTO>> SearchProducts(
             string term, int? limit, int? offset, [FromQuery] PageParameters productParameters)
         {
-            return _productService.SearchProducts(term, limit, offset, productParameters);
+            return await _productService.SearchProductsAsync(term, limit, offset, productParameters);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<ProductOutputDTO> RateProduct(int rating, int productId)
         {
-            return await _ratingService.RateAsync(UserHelper.GetIdByClaims(User.Claims), rating, productId);
+            return await _ratingService.RateAsync(User.Claims.GetUserId(), rating, productId);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteProductRating(int productId)
         {
-            await _ratingService.DeleteRatingAsync(UserHelper.GetIdByClaims(User.Claims), productId);
+            await _ratingService.DeleteRatingAsync(User.Claims.GetUserId(), productId);
             return NoContent();
         }
 
@@ -152,10 +152,10 @@ namespace WebAPI.Controllers
         [HttpGet("list")]
         [ServiceFilter(typeof(PagesValidationFilter))]
         [AllowAnonymous]
-        public List<ProductOutputDTO> SearchProductsByFilters([FromQuery] PageParameters pageParameters,
+        public async Task<IEnumerable<ProductOutputDTO>> SearchProductsByFilters([FromQuery] PageParameters pageParameters,
             Genre genre, Rating rating, bool ratingAscending = false, bool priceAscending = true)
         {
-            return _productService.SearchProductsByFilters(pageParameters, genre, rating, ratingAscending, priceAscending);
+            return await _productService.SearchProductsByFiltersAsync(pageParameters, genre, rating, ratingAscending, priceAscending);
         }
     }
 }
