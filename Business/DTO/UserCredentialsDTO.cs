@@ -9,7 +9,7 @@ namespace Business.DTO
         /// </summary>
         /// <example>example_mail@gmail.com</example>
         [Required(ErrorMessage = "Email must be specified")] 
-        [EmailAddress] 
+        [EmailAddress]
         public string Email { get; set; }
 
         /// <summary>
@@ -18,7 +18,7 @@ namespace Business.DTO
         /// <example>_SkJwNif2345</example>
         [Required(ErrorMessage = "Password must be specified")]
         [RegularExpression(
-            @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{6,20}$",
+            @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{6,}$",
             ErrorMessage =
                 "Passwords must be at least 6 characters and contain the followings: upper case letter, lower case letter, number " +
                 "and special character (e.g. !@#$%^&*)")]

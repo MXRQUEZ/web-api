@@ -166,11 +166,9 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(PagesValidationFilter))]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ProductOutputDTO>>> SearchProductsByFilters(
-            [FromQuery] PageParameters pageParameters,
-            Genre genre, Rating rating, bool ratingAscending = false, bool priceAscending = true)
+            [FromQuery] PageParameters pageParameters, [FromQuery] ProductFilters productFilters)
         {
-            var result = await _productService.SearchProductsByFiltersAsync(pageParameters, genre, rating, ratingAscending,
-                priceAscending);
+            var result = await _productService.SearchProductsByFiltersAsync(pageParameters, productFilters);
 
             if (result is null)
                 return BadRequest();

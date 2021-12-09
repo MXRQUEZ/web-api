@@ -25,6 +25,8 @@ namespace WebAPI
             services.AddHealthCheckSetup(Configuration.GetConnectionString("DefaultConnection"));
             services.AddSwaggerSetup();
             services.AddRequiredCollection();
+            services.AddGzipSetup();
+            services.AddServiceFilters();
             services.AddHelpers();
             services.AddServices();
             services.AddRepositories();

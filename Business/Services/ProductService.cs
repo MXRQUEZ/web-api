@@ -23,7 +23,8 @@ namespace Business.Services
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<ProductRating> _ratingRepository;
 
-        public ProductService(IRepository<Product> productRepository, IRepository<ProductRating> ratingRepository, IMapper mapper, Cloudinary cloudinary)
+        public ProductService(
+            IRepository<Product> productRepository, IRepository<ProductRating> ratingRepository, IMapper mapper, Cloudinary cloudinary)
         {
             _productRepository = productRepository;
             _ratingRepository = ratingRepository;
@@ -162,7 +163,7 @@ namespace Business.Services
         }
 
         public async Task<IEnumerable<ProductOutputDTO>> SearchProductsByFiltersAsync(
-            PageParameters pageParameters, Genre genre, Rating rating, bool ratingAscending, bool priceAscending)
+            PageParameters pageParameters, ProductFilters productFilters)
         {
             var products = await _productRepository
                 .GetAll(false)
@@ -170,16 +171,16 @@ namespace Business.Services
                 .ToListAsync();
             var sortedProducts =
                 products
-                    .Where(r => r.Rating >= rating);
+                    .Where(r => r.Rating >= productFilters.Rating);
 
-            if (genre != Genre.All)
-                sortedProducts = sortedProducts.Where(g => g.Genre.Equals(genre));
+            if (productFilters.Genre != Genre.All)
+                sortedProducts = sortedProducts.Where(g => g.Genre.Equals(productFilters.Genre));
 
-            sortedProducts = ratingAscending 
+            sortedProducts = productFilters.RatingAscending
             ? sortedProducts.OrderBy(r => r.TotalRating) 
             : sortedProducts.OrderByDescending(r => r.TotalRating);
 
-            sortedProducts = priceAscending 
+            sortedProducts = productFilters.PriceAscending
                 ? sortedProducts.OrderBy(p => p.Price) 
                 : sortedProducts.OrderByDescending(p => p.Price);
 
@@ -193,6 +194,9 @@ namespace Business.Services
 
         private async Task<Product> UploadImagesAsync(Product product, ProductInputDTO productInputDto)
         {
+            if (_cloudinary is null)
+                return product;
+
             var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
             {
                 File = new FileDescription(product.Name + "_logo", productInputDto.Logo.OpenReadStream())

@@ -25,6 +25,9 @@ namespace Business.Services
         public async Task<ProductOutputDTO> RateAsync(string userIdStr, int rating, int productId)
         {
             var product = await GetProductAsync(productId, rating);
+            if (product is null)
+                return null;
+
             var userId = int.Parse(userIdStr);
             var userRating = await _ratingRepository
                 .GetAll(false)

@@ -24,22 +24,6 @@ namespace WebAPI.ServiceExtensions
             services.AddSingleton(Log.Logger);
             services.AddScoped<PagesValidationFilter>();
 
-            services.AddResponseCompression(options =>
-            {
-                options.EnableForHttps = true;
-                options.MimeTypes = new[] 
-                {
-                    "text/plain",
-                    "text/css",
-                    "application/javascript",
-                    "text/html",
-                    "application/xml",
-                    "text/xml",
-                    "application/json",
-                    "text/json"
-                };
-            });
-
             return services;
         }
 
@@ -59,6 +43,33 @@ namespace WebAPI.ServiceExtensions
             services.AddScoped(typeof(ICacheManager<User>), typeof(CacheManager<User>));
             services.AddScoped<IEmailSender, EmailSender>();
 
+            return services;
+        }
+
+        public static IServiceCollection AddGzipSetup(this IServiceCollection services)
+        {
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+                options.MimeTypes = new[]
+                {
+                    "text/plain",
+                    "text/css",
+                    "application/javascript",
+                    "text/html",
+                    "application/xml",
+                    "text/xml",
+                    "application/json",
+                    "text/json"
+                };
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection AddServiceFilters(this IServiceCollection services)
+        {
+            services.AddScoped<PagesValidationFilter>();
             return services;
         }
 

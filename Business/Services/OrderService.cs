@@ -56,14 +56,10 @@ namespace Business.Services
         {
             var userId = int.Parse(userIdStr);
 
-            Order userOrder;
-            if (orderId is null)
-            {
-                userOrder = await GetUserOrderAsync(o => o.UserId.Equals(userId));
-                return _mapper.Map<OrderOutputDTO>(userOrder);
-            }
+            var userOrder = orderId is not null
+                ? await GetUserOrderAsync(o => o.Id.Equals(orderId))
+                : await GetUserOrderAsync(o => o.UserId.Equals(userId));
 
-            userOrder = await GetUserOrderAsync(o => o.Id.Equals(orderId));
             return userOrder is null
                 ? await Task.FromResult<OrderOutputDTO>(null)
                 : _mapper.Map<OrderOutputDTO>(userOrder);
@@ -72,9 +68,10 @@ namespace Business.Services
         public async Task<OrderOutputDTO> UpdateOrderItemAsync(string userIdStr, OrderItemInputDTO orderItemDto)
         {
             var userOrder = await GetUserOrderAsync(userIdStr);
-            var orderItem = GetOrderItem(userOrder, orderItemDto.ProductId);
 
-            if (orderItem.IsBought)
+            var orderItem = userOrder?.OrderItems.FirstOrDefault(i => i.ProductId.Equals(orderItemDto.ProductId));
+
+            if (orderItem is null || orderItem.IsBought)
                 return await Task.FromResult<OrderOutputDTO>(null);
 
             var itemIndex = userOrder.OrderItems.IndexOf(orderItem);
@@ -88,8 +85,7 @@ namespace Business.Services
         public async Task<bool> DeleteOrderItemAsync(string userIdStr, int productId)
         {
             var userOrder = await GetUserOrderAsync(userIdStr, true);
-
-            var orderItem = userOrder.OrderItems.FirstOrDefault(i => i.ProductId.Equals(productId));
+            var orderItem = userOrder?.OrderItems.FirstOrDefault(i => i.ProductId.Equals(productId));
             if (orderItem is null)
                 return false;
 
@@ -108,7 +104,11 @@ namespace Business.Services
             var userOrder = await GetUserOrderAsync(userIdStr);
 
             var products = _productRepository.GetAll(true);
-            foreach (var orderItem in userOrder.OrderItems.Where(i => !i.IsBought))
+            var notPaidItems = userOrder.OrderItems.Where(i => !i.IsBought).AsQueryable();
+            if (!notPaidItems.Any())
+                return false;
+
+            foreach (var orderItem in notPaidItems)
             {
                 orderItem.IsBought = true;
                 var product = await products.FirstAsync(p => p.Id.Equals(orderItem.ProductId));
@@ -142,12 +142,6 @@ namespace Business.Services
                 .FirstOrDefaultAsync(expression);
 
             return userOrder ?? await Task.FromResult<Order>(null);
-        }
-
-        private static OrderItem GetOrderItem(Order userOrder, int productId)
-        {
-            var orderItem = userOrder.OrderItems.FirstOrDefault(i => i.ProductId.Equals(productId));
-            return orderItem ?? null;
         }
     }
 }

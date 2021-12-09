@@ -3,7 +3,6 @@ using Business.Services;
 using DAL.Models.Entities;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
-using Tests.Extensions.TestData;
 using Xunit;
 using static Tests.Extensions.TestData.FakeTestData;
 using static Tests.Extensions.TestData.UserTestData;
@@ -13,7 +12,7 @@ namespace Tests.Services
     public sealed class AuthServiceTests
     {
         [Fact]
-        public async Task SignInAsync_WithValidUserCredentialsDto_ReturnToken()
+        public async Task SignInAsync_WithValidUserCredentials_ReturnToken()
         {
             // Arrange
             var authService = new AuthService(FakeMapper, FakeUserManager, FakeJwtGenerator, FakeEmailSender);
@@ -126,7 +125,7 @@ namespace Tests.Services
                 .Returns(Task.FromResult(IdentityResult.Failed()));
 
             // Act
-            var result = await authService.SignUpAsync(UserTestData.UserCredentialsDto);
+            var result = await authService.SignUpAsync(UserCredentialsDto);
 
             // Assert
             Assert.False(result);

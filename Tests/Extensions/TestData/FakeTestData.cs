@@ -1,5 +1,4 @@
-﻿using AutoFixture;
-using AutoMapper;
+﻿using AutoMapper;
 using Business.Interfaces;
 using DAL.Interfaces;
 using DAL.Models.Entities;
@@ -18,5 +17,6 @@ namespace Tests.Extensions.TestData
 
         public static readonly IRepository<Order> FakeOrderRepository = A.Fake<IRepository<Order>>();
         public static readonly IRepository<Product> FakeProductRepository = A.Fake<IRepository<Product>>();
+        public static readonly IRepository<ProductRating> FakeRatingRepository = A.Fake<IRepository<ProductRating>>();
     }
 }

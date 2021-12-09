@@ -9,11 +9,7 @@ namespace Tests.Extensions.TestData
         public const string UserRole = "user";
 
         public static readonly string JwtTokenEncoded = new Fixture().Create<string>().Encode();
-        
-        public static readonly UserCredentialsDTO UserCredentialsDto = new()
-        {
-            Email = "user@gmail.com",
-            Password = "_Aa123456"
-        };
+
+        public static readonly UserCredentialsDTO UserCredentialsDto = new Fixture().Create<UserCredentialsDTO>();
     }
 }
