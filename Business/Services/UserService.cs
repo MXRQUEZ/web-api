@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Business.DTO;
-using Business.Exceptions;
 using Business.Helpers;
 using Business.Interfaces;
 using Business.Parameters;
 using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Business.Services
 {
@@ -22,13 +16,13 @@ namespace Business.Services
     {
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        private readonly CacheManager<User> _cache;
+        private readonly ICacheManager<User> _cacheManager;
 
-        public UserService(IMapper mapper, UserManager<User> userManager, IMemoryCache cache)
+        public UserService(IMapper mapper, UserManager<User> userManager, ICacheManager<User> cacheManager)
         {
             _mapper = mapper;
             _userManager = userManager;
-            _cache = new CacheManager<User>(cache);
+            _cacheManager = cacheManager;
         }
 
         public async Task<IEnumerable<string>> GetUsersAsync(PageParameters pageParameters)
@@ -44,21 +38,21 @@ namespace Business.Services
 
         public async Task<UserDTO> GetUserInfoAsync(string userId)
         {
-            var userCacheKey = _cache.GetCacheKey(userId);
-            var user = _cache.GetCachedData(userCacheKey);
+            var userCacheKey = _cacheManager.GetCacheKey(userId);
+            var user = _cacheManager.GetCachedData(userCacheKey);
             if (user is not null)
                 return _mapper.Map<UserDTO>(user);
 
             user = await _userManager.FindByIdAsync(userId);
-            _cache.SetCache(userCacheKey, user);
+            _cacheManager.SetCache(userCacheKey, user);
 
             return _mapper.Map<UserDTO>(user);
         }
 
         public async Task<UserDTO> UpdateAsync(string userId, UserDTO userDto)
         {
-            var userCacheKey = _cache.GetCacheKey(userId);
-            _cache.RemoveCache(userCacheKey);
+            var userCacheKey = _cacheManager.GetCacheKey(userId);
+            _cacheManager.RemoveCache(userCacheKey);
             var oldUser = await _userManager.FindByIdAsync(userId);
             var newUser = _mapper.Map(userDto, oldUser);
             var result = await _userManager.UpdateAsync(newUser);

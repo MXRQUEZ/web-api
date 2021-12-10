@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Business.DTO;
-using Business.Exceptions;
 using Business.Interfaces;
 using DAL.Interfaces;
 using DAL.Models.Entities;
@@ -26,6 +25,9 @@ namespace Business.Services
         public async Task<ProductOutputDTO> RateAsync(string userIdStr, int rating, int productId)
         {
             var product = await GetProductAsync(productId, rating);
+            if (product is null)
+                return null;
+
             var userId = int.Parse(userIdStr);
             var userRating = await _ratingRepository
                 .GetAll(false)
@@ -73,7 +75,7 @@ namespace Business.Services
                 .GetAll(false)
                 .FirstOrDefaultAsync(p => p.Id == productId);
 
-            return product ?? null;
+            return product ?? await Task.FromResult<Product>(null);
         }
 
         private async Task<Product> RecalculateRatingAsync(Product product, int productId)

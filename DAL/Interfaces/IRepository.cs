@@ -4,16 +4,16 @@ using System.Threading.Tasks;
 
 namespace DAL.Interfaces
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<TEntity> where TEntity : class
     {
-        IQueryable<T> GetAll(bool trackChanges);
-        Task AddAsync(T newItem);
-        Task AddAndSaveAsync(T newItem);
-        Task UpdateAndSaveAsync(T itemUpdate);
-        Task DeleteAndSaveAsync(T item);
-        void Update(T itemUpdate);
-        void Delete(T item);
-        void DeleteRange(IEnumerable<T> items);
+        IQueryable<TEntity> GetAll(bool trackChanges);
+        Task AddAsync(TEntity newItem);
+        Task AddAndSaveAsync(TEntity newItem);
+        Task UpdateAndSaveAsync(TEntity itemUpdate);
+        Task DeleteAndSaveAsync(TEntity item);
+        void Update(TEntity itemUpdate);
+        void Delete(TEntity item);
+        void DeleteRange(IEnumerable<TEntity> items);
         Task SaveAsync();
     }
 }

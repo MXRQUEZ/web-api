@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Business.Helpers
 {
-    public class PagedList<T> : List<T>
+    public sealed class PagedList<T> : List<T>
     {
         public int CurrentPage { get; private set; }
         public int TotalPages { get; private set; }

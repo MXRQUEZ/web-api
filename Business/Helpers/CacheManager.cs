@@ -1,9 +1,10 @@
 ﻿using System;
+using Business.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Business.Helpers
 {
-    public sealed class CacheManager<T>
+    public sealed class CacheManager<T> : ICacheManager<T> where T : class
     {
         private readonly IMemoryCache _cache;
         public CacheManager(IMemoryCache cache) => _cache = cache;

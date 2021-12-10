@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net;
 using Business.DTO;
 using Business.Interfaces;
 using System.Threading.Tasks;
 using AutoMapper;
-using Business.Exceptions;
 using DAL.Interfaces;
 using DAL.Models.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -37,13 +35,13 @@ namespace Business.Services
             if (userOrder is null)
             {
                 userOrder = new Order {UserId = userId};
-                await _orderRepository.AddAndSaveAsync(userOrder);
+                await _orderRepository.AddAsync(userOrder);
             }
             else
             {
                 var orderExists = userOrder.OrderItems.Any(o => o.ProductId.Equals(productId));
                 if (orderExists)
-                    return null;
+                    return await Task.FromResult<OrderOutputDTO>(null);
             }
 
             var orderedItem = new OrderItem {ProductId = productId, OrderId = userOrder.Id, Amount = amount, IsBought = false};
@@ -57,20 +55,24 @@ namespace Business.Services
         public async Task<OrderOutputDTO> RepresentOrderAsync(string userIdStr, int? orderId)
         {
             var userId = int.Parse(userIdStr);
-            var userOrder = orderId is null
-                ? await GetUserOrderAsync(o => o.UserId.Equals(userId))
-                : await GetUserOrderAsync(o => o.Id.Equals(orderId));
 
-            return userOrder is null ? null : _mapper.Map<OrderOutputDTO>(userOrder);
+            var userOrder = orderId is not null
+                ? await GetUserOrderAsync(o => o.Id.Equals(orderId))
+                : await GetUserOrderAsync(o => o.UserId.Equals(userId));
+
+            return userOrder is null
+                ? await Task.FromResult<OrderOutputDTO>(null)
+                : _mapper.Map<OrderOutputDTO>(userOrder);
         }
 
         public async Task<OrderOutputDTO> UpdateOrderItemAsync(string userIdStr, OrderItemInputDTO orderItemDto)
         {
             var userOrder = await GetUserOrderAsync(userIdStr);
-            var orderItem = GetOrderItem(userOrder, orderItemDto.ProductId);
 
-            if (orderItem.IsBought)
-                return null;
+            var orderItem = userOrder?.OrderItems.FirstOrDefault(i => i.ProductId.Equals(orderItemDto.ProductId));
+
+            if (orderItem is null || orderItem.IsBought)
+                return await Task.FromResult<OrderOutputDTO>(null);
 
             var itemIndex = userOrder.OrderItems.IndexOf(orderItem);
             userOrder.OrderItems[itemIndex].Amount = orderItemDto.Amount;
@@ -83,8 +85,7 @@ namespace Business.Services
         public async Task<bool> DeleteOrderItemAsync(string userIdStr, int productId)
         {
             var userOrder = await GetUserOrderAsync(userIdStr, true);
-
-            var orderItem = userOrder.OrderItems.FirstOrDefault(i => i.ProductId.Equals(productId));
+            var orderItem = userOrder?.OrderItems.FirstOrDefault(i => i.ProductId.Equals(productId));
             if (orderItem is null)
                 return false;
 
@@ -103,7 +104,11 @@ namespace Business.Services
             var userOrder = await GetUserOrderAsync(userIdStr);
 
             var products = _productRepository.GetAll(true);
-            foreach (var orderItem in userOrder.OrderItems.Where(i => !i.IsBought))
+            var notPaidItems = userOrder.OrderItems.Where(i => !i.IsBought).AsQueryable();
+            if (!notPaidItems.Any())
+                return false;
+
+            foreach (var orderItem in notPaidItems)
             {
                 orderItem.IsBought = true;
                 var product = await products.FirstAsync(p => p.Id.Equals(orderItem.ProductId));
@@ -126,7 +131,7 @@ namespace Business.Services
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.UserId.Equals(userId));
 
-            return userOrder ?? null;
+            return userOrder ?? await Task.FromResult<Order>(null);
         }
 
         private async Task<Order> GetUserOrderAsync(Expression<Func<Order, bool>> expression, bool trackChanges = false)
@@ -136,13 +141,7 @@ namespace Business.Services
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(expression);
 
-            return userOrder ?? null;
-        }
-
-        private static OrderItem GetOrderItem(Order userOrder, int productId)
-        {
-            var orderItem = userOrder.OrderItems.FirstOrDefault(i => i.ProductId.Equals(productId));
-            return orderItem ?? null;
+            return userOrder ?? await Task.FromResult<Order>(null);
         }
     }
 }

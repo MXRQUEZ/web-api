@@ -1,4 +1,5 @@
 ﻿using System;
+using Business.Helpers;
 using Business.Interfaces;
 using Business.Services;
 using DAL.Interfaces;
@@ -23,10 +24,34 @@ namespace WebAPI.ServiceExtensions
             services.AddSingleton(Log.Logger);
             services.AddScoped<PagesValidationFilter>();
 
+            return services;
+        }
+
+        public static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRatingService, RatingService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IOrderService, OrderService>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddHelpers(this IServiceCollection services)
+        {
+            services.AddScoped(typeof(ICacheManager<User>), typeof(CacheManager<User>));
+            services.AddScoped<IEmailSender, EmailSender>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddGzipSetup(this IServiceCollection services)
+        {
             services.AddResponseCompression(options =>
             {
                 options.EnableForHttps = true;
-                options.MimeTypes = new[] 
+                options.MimeTypes = new[]
                 {
                     "text/plain",
                     "text/css",
@@ -42,14 +67,9 @@ namespace WebAPI.ServiceExtensions
             return services;
         }
 
-        public static IServiceCollection AddServices(this IServiceCollection services)
+        public static IServiceCollection AddServiceFilters(this IServiceCollection services)
         {
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IRatingService, RatingService>();
-            services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IOrderService, OrderService>();
-
+            services.AddScoped<PagesValidationFilter>();
             return services;
         }
 

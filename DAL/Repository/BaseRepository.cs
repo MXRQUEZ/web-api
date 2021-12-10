@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using DAL.ApplicationContext;
 using DAL.Interfaces;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repository
 {
-    public class BaseRepository<T> : IDisposable, IRepository<T> where T: class
+    public class BaseRepository<TEntity> : IDisposable, IRepository<TEntity> where TEntity: class
     {
         private readonly ApplicationDbContext _db;
 
@@ -17,33 +18,33 @@ namespace DAL.Repository
             _db = context;
         }
 
-        public IQueryable<T> GetAll(bool trackChanges)
+        public IQueryable<TEntity> GetAll(bool trackChanges)
         {
             return trackChanges
-                ? _db.Set<T>()
-                : _db.Set<T>().AsNoTracking();
+                ? _db.Set<TEntity>()
+                : _db.Set<TEntity>().AsNoTracking();
         }
 
-        public async Task AddAsync(T newItem)
+        public async Task AddAsync(TEntity newItem)
         {
-            await _db.Set<T>().AddAsync(newItem);
+            await _db.Set<TEntity>().AddAsync(newItem);
         }
 
-        public async Task AddAndSaveAsync(T newItem)
+        public async Task AddAndSaveAsync(TEntity newItem)
         {
-            await _db.Set<T>().AddAsync(newItem);
+            await _db.Set<TEntity>().AddAsync(newItem);
             await _db.SaveChangesAsync();
         }
 
-        public async Task UpdateAndSaveAsync(T itemUpdate)
+        public async Task UpdateAndSaveAsync(TEntity itemUpdate)
         {
-            _db.Set<T>().Update(itemUpdate);
+            _db.Set<TEntity>().Update(itemUpdate);
             await _db.SaveChangesAsync();
         }
 
-        public async Task DeleteAndSaveAsync(T item)
+        public async Task DeleteAndSaveAsync(TEntity item)
         {
-            _db.Set<T>().Remove(item);
+            _db.Set<TEntity>().Remove(item);
             await _db.SaveChangesAsync();
         }
 
@@ -52,19 +53,19 @@ namespace DAL.Repository
             await _db.SaveChangesAsync();
         }
 
-        public void Update(T itemUpdate)
+        public void Update(TEntity itemUpdate)
         {
-            _db.Set<T>().Update(itemUpdate);
+            _db.Set<TEntity>().Update(itemUpdate);
         }
 
-        public void Delete(T item)
+        public void Delete(TEntity item)
         {
-            _db.Set<T>().Remove(item);
+            _db.Set<TEntity>().Remove(item);
         }
 
-        public void DeleteRange(IEnumerable<T> items)
+        public void DeleteRange(IEnumerable<TEntity> items)
         {
-            _db.Set<T>().RemoveRange(items);
+            _db.Set<TEntity>().RemoveRange(items);
         }
 
         public void Dispose()

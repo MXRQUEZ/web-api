@@ -6,7 +6,7 @@ using Tests.Extensions.TestData;
 
 namespace Tests.Extensions
 {
-    public static class ControllerExtensions
+    public static class ControllerExtension
     {
         public static TController WithTestUser<TController>(this TController controller)
             where TController : ControllerBase
@@ -17,8 +17,8 @@ namespace Tests.Extensions
                 {
                     User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                     {
-                        new ("nameid", UserControllerTestData.UserId),
-                        new (ClaimTypes.Role, UserControllerTestData.UserRole),
+                        new ("nameid", UserTestData.UserId),
+                        new (ClaimTypes.Role, UserTestData.UserRole),
                     }))
                 }
             };
