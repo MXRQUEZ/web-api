@@ -2,6 +2,7 @@
 using Business.Helpers;
 using Business.Interfaces;
 using Business.Services;
+using DAL.Caching;
 using DAL.Interfaces;
 using DAL.Models.Entities;
 using DAL.Repository;
@@ -22,7 +23,7 @@ namespace WebAPI.ServiceExtensions
             services.AddRazorPages();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddSingleton(Log.Logger);
-            services.AddScoped<PagesValidationFilter>();
+            services.AddScoped<PagesFilerAttribute>();
 
             return services;
         }
@@ -40,8 +41,8 @@ namespace WebAPI.ServiceExtensions
 
         public static IServiceCollection AddHelpers(this IServiceCollection services)
         {
-            services.AddScoped(typeof(ICacheManager<User>), typeof(CacheManager<User>));
             services.AddScoped<IEmailSender, EmailSender>();
+            services.AddScoped<ICloudinaryManager, CloudinaryManager>();
 
             return services;
         }
@@ -69,15 +70,17 @@ namespace WebAPI.ServiceExtensions
 
         public static IServiceCollection AddServiceFilters(this IServiceCollection services)
         {
-            services.AddScoped<PagesValidationFilter>();
+            services.AddScoped<PagesFilerAttribute>();
+
             return services;
         }
 
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped(typeof(IRepository<Product>), typeof(BaseRepository<Product>));
-            services.AddScoped(typeof(IRepository<ProductRating>), typeof(BaseRepository<ProductRating>));
-            services.AddScoped(typeof(IRepository<Order>), typeof(BaseRepository<Order>));
+            services.AddScoped(typeof(IGenericRepository<Product>), typeof(GenericRepository<Product>));
+            services.AddScoped(typeof(IGenericRepository<ProductRating>), typeof(GenericRepository<ProductRating>));
+            services.AddScoped(typeof(IGenericRepository<Order>), typeof(GenericRepository<Order>));
+            services.AddScoped(typeof(ICacheManager<User>), typeof(CacheManager<User>));
 
             return services;
         }

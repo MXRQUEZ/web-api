@@ -14,10 +14,10 @@ namespace Business.Services
     public sealed class OrderService : IOrderService
     {
         private readonly IMapper _mapper;
-        private readonly IRepository<Order> _orderRepository;
-        private readonly IRepository<Product> _productRepository;
+        private readonly IGenericRepository<Order> _orderRepository;
+        private readonly IGenericRepository<Product> _productRepository;
 
-        public OrderService(IRepository<Order> orderRepository, IRepository<Product> productRepository, IMapper mapper)
+        public OrderService(IGenericRepository<Order> orderRepository, IGenericRepository<Product> productRepository, IMapper mapper)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
@@ -30,16 +30,16 @@ namespace Business.Services
             var userOrder = await _orderRepository
                 .GetAll(false)
                 .Include(o => o.OrderItems)
-                .FirstOrDefaultAsync(o => o.UserId.Equals(userId));
+                .FirstOrDefaultAsync(o => o.UserId == userId);
 
             if (userOrder is null)
             {
                 userOrder = new Order {UserId = userId};
-                await _orderRepository.AddAsync(userOrder);
+                await _orderRepository.AddAndSaveAsync(userOrder);
             }
             else
             {
-                var orderExists = userOrder.OrderItems.Any(o => o.ProductId.Equals(productId));
+                var orderExists = userOrder.OrderItems.Any(o => o.ProductId == productId);
                 if (orderExists)
                     return await Task.FromResult<OrderOutputDTO>(null);
             }
@@ -57,8 +57,8 @@ namespace Business.Services
             var userId = int.Parse(userIdStr);
 
             var userOrder = orderId is not null
-                ? await GetUserOrderAsync(o => o.Id.Equals(orderId))
-                : await GetUserOrderAsync(o => o.UserId.Equals(userId));
+                ? await GetUserOrderAsync(o => o.Id == orderId)
+                : await GetUserOrderAsync(o => o.UserId == userId);
 
             return userOrder is null
                 ? await Task.FromResult<OrderOutputDTO>(null)
@@ -69,7 +69,7 @@ namespace Business.Services
         {
             var userOrder = await GetUserOrderAsync(userIdStr);
 
-            var orderItem = userOrder?.OrderItems.FirstOrDefault(i => i.ProductId.Equals(orderItemDto.ProductId));
+            var orderItem = userOrder?.OrderItems.FirstOrDefault(i => i.ProductId == orderItemDto.ProductId);
 
             if (orderItem is null || orderItem.IsBought)
                 return await Task.FromResult<OrderOutputDTO>(null);
@@ -85,7 +85,7 @@ namespace Business.Services
         public async Task<bool> DeleteOrderItemAsync(string userIdStr, int productId)
         {
             var userOrder = await GetUserOrderAsync(userIdStr, true);
-            var orderItem = userOrder?.OrderItems.FirstOrDefault(i => i.ProductId.Equals(productId));
+            var orderItem = userOrder?.OrderItems.FirstOrDefault(i => i.ProductId == productId);
             if (orderItem is null)
                 return false;
 
@@ -111,7 +111,7 @@ namespace Business.Services
             foreach (var orderItem in notPaidItems)
             {
                 orderItem.IsBought = true;
-                var product = await products.FirstAsync(p => p.Id.Equals(orderItem.ProductId));
+                var product = await products.FirstAsync(p => p.Id == orderItem.ProductId);
                 if (orderItem.Amount > product.Count)
                     return false;
 
@@ -129,7 +129,7 @@ namespace Business.Services
             var userOrder = await _orderRepository
                 .GetAll(trackChanges)
                 .Include(o => o.OrderItems)
-                .FirstOrDefaultAsync(o => o.UserId.Equals(userId));
+                .FirstOrDefaultAsync(o => o.UserId == userId);
 
             return userOrder ?? await Task.FromResult<Order>(null);
         }

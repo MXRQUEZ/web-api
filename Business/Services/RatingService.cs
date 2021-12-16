@@ -13,9 +13,9 @@ namespace Business.Services
     public sealed class RatingService : IRatingService
     {
         private readonly IMapper _mapper;
-        private readonly IRepository<ProductRating> _ratingRepository;
-        private readonly IRepository<Product> _productRepository;
-        public RatingService(IRepository<ProductRating> ratingRepository, IRepository<Product> productRepository, IMapper mapper)
+        private readonly IGenericRepository<ProductRating> _ratingRepository;
+        private readonly IGenericRepository<Product> _productRepository;
+        public RatingService(IGenericRepository<ProductRating> ratingRepository, IGenericRepository<Product> productRepository, IMapper mapper)
         {
             _ratingRepository = ratingRepository;
             _productRepository = productRepository;
@@ -31,7 +31,7 @@ namespace Business.Services
             var userId = int.Parse(userIdStr);
             var userRating = await _ratingRepository
                 .GetAll(false)
-                .FirstOrDefaultAsync(r => r.ProductId.Equals(productId) && r.UserId.Equals(userId));
+                .FirstOrDefaultAsync(r => r.ProductId == productId && r.UserId == userId);
 
             if (userRating is null)
                 await _ratingRepository.AddAndSaveAsync(new ProductRating { ProductId = productId, UserId = userId, Rating = rating });
@@ -55,7 +55,7 @@ namespace Business.Services
             var userId = int.Parse(userIdStr);
             var userRating = await _ratingRepository
                 .GetAll(false)
-                .FirstOrDefaultAsync(r => r.ProductId.Equals(productId) && r.UserId.Equals(userId));
+                .FirstOrDefaultAsync(r => r.ProductId == productId && r.UserId == userId);
 
             if (userRating is null)
                 return false;
@@ -82,7 +82,7 @@ namespace Business.Services
         {
             var allProductRatings = _ratingRepository
                 .GetAll(false)
-                .Where(r => r.ProductId.Equals(productId));
+                .Where(r => r.ProductId == productId);
 
             var ratingsSum = await allProductRatings.SumAsync(r => r.Rating);
             var ratingsCount = await allProductRatings.CountAsync();

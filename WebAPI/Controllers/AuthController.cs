@@ -10,14 +10,13 @@ using Serilog;
 namespace WebAPI.Controllers
 {
     [ApiExplorerSettings(GroupName = "v1")]
+    [AllowAnonymous]
     public sealed class AuthController : BaseController
     {
         private readonly IAuthService _authenticationService;
 
-        public AuthController(ILogger logger, IAuthService authenticationService) : base(logger)
-        {
+        public AuthController(ILogger logger, IAuthService authenticationService) : base(logger) =>
             _authenticationService = authenticationService;
-        }
 
         /// <summary>
         /// Sign up
@@ -27,7 +26,6 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad parameters</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPost("sign-up")]
-        [AllowAnonymous]
         public async Task<IActionResult> SignUp([FromBody] UserCredentialsDTO userCredentialsDto)
         {
             var result = await _authenticationService.SignUpAsync(userCredentialsDto);
@@ -42,7 +40,6 @@ namespace WebAPI.Controllers
         /// <response code="401">Wrong email or password.</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPost("sign-in")]
-        [AllowAnonymous]
         public async Task<IActionResult> SignIn([FromBody] UserCredentialsDTO userCredentialsDto)
         {
             var jwt = await _authenticationService.SignInAsync(userCredentialsDto);
@@ -58,7 +55,6 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad parameters</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpGet("email-confirmation")]
-        [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string id, string token)
         {
             var result = await _authenticationService.ConfirmEmailAsync(id, token);

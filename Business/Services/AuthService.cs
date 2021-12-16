@@ -1,18 +1,12 @@
-﻿using System;
-using System.Net;
-using System.Text;
+﻿using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using AutoMapper;
 using Business.DTO;
-using Business.Exceptions;
-using Business.Helpers;
 using Business.Interfaces;
-using Business.JWT;
+using DAL.Models;
 using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
 
 namespace Business.Services
 {
@@ -56,7 +50,7 @@ namespace Business.Services
             if (!result.Succeeded)
                 return false;
 
-            await _userManager.AddToRoleAsync(user, "user");
+            await _userManager.AddToRoleAsync(user, Role.User);
 
             await _emailSender.SendConfirmationEmailAsync(user);
 

@@ -18,18 +18,18 @@ namespace Business.Services
 {
     public sealed class ProductService : IProductService
     {
-        private readonly Cloudinary _cloudinary;
+        private readonly ICloudinaryManager _cloudinaryManager;
         private readonly IMapper _mapper;
-        private readonly IRepository<Product> _productRepository;
-        private readonly IRepository<ProductRating> _ratingRepository;
+        private readonly IGenericRepository<Product> _productRepository;
+        private readonly IGenericRepository<ProductRating> _ratingRepository;
 
         public ProductService(
-            IRepository<Product> productRepository, IRepository<ProductRating> ratingRepository, IMapper mapper, Cloudinary cloudinary)
+            IGenericRepository<Product> productRepository, IGenericRepository<ProductRating> ratingRepository, IMapper mapper, ICloudinaryManager cloudinaryManager)
         {
             _productRepository = productRepository;
             _ratingRepository = ratingRepository;
             _mapper = mapper;
-            _cloudinary = cloudinary;
+            _cloudinaryManager = cloudinaryManager;
         }
 
         public async Task<IEnumerable<Platform>> GetTopPlatformsAsync()
@@ -61,7 +61,7 @@ namespace Business.Services
                 return await _productRepository
                     .GetAll(false)
                     .OrderBy(on => on.Name)
-                    .Where(p => p.Platform.Equals(platform))
+                    .Where(p => p.Platform == platform)
                     .Select(p => p.Name)
                     .ToListAsync();
             }
@@ -111,7 +111,7 @@ namespace Business.Services
 
         public async Task<ProductOutputDTO> FindByIdAsync(int id)
         {
-            var product = await _productRepository.GetAll(false).FirstOrDefaultAsync(p => p.Id.Equals(id));
+            var product = await _productRepository.GetAll(false).FirstOrDefaultAsync(p => p.Id == id);
             return product is null 
                 ? await Task.FromResult<ProductOutputDTO>(null)
                 : _mapper.Map<ProductOutputDTO>(product);
@@ -121,7 +121,7 @@ namespace Business.Services
         {
             var newProduct = _mapper.Map<Product>(newProductDto);
 
-            newProduct = await UploadImagesAsync(newProduct, newProductDto);
+            newProduct = await _cloudinaryManager.UploadProductImagesAsync(newProduct, newProductDto);
             await _productRepository.AddAndSaveAsync(newProduct);
 
             return _mapper.Map<ProductOutputDTO>(newProduct);
@@ -131,14 +131,14 @@ namespace Business.Services
         {
             var oldProduct = await _productRepository
                 .GetAll(false)
-                .FirstOrDefaultAsync(p => p.Name.Equals(productDtoUpdate.Name));
+                .FirstOrDefaultAsync(p => p.Name == productDtoUpdate.Name);
 
             if (oldProduct is null)
                 return await Task.FromResult<ProductOutputDTO>(null);
 
             var newProduct = _mapper.Map(productDtoUpdate, oldProduct);
 
-            newProduct = await UploadImagesAsync(newProduct, productDtoUpdate);
+            newProduct = await _cloudinaryManager.UploadProductImagesAsync(newProduct, productDtoUpdate);
             await _productRepository.UpdateAndSaveAsync(newProduct);
 
             return _mapper.Map<ProductOutputDTO>(newProduct);
@@ -146,15 +146,15 @@ namespace Business.Services
 
         public async Task<bool> DeleteByIdAsync(int id)
         {
-            var product = await _productRepository.GetAll(false).FirstOrDefaultAsync(p => p.Id.Equals(id));
+            var product = await _productRepository.GetAll(false).FirstOrDefaultAsync(p => p.Id == id);
             if (product is null)
                 return false;
 
             var ratings = _ratingRepository.GetAll(false);
-            var rating = await ratings.FirstOrDefaultAsync(r => r.ProductId.Equals(id));
+            var rating = await ratings.FirstOrDefaultAsync(r => r.ProductId == id);
             if (rating is not null)
             {
-                var deleteRatings = ratings.Where(r => r.ProductId.Equals(id));
+                var deleteRatings = ratings.Where(r => r.ProductId == id);
                 _ratingRepository.DeleteRange(deleteRatings);
             }
 
@@ -174,7 +174,7 @@ namespace Business.Services
                     .Where(r => r.Rating >= productFilters.Rating);
 
             if (productFilters.Genre != Genre.All)
-                sortedProducts = sortedProducts.Where(g => g.Genre.Equals(productFilters.Genre));
+                sortedProducts = sortedProducts.Where(g => g.Genre == productFilters.Genre);
 
             sortedProducts = productFilters.RatingAscending
             ? sortedProducts.OrderBy(r => r.TotalRating) 
@@ -190,28 +190,6 @@ namespace Business.Services
                 pageParameters.PageSize);
 
             return productsList.Select(p => _mapper.Map<ProductOutputDTO>(p));
-        }
-
-        private async Task<Product> UploadImagesAsync(Product product, ProductInputDTO productInputDto)
-        {
-            if (_cloudinary is null)
-                return product;
-
-            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
-            {
-                File = new FileDescription(product.Name + "_logo", productInputDto.Logo.OpenReadStream())
-            });
-
-            product.Logo = downloadResult.Url.AbsolutePath;
-
-            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
-            {
-                File = new FileDescription(product.Name + "_background", productInputDto.Background.OpenReadStream())
-            });
-
-            product.Background = downloadResult.Url.AbsolutePath;
-
-            return product;
         }
     }
 }

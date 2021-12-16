@@ -8,12 +8,15 @@ namespace WebAPI.ServiceExtensions
     {
         public static IServiceCollection AddHealthCheckSetup(this IServiceCollection services, string connectionString)
         {
+            const string healthCheckName = "UsersDB-check";
+            const string dbName = "usersdb";
+
             services.AddHealthChecks()
                 .AddCheck(
-                    "UsersDB-check",
+                    healthCheckName,
                     new SqlConnectionHealthCheck(connectionString),
                     HealthStatus.Unhealthy,
-                    new[] { "usersdb" });
+                    new[] { dbName });
 
             return services;
         }

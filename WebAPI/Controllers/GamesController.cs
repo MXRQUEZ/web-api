@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         /// <response code="404">Not found</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpGet("search-product")]
-        [ServiceFilter(typeof(PagesValidationFilter))]
+        [ServiceFilter(typeof(PagesFilerAttribute))]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ProductOutputDTO>>> SearchProducts(
             [Required] string term, int? limit, int? offset, [FromQuery] PageParameters productParameters)
@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<ProductOutputDTO>> FindProductById([Required] int id)
         {
             var result = await _productService.FindByIdAsync(id);
-            return result is null ? NotFound() : Ok(result);
+            return result is null ? NotFound() : result;
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPost]
         [Authorize(Roles = Role.Admin)]
-        public async Task<ActionResult<ProductOutputDTO>> AddProduct([FromForm] ProductInputDTO newProduct)
+        public async Task<IActionResult> AddProduct([FromForm] ProductInputDTO newProduct)
         {
             var result = await _productService.AddAsync(newProduct);
             return result is null ? BadRequest() : Created(new Uri(Request.GetDisplayUrl()), result);
@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPut]
         [Authorize(Roles = Role.Admin)]
-        public async Task<ActionResult<ProductOutputDTO>> UpdateProduct([FromForm] ProductInputDTO productDtoUpdate)
+        public async Task<IActionResult> UpdateProduct([FromForm] ProductInputDTO productDtoUpdate)
         {
             var result = await _productService.UpdateAsync(productDtoUpdate);
             return result is null ? BadRequest() : Created(new Uri(Request.GetDisplayUrl()), result);
@@ -134,7 +134,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPost("rating")]
         [Authorize]
-        public async Task<ActionResult<ProductOutputDTO>> RateProduct([Required] int rating, [Required] int productId)
+        public async Task<IActionResult> RateProduct([Required] int rating, [Required] int productId)
         {
             var result = await _ratingService.RateAsync(User.Claims.GetUserId(), rating, productId);
             return result is null ? NotFound() : Created(new Uri(Request.GetDisplayUrl()), result);
@@ -163,7 +163,7 @@ namespace WebAPI.Controllers
         /// <response code="404">Not found</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpGet("list")]
-        [ServiceFilter(typeof(PagesValidationFilter))]
+        [ServiceFilter(typeof(PagesFilerAttribute))]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ProductOutputDTO>>> SearchProductsByFilters(
             [FromQuery] PageParameters pageParameters, [FromQuery] ProductFilters productFilters)

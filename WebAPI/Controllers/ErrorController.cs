@@ -8,7 +8,7 @@ namespace WebAPI.Controllers
 {
     [AllowAnonymous]
     [ApiExplorerSettings(IgnoreApi = true)]
-    public class ErrorController : Controller
+    public sealed class ErrorController : Controller
     {
         [Route("/error")]
         public ActionResult<ErrorResponse> Error()

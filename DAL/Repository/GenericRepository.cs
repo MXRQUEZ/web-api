@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using DAL.ApplicationContext;
 using DAL.Interfaces;
@@ -9,26 +8,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repository
 {
-    public class BaseRepository<TEntity> : IDisposable, IRepository<TEntity> where TEntity: class
+    public class GenericRepository<TEntity> : IDisposable, IGenericRepository<TEntity> where TEntity: class
     {
         private readonly ApplicationDbContext _db;
 
-        public BaseRepository(ApplicationDbContext context)
-        {
+        public GenericRepository(ApplicationDbContext context) =>
             _db = context;
-        }
 
-        public IQueryable<TEntity> GetAll(bool trackChanges)
-        {
-            return trackChanges
-                ? _db.Set<TEntity>()
-                : _db.Set<TEntity>().AsNoTracking();
-        }
+        public IQueryable<TEntity> GetAll(bool trackChanges) =>
+        trackChanges
+            ? _db.Set<TEntity>()
+            : _db.Set<TEntity>().AsNoTracking();
 
-        public async Task AddAsync(TEntity newItem)
-        {
+        public async Task AddAsync(TEntity newItem) =>
             await _db.Set<TEntity>().AddAsync(newItem);
-        }
 
         public async Task AddAndSaveAsync(TEntity newItem)
         {
@@ -48,29 +41,25 @@ namespace DAL.Repository
             await _db.SaveChangesAsync();
         }
 
-        public async Task SaveAsync()
-        {
+        public async Task SaveAsync() =>
             await _db.SaveChangesAsync();
-        }
 
-        public void Update(TEntity itemUpdate)
-        {
+        public void Update(TEntity itemUpdate) =>
             _db.Set<TEntity>().Update(itemUpdate);
-        }
 
-        public void Delete(TEntity item)
-        {
+        public void Delete(TEntity item) =>
             _db.Set<TEntity>().Remove(item);
-        }
 
-        public void DeleteRange(IEnumerable<TEntity> items)
-        {
+        public void DeleteRange(IEnumerable<TEntity> items) =>
             _db.Set<TEntity>().RemoveRange(items);
-        }
 
         public void Dispose()
         {
-            _db.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
+
+        protected virtual void Dispose(bool disposing) =>
+            _db.Dispose();
     }
 }

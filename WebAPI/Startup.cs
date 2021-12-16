@@ -9,10 +9,8 @@ namespace WebAPI
 {
     public sealed class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
+        public Startup(IConfiguration configuration) => 
             Configuration = configuration;
-        }
 
         public static IConfiguration Configuration { get; set; }
 

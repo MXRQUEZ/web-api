@@ -15,8 +15,8 @@ namespace Tests.Extensions.TestData
         public static readonly IMapper FakeMapper = A.Fake<IMapper>();
         public static readonly IEmailSender FakeEmailSender = A.Fake<IEmailSender>();
 
-        public static readonly IRepository<Order> FakeOrderRepository = A.Fake<IRepository<Order>>();
-        public static readonly IRepository<Product> FakeProductRepository = A.Fake<IRepository<Product>>();
-        public static readonly IRepository<ProductRating> FakeRatingRepository = A.Fake<IRepository<ProductRating>>();
+        public static readonly IGenericRepository<Order> FakeOrderRepository = A.Fake<IGenericRepository<Order>>();
+        public static readonly IGenericRepository<Product> FakeProductRepository = A.Fake<IGenericRepository<Product>>();
+        public static readonly IGenericRepository<ProductRating> FakeRatingRepository = A.Fake<IGenericRepository<ProductRating>>();
     }
 }

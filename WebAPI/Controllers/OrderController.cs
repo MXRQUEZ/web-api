@@ -12,14 +12,13 @@ using Serilog;
 namespace WebAPI.Controllers
 {
     [ApiExplorerSettings(GroupName = "v5")]
+    [Authorize]
     public sealed class OrderController : BaseController
     {
         private readonly IOrderService _orderService;
 
-        public OrderController(IOrderService orderService, ILogger logger) : base(logger)
-        {
+        public OrderController(IOrderService orderService, ILogger logger) : base(logger) =>
             _orderService = orderService;
-        }
 
         /// <summary>
         /// Order product
@@ -29,8 +28,7 @@ namespace WebAPI.Controllers
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPost("orders")]
-        [Authorize]
-        public async Task<ActionResult<OrderOutputDTO>> OrderProduct(int productId, int amount)
+        public async Task<IActionResult> OrderProduct(int productId, int amount)
         {
             var result = await _orderService.OrderAsync(User.Claims.GetUserId(), productId, amount);
             return result is null ? NotFound() : Created(new Uri(Request.GetDisplayUrl()), result);
@@ -44,11 +42,10 @@ namespace WebAPI.Controllers
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpGet("orders")]
-        [Authorize]
         public async Task<ActionResult<OrderOutputDTO>> RepresentOrder(int? orderId = null)
         {
             var result = await _orderService.RepresentOrderAsync(User.Claims.GetUserId(), orderId);
-            return result is null ? NotFound() : Ok(result);
+            return result is null ? NotFound() : result;
         }
 
         /// <summary>
@@ -59,8 +56,7 @@ namespace WebAPI.Controllers
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPut("orders")]
-        [Authorize]
-        public async Task<ActionResult<OrderOutputDTO>> UpdateOrderItem(OrderItemInputDTO orderItemDto)
+        public async Task<IActionResult> UpdateOrderItem(OrderItemInputDTO orderItemDto)
         {
             var result = await _orderService.UpdateOrderItemAsync(User.Claims.GetUserId(), orderItemDto);
             return result is null ? NotFound() : Created(new Uri(Request.GetDisplayUrl()), result);
@@ -74,7 +70,6 @@ namespace WebAPI.Controllers
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpDelete("orders")]
-        [Authorize]
         public async Task<IActionResult> DeleteOrderItem([Required] int productId)
         {
             var result = await _orderService.DeleteOrderItemAsync(User.Claims.GetUserId(), productId);
@@ -89,7 +84,6 @@ namespace WebAPI.Controllers
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpPost("buy")]
-        [Authorize]
         public async Task<IActionResult> PayOrder()
         {
             var result = await _orderService.PayOrderAsync(User.Claims.GetUserId());

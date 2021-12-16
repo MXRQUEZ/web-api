@@ -1,8 +1,8 @@
 ﻿using System;
-using Business.Interfaces;
+using DAL.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Business.Helpers
+namespace DAL.Caching
 {
     public sealed class CacheManager<T> : ICacheManager<T> where T : class
     {

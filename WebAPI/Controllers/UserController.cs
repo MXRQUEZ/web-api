@@ -16,10 +16,8 @@ namespace WebAPI.Controllers
     {
         private readonly IUserService _userService;
 
-        public UserController(IUserService userService, ILogger logger) : base(logger)
-        {
+        public UserController(IUserService userService, ILogger logger) : base(logger) => 
             _userService = userService;
-        }
 
         /// <summary>
         /// Updates user profile

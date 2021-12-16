@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace WebAPI.Filters
 {
-    public class PagesValidationFilter : IActionFilter
+    public class PagesFilerAttribute : ActionFilterAttribute
     {
-        public void OnActionExecuting(ActionExecutingContext context)
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
             var value = context.ActionArguments.Values.SingleOrDefault(p => p is PageParameters);
             if (value is null)
@@ -20,10 +20,6 @@ namespace WebAPI.Filters
                 throw new HttpStatusException(
                     HttpStatusCode.BadRequest, $"{ExceptionMessage.BadParameter}s + {nameof(pageParameters.PageSize)} and" +
                                                $" {nameof(pageParameters.PageNumber)} can't be less or equal 0");
-        }
-
-        public void OnActionExecuted(ActionExecutedContext context)
-        {
         }
     }
 }

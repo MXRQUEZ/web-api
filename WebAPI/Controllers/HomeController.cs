@@ -12,14 +12,13 @@ namespace WebAPI.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiExplorerSettings(GroupName = "v4")]
+    [Authorize(Roles = Role.Admin)]
     public sealed class HomeController : BaseController
     {
         private readonly IUserService _userService;
 
-        public HomeController(IUserService userService, ILogger logger) : base(logger)
-        {
+        public HomeController(IUserService userService, ILogger logger) : base(logger) =>
             _userService = userService;
-        }
 
         /// <summary>
         /// Represents users in database
@@ -30,8 +29,7 @@ namespace WebAPI.Controllers
         /// <response code="403">You don't have enough rights for this request</response>
         /// <response code="500">Server has some issues. Please, come back later</response>
         [HttpGet("get-info")]
-        [Authorize(Roles = Role.Admin)]
-        [ServiceFilter(typeof(PagesValidationFilter))]
+        [ServiceFilter(typeof(PagesFilerAttribute))]
         public async Task<ActionResult<IEnumerable<string>>> GetInfo([FromQuery] PageParameters pageParameters)
         {
             Logger.ForContext<HomeController>().Information("request: GetInfo");
