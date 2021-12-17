@@ -6,6 +6,7 @@ using Business.DTO;
 using Business.Helpers;
 using Business.Interfaces;
 using Business.Parameters;
+using DAL.Interfaces;
 using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +15,9 @@ namespace Business.Services
 {
     public sealed class UserService : IUserService
     {
+        private readonly ICacheManager<User> _cacheManager;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        private readonly ICacheManager<User> _cacheManager;
 
         public UserService(IMapper mapper, UserManager<User> userManager, ICacheManager<User> cacheManager)
         {

@@ -11,12 +11,8 @@ namespace WebAPI.HealthCheck
     {
         private const string DefaultTestQuery = "Select 1";
 
-        public string ConnectionString { get; }
-
-        public string TestQuery { get; }
-
         public SqlConnectionHealthCheck(string connectionString)
-            : this(connectionString, testQuery: DefaultTestQuery)
+            : this(connectionString, DefaultTestQuery)
         {
         }
 
@@ -26,7 +22,12 @@ namespace WebAPI.HealthCheck
             TestQuery = testQuery;
         }
 
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default(CancellationToken))
+        public string ConnectionString { get; }
+
+        public string TestQuery { get; }
+
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
+            CancellationToken cancellationToken = default)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
@@ -44,7 +45,7 @@ namespace WebAPI.HealthCheck
                 }
                 catch (DbException ex)
                 {
-                    return new HealthCheckResult(status: context.Registration.FailureStatus, exception: ex);
+                    return new HealthCheckResult(context.Registration.FailureStatus, exception: ex);
                 }
             }
 

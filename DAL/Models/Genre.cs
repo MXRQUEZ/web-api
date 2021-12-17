@@ -13,4 +13,3 @@ namespace DAL.Models
         Action
     }
 }
-

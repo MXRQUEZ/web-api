@@ -8,15 +8,15 @@ namespace Business.DTO
     public class ProductDTO
     {
         /// <summary>
-        /// Product name
+        ///     Product name
         /// </summary>
         /// <example>"My Best Game"</example>
-        
+
         [Required(ErrorMessage = "Name must be specified")]
         public string Name { get; set; }
 
         /// <summary>
-        /// Product platform. Use numbers to chose platform
+        ///     Product platform. Use numbers to chose platform
         /// </summary>
 
         [Required]
@@ -24,16 +24,16 @@ namespace Business.DTO
         public Platform Platform { get; set; }
 
         /// <summary>
-        /// Product date of creation
+        ///     Product date of creation
         /// </summary>
         /// <example>dd/mm/yyyy</example>
-        
+
         [Required(ErrorMessage = "Date of creation must be specified")]
         [RegularExpression(@"^([012]\d|30|31)/(0\d|10|11|12)/\d{4}$", ErrorMessage = "Date must be dd/mm/yyyy")]
         public string DateCreated { get; set; }
 
         /// <summary>
-        /// Product genre
+        ///     Product genre
         /// </summary>
 
         [Required]
@@ -41,7 +41,7 @@ namespace Business.DTO
         public Genre Genre { get; set; }
 
         /// <summary>
-        /// Product rating
+        ///     Product rating
         /// </summary>
 
         [Required]
@@ -49,14 +49,14 @@ namespace Business.DTO
         public Rating Rating { get; set; }
 
         /// <summary>
-        /// Product price(in dollars equivalent)
+        ///     Product price(in dollars equivalent)
         /// </summary>
 
         [Required(ErrorMessage = "Price must be specified")]
         public int Price { get; set; }
 
         /// <summary>
-        /// Products in storage
+        ///     Products in storage
         /// </summary>
 
         [Required(ErrorMessage = "Count must be specified")]

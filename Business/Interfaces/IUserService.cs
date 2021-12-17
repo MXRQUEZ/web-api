@@ -9,7 +9,10 @@ namespace Business.Interfaces
     {
         Task<UserDTO> GetUserInfoAsync(string userId);
         Task<UserDTO> UpdateAsync(string userId, UserDTO userDto);
-        Task<bool> ChangePasswordAsync(string userId, string oldPassword, string newPassword, string confirmationPassword);
+
+        Task<bool> ChangePasswordAsync(string userId, string oldPassword, string newPassword,
+            string confirmationPassword);
+
         Task<IEnumerable<string>> GetUsersAsync(PageParameters pageParameters);
     }
 }

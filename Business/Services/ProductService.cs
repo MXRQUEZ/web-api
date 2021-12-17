@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -7,78 +6,64 @@ using Business.DTO;
 using Business.Helpers;
 using Business.Interfaces;
 using Business.Parameters;
-using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
 using DAL.Interfaces;
 using DAL.Models;
 using DAL.Models.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace Business.Services
 {
     public sealed class ProductService : IProductService
     {
-        private readonly Cloudinary _cloudinary;
+        private readonly ICloudinaryManager _cloudinaryManager;
         private readonly IMapper _mapper;
-        private readonly IRepository<Product> _productRepository;
-        private readonly IRepository<ProductRating> _ratingRepository;
+        private readonly IProductManager _productManager;
+        private readonly IRatingManager _ratingManager;
 
         public ProductService(
-            IRepository<Product> productRepository, IRepository<ProductRating> ratingRepository, IMapper mapper, Cloudinary cloudinary)
+            IProductManager productManager, IRatingManager ratingManager, IMapper mapper,
+            ICloudinaryManager cloudinaryManager)
         {
-            _productRepository = productRepository;
-            _ratingRepository = ratingRepository;
+            _productManager = productManager;
+            _ratingManager = ratingManager;
+            _cloudinaryManager = cloudinaryManager;
             _mapper = mapper;
-            _cloudinary = cloudinary;
         }
 
         public async Task<IEnumerable<Platform>> GetTopPlatformsAsync()
         {
-            var pc = await GetAllByPlatformAsync(Platform.PersonalComputer);
-            var mobile = await GetAllByPlatformAsync(Platform.Mobile);
-            var ps = await GetAllByPlatformAsync(Platform.PlayStation);
-            var xbox = await GetAllByPlatformAsync(Platform.Xbox);
-            var nintendo = await GetAllByPlatformAsync(Platform.Nintendo);
+            var pcCount = await _productManager.CountByPlatformAsync(Platform.PersonalComputer);
+            var mobileCount = await _productManager.CountByPlatformAsync(Platform.Mobile);
+            var psCount = await _productManager.CountByPlatformAsync(Platform.PlayStation);
+            var xboxCount = await _productManager.CountByPlatformAsync(Platform.Xbox);
+            var nintendoCount = await _productManager.CountByPlatformAsync(Platform.Nintendo);
 
-            var platforms = new Dictionary<Platform, IEnumerable<string>>
+            var platforms = new Dictionary<Platform, int>
             {
-                {Platform.PersonalComputer, pc},
-                {Platform.Mobile, mobile},
-                {Platform.PlayStation, ps},
-                {Platform.Xbox, xbox},
-                {Platform.Nintendo, nintendo}
+                {Platform.PersonalComputer, pcCount},
+                {Platform.Mobile, mobileCount},
+                {Platform.PlayStation, psCount},
+                {Platform.Xbox, xboxCount},
+                {Platform.Nintendo, nintendoCount}
             };
 
             var topPlatforms = platforms
-                .OrderByDescending(p => p.Value.Count())
+                .OrderByDescending(p => p.Value)
                 .Take(3)
                 .Select(p => p.Key);
 
             return topPlatforms;
-
-            async Task<IEnumerable<string>> GetAllByPlatformAsync(Platform platform)
-            {
-                return await _productRepository
-                    .GetAll(false)
-                    .OrderBy(on => on.Name)
-                    .Where(p => p.Platform.Equals(platform))
-                    .Select(p => p.Name)
-                    .ToListAsync();
-            }
         }
 
-        public async Task<IEnumerable<ProductOutputDTO>> SearchProductsAsync(
+        public async Task<IEnumerable<ProductOutputDTO>> SearchByTermAsync(
             string term, int? limit, int? offset, PageParameters pageParameters)
         {
-            var products = await _productRepository
-                .GetAll(false)
-                .OrderBy(on => on.Name)
-                .ToListAsync();
+            var products = await _productManager
+                .GetByTermAsync(term);
             var productsList =
                 new PagedList<Product>(
-                        products,
-                        pageParameters.PageNumber,
-                        pageParameters.PageSize);
+                    products,
+                    pageParameters.PageNumber,
+                    pageParameters.PageSize);
 
             var productsCount = productsList.Count;
             limit ??= productsCount;
@@ -87,23 +72,16 @@ namespace Business.Services
             if (limit < 0 || offset < 0)
                 return await Task.FromResult<IEnumerable<ProductOutputDTO>>(null);
 
-            if (limit == 0 || offset > productsCount) 
+            if (limit == 0 || offset > productsCount)
                 return new List<ProductOutputDTO>();
 
             var termProducts = new List<ProductOutputDTO>();
-            foreach (var product in productsList)
+            foreach (var product in productsList.Skip(offset.Value))
             {
-                if (offset > 0)
-                {
-                    offset--;
-                    continue;
-                }
-
                 if (limit <= 0) break;
                 limit--;
 
-                if (product.Name.Contains(term, StringComparison.CurrentCultureIgnoreCase))
-                    termProducts.Add(_mapper.Map<ProductOutputDTO>(product));
+                termProducts.Add(_mapper.Map<ProductOutputDTO>(product));
             }
 
             return termProducts;
@@ -111,8 +89,8 @@ namespace Business.Services
 
         public async Task<ProductOutputDTO> FindByIdAsync(int id)
         {
-            var product = await _productRepository.GetAll(false).FirstOrDefaultAsync(p => p.Id.Equals(id));
-            return product is null 
+            var product = await _productManager.FindByIdAsync(id);
+            return product is null
                 ? await Task.FromResult<ProductOutputDTO>(null)
                 : _mapper.Map<ProductOutputDTO>(product);
         }
@@ -121,97 +99,71 @@ namespace Business.Services
         {
             var newProduct = _mapper.Map<Product>(newProductDto);
 
-            newProduct = await UploadImagesAsync(newProduct, newProductDto);
-            await _productRepository.AddAndSaveAsync(newProduct);
+            newProduct.Logo = await _cloudinaryManager.UploadProductLogoAsync(newProductDto);
+            newProduct.Background = await _cloudinaryManager.UploadProductBackgroundAsync(newProductDto);
+            await _productManager.AddAndSaveAsync(newProduct);
 
             return _mapper.Map<ProductOutputDTO>(newProduct);
         }
 
         public async Task<ProductOutputDTO> UpdateAsync(ProductInputDTO productDtoUpdate)
         {
-            var oldProduct = await _productRepository
-                .GetAll(false)
-                .FirstOrDefaultAsync(p => p.Name.Equals(productDtoUpdate.Name));
+            var oldProduct = await _productManager
+                .FindByNameAsync(productDtoUpdate.Name);
 
             if (oldProduct is null)
                 return await Task.FromResult<ProductOutputDTO>(null);
 
             var newProduct = _mapper.Map(productDtoUpdate, oldProduct);
 
-            newProduct = await UploadImagesAsync(newProduct, productDtoUpdate);
-            await _productRepository.UpdateAndSaveAsync(newProduct);
+            newProduct.Logo = await _cloudinaryManager.UploadProductLogoAsync(productDtoUpdate);
+            newProduct.Background = await _cloudinaryManager.UploadProductBackgroundAsync(productDtoUpdate);
+            await _productManager.UpdateAndSaveAsync(newProduct);
 
             return _mapper.Map<ProductOutputDTO>(newProduct);
         }
 
-        public async Task<bool> DeleteByIdAsync(int id)
+        public async Task<bool> DeleteByIdAsync(int productId)
         {
-            var product = await _productRepository.GetAll(false).FirstOrDefaultAsync(p => p.Id.Equals(id));
+            var product = await _productManager.FindByIdAsync(productId);
             if (product is null)
                 return false;
 
-            var ratings = _ratingRepository.GetAll(false);
-            var rating = await ratings.FirstOrDefaultAsync(r => r.ProductId.Equals(id));
-            if (rating is not null)
+            if (!await _ratingManager.AnyAsync(productId))
             {
-                var deleteRatings = ratings.Where(r => r.ProductId.Equals(id));
-                _ratingRepository.DeleteRange(deleteRatings);
+                await _productManager.DeleteAndSaveAsync(product);
+                return true;
             }
 
-            await _productRepository.DeleteAndSaveAsync(product);
+            var deleteRatings = await _ratingManager.GetByProductIdAsync(productId);
+            _ratingManager.DeleteRange(deleteRatings);
+            await _productManager.DeleteAndSaveAsync(product);
             return true;
         }
 
-        public async Task<IEnumerable<ProductOutputDTO>> SearchProductsByFiltersAsync(
+        public async Task<IEnumerable<ProductOutputDTO>> SearchByFiltersAsync(
             PageParameters pageParameters, ProductFilters productFilters)
         {
-            var products = await _productRepository
-                .GetAll(false)
-                .OrderBy(on => on.Name)
-                .ToListAsync();
             var sortedProducts =
-                products
-                    .Where(r => r.Rating >= productFilters.Rating);
+                await _productManager.GetWhereAsync(product => product.Rating >= productFilters.Rating);
 
             if (productFilters.Genre != Genre.All)
-                sortedProducts = sortedProducts.Where(g => g.Genre.Equals(productFilters.Genre));
+                sortedProducts = sortedProducts.Where(product => product.Genre == productFilters.Genre);
 
             sortedProducts = productFilters.RatingAscending
-            ? sortedProducts.OrderBy(r => r.TotalRating) 
-            : sortedProducts.OrderByDescending(r => r.TotalRating);
+                ? sortedProducts.OrderBy(product => product.TotalRating)
+                : sortedProducts.OrderByDescending(product => product.TotalRating);
 
             sortedProducts = productFilters.PriceAscending
-                ? sortedProducts.OrderBy(p => p.Price) 
-                : sortedProducts.OrderByDescending(p => p.Price);
+                ? sortedProducts.OrderBy(product => product.Price)
+                : sortedProducts.OrderByDescending(product => product.Price);
 
             var productsList = new PagedList<Product>(
                 sortedProducts,
                 pageParameters.PageNumber,
                 pageParameters.PageSize);
 
-            return productsList.Select(p => _mapper.Map<ProductOutputDTO>(p));
-        }
-
-        private async Task<Product> UploadImagesAsync(Product product, ProductInputDTO productInputDto)
-        {
-            if (_cloudinary is null)
-                return product;
-
-            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
-            {
-                File = new FileDescription(product.Name + "_logo", productInputDto.Logo.OpenReadStream())
-            });
-
-            product.Logo = downloadResult.Url.AbsolutePath;
-
-            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
-            {
-                File = new FileDescription(product.Name + "_background", productInputDto.Background.OpenReadStream())
-            });
-
-            product.Background = downloadResult.Url.AbsolutePath;
-
-            return product;
+            return productsList.Select(product => _mapper.Map<ProductOutputDTO>(product));
         }
     }
 }

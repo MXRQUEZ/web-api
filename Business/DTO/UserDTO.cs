@@ -5,7 +5,7 @@ namespace Business.DTO
     public sealed class UserDTO
     {
         /// <summary>
-        /// Your birthday date
+        ///     Your birthday date
         /// </summary>
         /// <example>dd/mm/yyyy</example>
         [Required(ErrorMessage = "Date of birth must be specified")]
@@ -13,14 +13,14 @@ namespace Business.DTO
         public string DateOfBirth { get; set; }
 
         /// <summary>
-        /// Your gender
+        ///     Your gender
         /// </summary>
         /// <example>["Male", "Female"] or else</example>
         [Required(ErrorMessage = "Gender must be specified")]
         public string Gender { get; set; }
 
         /// <summary>
-        /// Your email
+        ///     Your email
         /// </summary>
         /// <example>example_mail@gmail.com</example>
         [Required(ErrorMessage = "Email must be specified")]
@@ -28,7 +28,7 @@ namespace Business.DTO
         public string Email { get; set; }
 
         /// <summary>
-        /// Your phone number using numbers only
+        ///     Your phone number using numbers only
         /// </summary>
         /// <example>37529XXXXXXX</example>
         [Required(ErrorMessage = "Phone number must be specified")]
@@ -36,14 +36,14 @@ namespace Business.DTO
         public string PhoneNumber { get; set; }
 
         /// <summary>
-        /// Your delivery address
+        ///     Your delivery address
         /// </summary>
         /// <example>Minsk, Vyazenceva 43/12</example>
         [Required(ErrorMessage = "Delivery address must be specified")]
         public string AddressDelivery { get; set; }
 
         /// <summary>
-        /// Your nickname without whitespaces
+        ///     Your nickname without whitespaces
         /// </summary>
         /// <example>"ThisIsMyNickName"</example>
         [Required(ErrorMessage = "Username must be specified")]

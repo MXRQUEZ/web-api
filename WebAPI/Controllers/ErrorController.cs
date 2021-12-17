@@ -8,14 +8,14 @@ namespace WebAPI.Controllers
 {
     [AllowAnonymous]
     [ApiExplorerSettings(IgnoreApi = true)]
-    public class ErrorController : Controller
+    public sealed class ErrorController : Controller
     {
         [Route("/error")]
         public ActionResult<ErrorResponse> Error()
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exception = context.Error;
-            var code = (int)HttpStatusCode.InternalServerError;
+            var code = (int) HttpStatusCode.InternalServerError;
 
             if (exception is HttpStatusException httpStatusException)
             {

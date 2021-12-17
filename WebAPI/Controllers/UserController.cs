@@ -1,11 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Business.DTO;
 using Business.Helpers;
 using Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
@@ -16,13 +14,11 @@ namespace WebAPI.Controllers
     {
         private readonly IUserService _userService;
 
-        public UserController(IUserService userService, ILogger logger) : base(logger)
-        {
+        public UserController(IUserService userService, ILogger logger) : base(logger) =>
             _userService = userService;
-        }
 
         /// <summary>
-        /// Updates user profile
+        ///     Updates user profile
         /// </summary>
         /// <param name="userDto">Profile update params</param>
         /// <response code="200">Profile was updated</response>
@@ -38,7 +34,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Changes user`s password
+        ///     Changes user`s password
         /// </summary>
         /// <param name="oldPassword" example="_SkJwNif2345">Old password</param>
         /// <param name="newPassword" example="_SkJwNif23456">New password</param>
@@ -58,7 +54,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Represents user info
+        ///     Represents user info
         /// </summary>
         /// <response code="200">Profile info was represented</response>
         /// <response code="401">Unauthorized</response>

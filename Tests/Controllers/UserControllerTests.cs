@@ -135,7 +135,7 @@ namespace Tests.Controllers
                 .WithTestUser();
 
             A.CallTo(() => fakeUserService
-                .GetUserInfoAsync(A<string>.Ignored))
+                    .GetUserInfoAsync(A<string>.Ignored))
                 .Returns(Task.FromResult(new UserDTO()));
 
             // Act

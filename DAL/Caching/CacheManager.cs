@@ -1,8 +1,8 @@
 ﻿using System;
-using Business.Interfaces;
+using DAL.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Business.Helpers
+namespace DAL.Caching
 {
     public sealed class CacheManager<T> : ICacheManager<T> where T : class
     {
@@ -11,7 +11,7 @@ namespace Business.Helpers
 
         public string GetCacheKey(string key) => $"{typeof(T)}_{key}";
 
-        public void SetCache(string cacheKey, T cacheItem) => 
+        public void SetCache(string cacheKey, T cacheItem) =>
             _cache.Set(cacheKey, cacheItem,
                 new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5)));
 

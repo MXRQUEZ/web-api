@@ -1,12 +1,13 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Business.DTO;
 using Business.Parameters;
 using Business.Services;
+using DAL.Models;
 using DAL.Models.Entities;
 using FakeItEasy;
-using MockQueryable.FakeItEasy;
 using Tests.Extensions;
 using Xunit;
 using static Tests.Extensions.TestData.FakeTestData;
@@ -24,25 +25,24 @@ namespace Tests.Services
             var products = CreateEnumerable<Product>(10);
             var filters = new ProductFilters();
             var pagination = new PageParameters();
-            var productService = new ProductService(FakeProductRepository, FakeRatingRepository, FakeMapper, null);
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(products.AsQueryable().BuildMock());
+            var productService = new ProductService(FakeProductManager, FakeRatingManager, FakeMapper, null);
+            A.CallTo(() => FakeProductManager.GetWhereAsync(A<Expression<Func<Product, bool>>>.Ignored))
+                .Returns(products);
 
             // Act
-            var result = await productService.SearchProductsByFiltersAsync(pagination, filters);
+            var result = await productService.SearchByFiltersAsync(pagination, filters);
 
             // Assert
             Assert.NotNull(result);
         }
 
         [Fact]
-        public async Task GetTopPlatformsAsync_ReturnsPlatforms()
+        public async Task GetTopPlatformsAsync_ReturnPlatforms()
         {
             // Arrange
-            var products = CreateEnumerable<Product>(10);
-            var productService = new ProductService(FakeProductRepository, FakeRatingRepository, FakeMapper, null);
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(products.AsQueryable().BuildMock());
+            var productService = new ProductService(FakeProductManager, FakeRatingManager, FakeMapper, null);
+            A.CallTo(() => FakeProductManager.CountByPlatformAsync(A<Platform>.Ignored))
+                .Returns(0);
 
             // Act
             var result = await productService.GetTopPlatformsAsync();
@@ -52,30 +52,30 @@ namespace Tests.Services
         }
 
         [Fact]
-        public async Task SearchProductsByTermAsync_ReturnsProducts()
+        public async Task SearchProductsByTermAsync_ReturnProducts()
         {
             // Arrange
             var products = CreateEnumerable<Product>(10);
             var pagination = new PageParameters();
-            var productService = new ProductService(FakeProductRepository, FakeRatingRepository, FakeMapper, null);
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(products.AsQueryable().BuildMock());
+            var productService = new ProductService(FakeProductManager, FakeRatingManager, FakeMapper, null);
+            A.CallTo(() => FakeProductManager.GetWhereAsync(A<Expression<Func<Product, bool>>>.Ignored))
+                .Returns(products);
 
             // Act
-            var result = await productService.SearchProductsAsync(string.Empty, 0, 0, pagination);
+            var result = await productService.SearchByTermAsync(string.Empty, 0, 0, pagination);
 
             // Assert
             Assert.NotNull(result);
         }
 
         [Fact]
-        public async Task FindByIdAsync_ReturnsProduct()
+        public async Task FindByIdAsync_ReturnProduct()
         {
             // Arrange
             var product = new Product {Id = ProductId};
-            var productService = new ProductService(FakeProductRepository, FakeRatingRepository, FakeMapper, null);
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product>{product}.AsQueryable().BuildMock());
+            var productService = new ProductService(FakeProductManager, FakeRatingManager, FakeMapper, null);
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(product);
 
             // Act
             var result = await productService.FindByIdAsync(ProductId);
@@ -85,13 +85,12 @@ namespace Tests.Services
         }
 
         [Fact]
-        public async Task FindByIdAsync_WithInvalidProductId_ReturnsNull()
+        public async Task FindByIdAsync_WithInvalidProductId_ReturnNull()
         {
             // Arrange
-            var product = new Product { Id = ProductId };
-            var productService = new ProductService(FakeProductRepository, FakeRatingRepository, FakeMapper, null);
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product> { product }.AsQueryable().BuildMock());
+            var productService = new ProductService(FakeProductManager, FakeRatingManager, FakeMapper, null);
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(Task.FromResult<Product>(null));
 
             // Act
             var result = await productService.FindByIdAsync(0);
@@ -105,9 +104,13 @@ namespace Tests.Services
         {
             // Arrange
             var productInputDto = new ProductInputDTO();
-            var productService = new ProductService(FakeProductRepository, FakeRatingRepository, FakeMapper, null);
-            A.CallTo(() => FakeProductRepository.AddAndSaveAsync(A<Product>.Ignored))
-                .Returns(Task.CompletedTask);
+            var productService = new ProductService(FakeProductManager, FakeRatingManager, FakeMapper, FakeCloudinary);
+
+            A.CallTo(() => FakeCloudinary.UploadProductLogoAsync(A<ProductInputDTO>.Ignored))
+                .Returns(Task.FromResult<string>(null));
+
+            A.CallTo(() => FakeCloudinary.UploadProductBackgroundAsync(A<ProductInputDTO>.Ignored))
+                .Returns(Task.FromResult<string>(null));
 
             // Act
             var result = await productService.AddAsync(productInputDto);
@@ -122,13 +125,16 @@ namespace Tests.Services
             // Arrange
             var productInputDto = new ProductInputDTO {Name = ProductName};
             var product = new Product {Name = ProductName};
-            var productService = new ProductService(FakeProductRepository, FakeRatingRepository, FakeMapper, null);
+            var productService = new ProductService(FakeProductManager, FakeRatingManager, FakeMapper, FakeCloudinary);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product>{product}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByNameAsync(A<string>.Ignored))
+                .Returns(product);
 
-            A.CallTo(() => FakeProductRepository.UpdateAndSaveAsync(A<Product>.Ignored))
-                .Returns(Task.CompletedTask);
+            A.CallTo(() => FakeCloudinary.UploadProductLogoAsync(A<ProductInputDTO>.Ignored))
+                .Returns(Task.FromResult<string>(null));
+
+            A.CallTo(() => FakeCloudinary.UploadProductBackgroundAsync(A<ProductInputDTO>.Ignored))
+                .Returns(Task.FromResult<string>(null));
 
             // Act
             var result = await productService.UpdateAsync(productInputDto);
@@ -141,18 +147,13 @@ namespace Tests.Services
         public async Task UpdateAsync_WithInvalidProductName_ReturnNull()
         {
             // Arrange
-            var productInputDto = new ProductInputDTO { Name = "OtherName" };
-            var product = new Product { Name = ProductName };
-            var productService = new ProductService(FakeProductRepository, FakeRatingRepository, FakeMapper, null);
+            var productService = new ProductService(FakeProductManager, FakeRatingManager, FakeMapper, null);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product> { product }.AsQueryable().BuildMock());
-
-            A.CallTo(() => FakeProductRepository.UpdateAndSaveAsync(A<Product>.Ignored))
-                .Returns(Task.CompletedTask);
+            A.CallTo(() => FakeProductManager.FindByNameAsync(A<string>.Ignored))
+                .Returns(Task.FromResult<Product>(null));
 
             // Act
-            var result = await productService.UpdateAsync(productInputDto);
+            var result = await productService.UpdateAsync(new ProductInputDTO());
 
             // Assert
             Assert.Null(result);
@@ -164,13 +165,13 @@ namespace Tests.Services
             // Arrange
             var product = new Product {Id = ProductId};
             var rating = new ProductRating {UserId = int.Parse(UserId), ProductId = ProductId};
-            var productService = new ProductService(FakeProductRepository, FakeRatingRepository, FakeMapper, null);
+            var productService = new ProductService(FakeProductManager, FakeRatingManager, FakeMapper, null);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product> {product}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(product);
 
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating>{rating}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeRatingManager.GetByProductIdAsync(A<int>.Ignored))
+                .Returns(new List<ProductRating> {rating});
 
             // Act
             var result = await productService.DeleteByIdAsync(ProductId);
@@ -184,13 +185,13 @@ namespace Tests.Services
         {
             // Arrange
             var product = new Product {Id = ProductId};
-            var productService = new ProductService(FakeProductRepository, FakeRatingRepository, FakeMapper, null);
+            var productService = new ProductService(FakeProductManager, FakeRatingManager, FakeMapper, null);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product> { product }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(product);
 
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating>().AsQueryable().BuildMock());
+            A.CallTo(() => FakeRatingManager.GetByProductIdAsync(A<int>.Ignored))
+                .Returns(new List<ProductRating>());
 
             // Act
             var result = await productService.DeleteByIdAsync(ProductId);
@@ -203,14 +204,10 @@ namespace Tests.Services
         public async Task DeleteProductAsync_WithInvalidProductId_ReturnFalse()
         {
             // Arrange
-            var product = new Product { Id = ProductId }; ;
-            var productService = new ProductService(FakeProductRepository, FakeRatingRepository, FakeMapper, null);
+            var productService = new ProductService(FakeProductManager, FakeRatingManager, FakeMapper, null);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product> { product }.AsQueryable().BuildMock());
-
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating>().AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(Task.FromResult<Product>(null));
 
             // Act
             var result = await productService.DeleteByIdAsync(0);

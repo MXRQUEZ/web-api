@@ -5,15 +5,16 @@ namespace Business.DTO
     public sealed class UserCredentialsDTO
     {
         /// <summary>
-        /// Your email
+        ///     Your email
         /// </summary>
         /// <example>example_mail@gmail.com</example>
-        [Required(ErrorMessage = "Email must be specified")] 
+        [Required(ErrorMessage = "Email must be specified")]
         [EmailAddress]
         public string Email { get; set; }
 
         /// <summary>
-        /// Your password. At least upper case letter, lower case letter, number and special character (e.g. !@#$%^&amp;*) must be used
+        ///     Your password. At least upper case letter, lower case letter, number and special character (e.g. !@#$%^&amp;*) must
+        ///     be used
         /// </summary>
         /// <example>_SkJwNif2345</example>
         [Required(ErrorMessage = "Password must be specified")]

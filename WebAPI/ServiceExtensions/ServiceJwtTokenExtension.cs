@@ -31,7 +31,8 @@ namespace WebAPI.ServiceExtensions
                     {
                         ValidIssuer = jwtAppSettingOptions["JwtIssuer"],
                         ValidAudience = jwtAppSettingOptions["JwtIssuer"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtAppSettingOptions["JwtKey"])),
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtAppSettingOptions["JwtKey"])),
                         ClockSkew = TimeSpan.Zero
                     };
                 });
