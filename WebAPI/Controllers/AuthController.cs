@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
             _authenticationService = authenticationService;
 
         /// <summary>
-        /// Sign up
+        ///     Sign up
         /// </summary>
         /// <param name="userCredentialsDto">Sign up parameters</param>
         /// <response code="201">Please, verify your email</response>
@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Sign in
+        ///     Sign in
         /// </summary>
         /// <param name="userCredentialsDto">Sign in parameters</param>
         /// <response code="200">You are signed in!</response>
@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Email confirmation
+        ///     Email confirmation
         /// </summary>
         /// <param name="id" example="12">Your id</param>
         /// <param name="token" example="aabsrDfgs">Your token</param>

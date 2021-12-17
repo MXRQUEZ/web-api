@@ -12,12 +12,13 @@ namespace Business.Services
 {
     public sealed class AuthService : IAuthService
     {
+        private readonly IEmailSender _emailSender;
         private readonly IJwtGenerator _jwtGenerator;
         private readonly IMapper _mapper;
-        private readonly IEmailSender _emailSender;
         private readonly UserManager<User> _userManager;
 
-        public AuthService(IMapper mapper, UserManager<User> userManager, IJwtGenerator jwtGenerator, IEmailSender emailSender)
+        public AuthService(IMapper mapper, UserManager<User> userManager, IJwtGenerator jwtGenerator,
+            IEmailSender emailSender)
         {
             _mapper = mapper;
             _userManager = userManager;
@@ -28,7 +29,7 @@ namespace Business.Services
         public async Task<string> SignInAsync(UserCredentialsDTO userCredentialsDto)
         {
             var user = await _userManager.FindByEmailAsync(userCredentialsDto.Email);
-            if (user is null) 
+            if (user is null)
                 return await Task.FromResult<string>(null);
 
             var isRightPassword = await _userManager.CheckPasswordAsync(user, userCredentialsDto.Password);

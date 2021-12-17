@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
             _orderService = orderService;
 
         /// <summary>
-        /// Order product
+        ///     Order product
         /// </summary>
         /// <response code="201">Ordered</response>
         /// <response code="404">Not Found</response>
@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Represents your order
+        ///     Represents your order
         /// </summary>
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update ordered product
+        ///     Update ordered product
         /// </summary>
         /// <response code="201">Updated</response>
         /// <response code="400">Bad parameters</response>
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete product from order by Id
+        ///     Delete product from order by Id
         /// </summary>
         /// <response code="204">Deleted</response>
         /// <response code="404">Bad parameters</response>
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Pay for your order
+        ///     Pay for your order
         /// </summary>
         /// <response code="204">Paid</response>
         /// <response code="400">Bad parameters</response>

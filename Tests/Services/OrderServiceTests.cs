@@ -1,11 +1,8 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Business.DTO;
 using Business.Services;
 using DAL.Models.Entities;
 using FakeItEasy;
-using MockQueryable.FakeItEasy;
 using Xunit;
 using static Tests.Extensions.TestData.FakeTestData;
 using static Tests.Extensions.TestData.UserTestData;
@@ -20,16 +17,10 @@ namespace Tests.Services
         public async Task OrderAsync_WithUnorderedItem_ReturnOrder()
         {
             // Arrange
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
 
-            A.CallTo(() => FakeOrderRepository.GetAll(false))
-                .Returns(new List<Order>().AsQueryable().BuildMock());
-
-            A.CallTo(() => FakeOrderRepository.AddAsync(A<Order>.Ignored))
-                .Returns(Task.CompletedTask);
-
-            A.CallTo(() => FakeOrderRepository.UpdateAndSaveAsync(A<Order>.Ignored))
-                .Returns(Task.CompletedTask);
+            A.CallTo(() => FakeOrderManager.FindByUserIdAsync(A<int>.Ignored))
+                .Returns(Task.FromResult<Order>(null));
 
             // Act
             var result = await orderService.OrderAsync(UserId, ProductId, ProductCount);
@@ -45,10 +36,10 @@ namespace Tests.Services
             var userOrder = new Order {UserId = int.Parse(UserId)};
             var orderItem = new OrderItem {ProductId = ProductId};
             userOrder.OrderItems.Add(orderItem);
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
 
-            A.CallTo(() => FakeOrderRepository.GetAll(false))
-                .Returns(new List<Order> {userOrder}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeOrderManager.FindByUserIdAsync(A<int>.Ignored))
+                .Returns(userOrder);
 
             // Act
             var result = await orderService.OrderAsync(UserId, ProductId, ProductCount);
@@ -61,11 +52,11 @@ namespace Tests.Services
         public async Task RepresentOrderAsync_ByUserId_ReturnOrder()
         {
             // Arrange
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
             var userOrder = new Order {UserId = int.Parse(UserId)};
 
-            A.CallTo(() => FakeOrderRepository.GetAll(false))
-                .Returns(new List<Order> {userOrder}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeOrderManager.FindByUserIdAsync(A<int>.Ignored))
+                .Returns(userOrder);
 
             // Act
             var result = await orderService.RepresentOrderAsync(UserId, null);
@@ -78,11 +69,11 @@ namespace Tests.Services
         public async Task RepresentOrderAsync_ByValidOrderId_ReturnOrder()
         {
             // Arrange
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
             var userOrder = new Order {Id = OrderId};
 
-            A.CallTo(() => FakeOrderRepository.GetAll(false))
-                .Returns(new List<Order> {userOrder}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeOrderManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(userOrder);
 
             // Act
             var result = await orderService.RepresentOrderAsync(UserId, OrderId);
@@ -95,11 +86,10 @@ namespace Tests.Services
         public async Task RepresentOrderAsync_WithNonExistingOrderId_ReturnNull()
         {
             // Arrange
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
-            var userOrder = new Order {Id = OrderId};
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
 
-            A.CallTo(() => FakeOrderRepository.GetAll(false))
-                .Returns(new List<Order> {userOrder}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeOrderManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(Task.FromResult<Order>(null));
 
             // Act
             var result = await orderService.RepresentOrderAsync(UserId, OrderId + 1);
@@ -112,13 +102,13 @@ namespace Tests.Services
         public async Task UpdateOrderAsync_WithValidOrderItem_ReturnOrder()
         {
             // Arrange
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
             var userOrder = new Order {Id = OrderId, UserId = int.Parse(UserId)};
             userOrder.OrderItems.Add(new OrderItem {ProductId = ProductId});
             var orderItemInputDto = new OrderItemInputDTO {ProductId = ProductId};
 
-            A.CallTo(() => FakeOrderRepository.GetAll(false))
-                .Returns(new List<Order> {userOrder}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeOrderManager.FindByUserIdAsync(A<int>.Ignored))
+                .Returns(userOrder);
 
             // Act
             var result = await orderService.UpdateOrderItemAsync(UserId, orderItemInputDto);
@@ -131,13 +121,13 @@ namespace Tests.Services
         public async Task UpdateOrderAsync_WithUnorderedOrderItem_ReturnNull()
         {
             // Arrange
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
             var userOrder = new Order {Id = OrderId, UserId = int.Parse(UserId)};
             userOrder.OrderItems.Add(new OrderItem {ProductId = ProductId + 1});
             var orderItemInputDto = new OrderItemInputDTO {ProductId = ProductId};
 
-            A.CallTo(() => FakeOrderRepository.GetAll(false))
-                .Returns(new List<Order> {userOrder}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeOrderManager.FindByUserIdAsync(A<int>.Ignored))
+                .Returns(userOrder);
 
             // Act
             var result = await orderService.UpdateOrderItemAsync(UserId, orderItemInputDto);
@@ -150,12 +140,12 @@ namespace Tests.Services
         public async Task DeleteOrderAsync_WithExistingProductId_ReturnTrue()
         {
             // Arrange
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
             var userOrder = new Order {Id = OrderId, UserId = int.Parse(UserId)};
             userOrder.OrderItems.Add(new OrderItem {ProductId = ProductId});
 
-            A.CallTo(() => FakeOrderRepository.GetAll(true))
-                .Returns(new List<Order> {userOrder}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeOrderManager.FindByUserIdAsync(A<int>.Ignored))
+                .Returns(userOrder);
 
             // Act
             var result = await orderService.DeleteOrderItemAsync(UserId, ProductId);
@@ -168,15 +158,15 @@ namespace Tests.Services
         public async Task DeleteOrderAsync_WithNonExistingProductId_ReturnFalse()
         {
             // Arrange
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
             var userOrder = new Order {Id = OrderId, UserId = int.Parse(UserId)};
-            userOrder.OrderItems.Add(new OrderItem {ProductId = ProductId + 1});
+            userOrder.OrderItems.Add(new OrderItem {ProductId = ProductId});
 
-            A.CallTo(() => FakeOrderRepository.GetAll(true))
-                .Returns(new List<Order> {userOrder}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeOrderManager.FindByUserIdAsync(A<int>.Ignored))
+                .Returns(userOrder);
 
             // Act
-            var result = await orderService.DeleteOrderItemAsync(UserId, ProductId);
+            var result = await orderService.DeleteOrderItemAsync(UserId, ProductId + 1);
 
             // Assert
             Assert.False(result);
@@ -186,19 +176,16 @@ namespace Tests.Services
         public async Task PayOrderAsync_WithUnpaidProduct_ReturnTrue()
         {
             // Arrange
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
             var userOrder = new Order {Id = OrderId, UserId = int.Parse(UserId)};
             var product = new Product {Id = ProductId, Count = ProductCount};
             userOrder.OrderItems.Add(new OrderItem {ProductId = ProductId, Amount = OrderItemAmount, IsBought = false});
 
-            A.CallTo(() => FakeOrderRepository.GetAll(false))
-                .Returns(new List<Order> {userOrder}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeOrderManager.FindByUserIdAsync(A<int>.Ignored))
+                .Returns(userOrder);
 
-            A.CallTo(() => FakeProductRepository.GetAll(true))
-                .Returns(new List<Product> {product}.AsQueryable().BuildMock());
-
-            A.CallTo(() => FakeOrderRepository.UpdateAndSaveAsync(userOrder))
-                .Returns(Task.CompletedTask);
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(product);
 
             // Act
             var result = await orderService.PayOrderAsync(UserId);
@@ -211,19 +198,17 @@ namespace Tests.Services
         public async Task PayOrderAsync_WithAlreadyPaidProduct_ReturnFalse()
         {
             // Arrange
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
             var userOrder = new Order {Id = OrderId, UserId = int.Parse(UserId)};
             var product = new Product {Id = ProductId, Count = 3};
             userOrder.OrderItems.Add(new OrderItem {ProductId = ProductId, Amount = OrderItemAmount, IsBought = true});
 
-            A.CallTo(() => FakeOrderRepository.GetAll(false))
-                .Returns(new List<Order> {userOrder}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeOrderManager.FindByUserIdAsync(A<int>.Ignored))
+                .Returns(userOrder);
 
-            A.CallTo(() => FakeProductRepository.GetAll(true))
-                .Returns(new List<Product> {product}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(product);
 
-            A.CallTo(() => FakeOrderRepository.UpdateAndSaveAsync(userOrder))
-                .Returns(Task.CompletedTask);
 
             // Act
             var result = await orderService.PayOrderAsync(UserId);
@@ -236,19 +221,16 @@ namespace Tests.Services
         public async Task PayOrderAsync_WithNotEnoughProductsInStock_ReturnFalse()
         {
             // Arrange
-            var orderService = new OrderService(FakeOrderRepository, FakeProductRepository, FakeMapper);
+            var orderService = new OrderService(FakeOrderManager, FakeProductManager, FakeMapper);
             var userOrder = new Order {Id = OrderId, UserId = int.Parse(UserId)};
             var product = new Product {Id = ProductId, Count = ProductCount - 2};
             userOrder.OrderItems.Add(new OrderItem {ProductId = ProductId, Amount = OrderItemAmount, IsBought = false});
 
-            A.CallTo(() => FakeOrderRepository.GetAll(false))
-                .Returns(new List<Order> {userOrder}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeOrderManager.FindByUserIdAsync(A<int>.Ignored))
+                .Returns(userOrder);
 
-            A.CallTo(() => FakeProductRepository.GetAll(true))
-                .Returns(new List<Product> {product}.AsQueryable().BuildMock());
-
-            A.CallTo(() => FakeOrderRepository.UpdateAndSaveAsync(userOrder))
-                .Returns(Task.CompletedTask);
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(product);
 
             // Act
             var result = await orderService.PayOrderAsync(UserId);

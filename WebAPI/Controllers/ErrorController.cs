@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exception = context.Error;
-            var code = (int)HttpStatusCode.InternalServerError;
+            var code = (int) HttpStatusCode.InternalServerError;
 
             if (exception is HttpStatusException httpStatusException)
             {

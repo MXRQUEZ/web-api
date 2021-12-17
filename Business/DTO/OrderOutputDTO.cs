@@ -9,8 +9,7 @@ namespace Business.DTO
     {
         public int Id { get; set; }
 
-        [DataType(DataType.DateTime)]
-        public DateTime CreationDate { get; set; }
+        [DataType(DataType.DateTime)] public DateTime CreationDate { get; set; }
 
         public List<OrderItem> OrderItems { get; set; }
     }

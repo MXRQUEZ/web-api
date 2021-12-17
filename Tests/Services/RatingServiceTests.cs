@@ -1,10 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Business.Services;
 using DAL.Models.Entities;
 using FakeItEasy;
-using MockQueryable.FakeItEasy;
 using Xunit;
 using static Tests.Extensions.TestData.FakeTestData;
 using static Tests.Extensions.TestData.UserTestData;
@@ -18,18 +15,18 @@ namespace Tests.Services
         public async Task RateAsync_ReturnProduct()
         {
             // Arrange
-            var product = new Product { Id = ProductId };
-            var rating = new ProductRating { ProductId = ProductId };
-            var ratingService = new RatingService(FakeRatingRepository, FakeProductRepository, FakeMapper);
+            var product = new Product {Id = ProductId};
+            var rating = new ProductRating {ProductId = ProductId};
+            var ratingService = new RatingService(FakeRatingManager, FakeProductManager, FakeMapper);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product> { product }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(product);
 
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeRatingManager.FindByIdAsync(A<int>.Ignored, A<int>.Ignored))
+                .Returns(rating);
 
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeRatingManager.RecalculateRatingAsync(A<int>.Ignored))
+                .Returns(0);
 
             // Act
             var result = await ratingService.RateAsync(UserId, 100, ProductId);
@@ -43,17 +40,17 @@ namespace Tests.Services
         {
             // Arrange
             var product = new Product {Id = ProductId};
-            var rating = new ProductRating { ProductId = ProductId, UserId = int.Parse(UserId)};
-            var ratingService = new RatingService(FakeRatingRepository, FakeProductRepository, FakeMapper);
+            var rating = new ProductRating {ProductId = ProductId, UserId = int.Parse(UserId)};
+            var ratingService = new RatingService(FakeRatingManager, FakeProductManager, FakeMapper);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product>{product}.AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(product);
 
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeRatingManager.FindByIdAsync(A<int>.Ignored, A<int>.Ignored))
+                .Returns(rating);
 
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeRatingManager.RecalculateRatingAsync(A<int>.Ignored))
+                .Returns(0);
 
             // Act
             var result = await ratingService.RateAsync(UserId, 100, ProductId);
@@ -66,18 +63,18 @@ namespace Tests.Services
         public async Task RateAsync_WithInvalidRating_ReturnNull()
         {
             // Arrange
-            var product = new Product { Id = ProductId };
-            var rating = new ProductRating { ProductId = ProductId, UserId = int.Parse(UserId) };
-            var ratingService = new RatingService(FakeRatingRepository, FakeProductRepository, FakeMapper);
+            var product = new Product {Id = ProductId};
+            var rating = new ProductRating {ProductId = ProductId, UserId = int.Parse(UserId)};
+            var ratingService = new RatingService(FakeRatingManager, FakeProductManager, FakeMapper);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product> { product }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(product);
 
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeRatingManager.FindByIdAsync(A<int>.Ignored, A<int>.Ignored))
+                .Returns(rating);
 
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeRatingManager.RecalculateRatingAsync(A<int>.Ignored))
+                .Returns(0);
 
             // Act
             var result = await ratingService.RateAsync(UserId, 101, ProductId);
@@ -90,18 +87,10 @@ namespace Tests.Services
         public async Task RateAsync_WithInvalidProductId_ReturnNull()
         {
             // Arrange
-            var product = new Product { Id = ProductId };
-            var rating = new ProductRating { ProductId = ProductId, UserId = int.Parse(UserId) };
-            var ratingService = new RatingService(FakeRatingRepository, FakeProductRepository, FakeMapper);
+            var ratingService = new RatingService(FakeRatingManager, FakeProductManager, FakeMapper);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product> { product }.AsQueryable().BuildMock());
-
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
-
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(Task.FromResult<Product>(null));
 
             // Act
             var result = await ratingService.RateAsync(UserId, 100, ProductId + 1);
@@ -114,18 +103,18 @@ namespace Tests.Services
         public async Task DeleteRatingAsync_ReturnTrue()
         {
             // Arrange
-            var product = new Product { Id = ProductId };
-            var rating = new ProductRating { ProductId = ProductId, UserId = int.Parse(UserId) };
-            var ratingService = new RatingService(FakeRatingRepository, FakeProductRepository, FakeMapper);
+            var product = new Product {Id = ProductId};
+            var rating = new ProductRating {ProductId = ProductId, UserId = int.Parse(UserId)};
+            var ratingService = new RatingService(FakeRatingManager, FakeProductManager, FakeMapper);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product> { product }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(product);
 
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeRatingManager.FindByIdAsync(A<int>.Ignored, A<int>.Ignored))
+                .Returns(rating);
 
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeRatingManager.RecalculateRatingAsync(A<int>.Ignored))
+                .Returns(0);
 
             // Act
             var result = await ratingService.DeleteRatingAsync(UserId, ProductId);
@@ -138,18 +127,14 @@ namespace Tests.Services
         public async Task DeleteRatingAsync_WithNonExistingRating_ReturnFalse()
         {
             // Arrange
-            var product = new Product { Id = ProductId };
-            var rating = new ProductRating { ProductId = ProductId, UserId = 1 };
-            var ratingService = new RatingService(FakeRatingRepository, FakeProductRepository, FakeMapper);
+            var product = new Product {Id = ProductId};
+            var ratingService = new RatingService(FakeRatingManager, FakeProductManager, FakeMapper);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product> { product }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(product);
 
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
-
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeRatingManager.FindByIdAsync(A<int>.Ignored, A<int>.Ignored))
+                .Returns(Task.FromResult<ProductRating>(null));
 
             // Act
             var result = await ratingService.DeleteRatingAsync(UserId, ProductId);
@@ -162,18 +147,10 @@ namespace Tests.Services
         public async Task DeleteRatingAsync_WithNonExistingProductId_ReturnFalse()
         {
             // Arrange
-            var product = new Product { Id = ProductId };
-            var rating = new ProductRating { ProductId = 1, UserId = int.Parse(UserId) };
-            var ratingService = new RatingService(FakeRatingRepository, FakeProductRepository, FakeMapper);
+            var ratingService = new RatingService(FakeRatingManager, FakeProductManager, FakeMapper);
 
-            A.CallTo(() => FakeProductRepository.GetAll(false))
-                .Returns(new List<Product> { product }.AsQueryable().BuildMock());
-
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
-
-            A.CallTo(() => FakeRatingRepository.GetAll(false))
-                .Returns(new List<ProductRating> { rating }.AsQueryable().BuildMock());
+            A.CallTo(() => FakeProductManager.FindByIdAsync(A<int>.Ignored))
+                .Returns(Task.FromResult<Product>(null));
 
             // Act
             var result = await ratingService.DeleteRatingAsync(UserId, ProductId);

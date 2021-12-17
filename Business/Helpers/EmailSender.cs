@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
+using MimeKit.Text;
 
 namespace Business.Helpers
 {
@@ -57,7 +58,7 @@ namespace Business.Helpers
             emailMessage.From.Add(new MailboxAddress("Account Confirmation", "svistunss.py@gmail.com"));
             emailMessage.To.Add(new MailboxAddress("", email));
             emailMessage.Subject = subject;
-            emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+            emailMessage.Body = new TextPart(TextFormat.Html)
             {
                 Text = message
             };

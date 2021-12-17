@@ -15,9 +15,9 @@ namespace Business.Services
 {
     public sealed class UserService : IUserService
     {
+        private readonly ICacheManager<User> _cacheManager;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        private readonly ICacheManager<User> _cacheManager;
 
         public UserService(IMapper mapper, UserManager<User> userManager, ICacheManager<User> cacheManager)
         {

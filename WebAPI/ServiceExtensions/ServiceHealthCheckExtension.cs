@@ -16,7 +16,7 @@ namespace WebAPI.ServiceExtensions
                     healthCheckName,
                     new SqlConnectionHealthCheck(connectionString),
                     HealthStatus.Unhealthy,
-                    new[] { dbName });
+                    new[] {dbName});
 
             return services;
         }

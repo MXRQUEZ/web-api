@@ -15,8 +15,8 @@ namespace Business.JWT
 {
     public sealed class JwtGenerator : IJwtGenerator
     {
-        private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly UserManager<User> _userManager;
 
         public JwtGenerator(UserManager<User> userManager, IConfiguration configuration)
         {
@@ -28,9 +28,9 @@ namespace Business.JWT
         {
             var claims = new List<Claim>
             {
-                new (JwtRegisteredClaimNames.NameId, user.Id.ToString()),
-                new (JwtRegisteredClaimNames.Name, user.UserName),
-                new (JwtRegisteredClaimNames.Email, user.Email),
+                new(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+                new(JwtRegisteredClaimNames.Name, user.UserName),
+                new(JwtRegisteredClaimNames.Email, user.Email)
             };
 
             var roles = await _userManager.GetRolesAsync(user);

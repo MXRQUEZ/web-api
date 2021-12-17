@@ -1,5 +1,4 @@
 ﻿using System;
-using DAL.Models;
 using DAL.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +39,7 @@ namespace DAL.ApplicationContext.Configurations
                         PasswordHash = _hasher.HashPassword(null, Password),
                         SecurityStamp = Guid.NewGuid().ToString()
                     }
-                    );
+                );
         }
     }
 }

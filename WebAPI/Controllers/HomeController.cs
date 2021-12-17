@@ -4,8 +4,8 @@ using Business.Interfaces;
 using Business.Parameters;
 using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
-using Serilog;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using WebAPI.Filters;
 
 namespace WebAPI.Controllers
@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
             _userService = userService;
 
         /// <summary>
-        /// Represents users in database
+        ///     Represents users in database
         /// </summary>
         /// <response code="200">Success</response>
         /// <response code="400">Bad parameters</response>

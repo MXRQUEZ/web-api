@@ -17,8 +17,8 @@ namespace Tests.Extensions
                 {
                     User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                     {
-                        new ("nameid", UserTestData.UserId),
-                        new (ClaimTypes.Role, UserTestData.UserRole),
+                        new("nameid", UserTestData.UserId),
+                        new(ClaimTypes.Role, UserTestData.UserRole)
                     }))
                 }
             };

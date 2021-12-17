@@ -77,9 +77,9 @@ namespace WebAPI.ServiceExtensions
 
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped(typeof(IGenericRepository<Product>), typeof(GenericRepository<Product>));
-            services.AddScoped(typeof(IGenericRepository<ProductRating>), typeof(GenericRepository<ProductRating>));
-            services.AddScoped(typeof(IGenericRepository<Order>), typeof(GenericRepository<Order>));
+            services.AddScoped(typeof(IProductManager), typeof(ProductManager));
+            services.AddScoped(typeof(IRatingManager), typeof(RatingManager));
+            services.AddScoped(typeof(IOrderManager), typeof(OrderManager));
             services.AddScoped(typeof(ICacheManager<User>), typeof(CacheManager<User>));
 
             return services;

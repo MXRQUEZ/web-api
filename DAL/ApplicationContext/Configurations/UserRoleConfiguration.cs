@@ -1,6 +1,4 @@
-﻿using DAL.Models;
-using DAL.Models.Entities;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -22,8 +20,7 @@ namespace DAL.ApplicationContext.Configurations
                         RoleId = 2,
                         UserId = 2
                     }
-                    );
-
+                );
         }
     }
 }

@@ -11,7 +11,7 @@ namespace DAL.Caching
 
         public string GetCacheKey(string key) => $"{typeof(T)}_{key}";
 
-        public void SetCache(string cacheKey, T cacheItem) => 
+        public void SetCache(string cacheKey, T cacheItem) =>
             _cache.Set(cacheKey, cacheItem,
                 new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5)));
 

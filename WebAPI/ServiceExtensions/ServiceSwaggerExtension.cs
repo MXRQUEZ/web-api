@@ -18,7 +18,7 @@ namespace WebAPI.ServiceExtensions
                 setup.SwaggerDoc("v2", new OpenApiInfo {Title = "User", Version = "v2"});
                 setup.SwaggerDoc("v3", new OpenApiInfo {Title = "Games", Version = "v3"});
                 setup.SwaggerDoc("v4", new OpenApiInfo {Title = "Home", Version = "v4"});
-                setup.SwaggerDoc("v5", new OpenApiInfo { Title = "Order", Version = "v5" });
+                setup.SwaggerDoc("v5", new OpenApiInfo {Title = "Order", Version = "v5"});
                 var jwtSecurityScheme = new OpenApiSecurityScheme
                 {
                     Scheme = "bearer",

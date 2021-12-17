@@ -3,32 +3,34 @@ using Business.DTO;
 using Business.Interfaces;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using DAL.Models.Entities;
 
 namespace Business.Helpers
 {
     public sealed class CloudinaryManager : ICloudinaryManager
     {
         private readonly Cloudinary _cloudinary;
-        public CloudinaryManager(Cloudinary cloudinary) => _cloudinary = cloudinary;
 
-        public async Task<Product> UploadProductImagesAsync(Product product, ProductInputDTO productInputDto)
+        public CloudinaryManager(Cloudinary cloudinary) =>
+            _cloudinary = cloudinary;
+
+        public async Task<string> UploadProductLogoAsync(ProductInputDTO product)
         {
             var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
             {
-                File = new FileDescription(product.Name + "_logo", productInputDto.Logo.OpenReadStream())
+                File = new FileDescription(product.Name + "_logo", product.Logo.OpenReadStream())
             });
 
-            product.Logo = downloadResult.Url.AbsolutePath;
+            return downloadResult.Url.AbsolutePath;
+        }
 
-            downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
+        public async Task<string> UploadProductBackgroundAsync(ProductInputDTO product)
+        {
+            var downloadResult = await _cloudinary.UploadAsync(new ImageUploadParams
             {
-                File = new FileDescription(product.Name + "_background", productInputDto.Background.OpenReadStream())
+                File = new FileDescription(product.Name + "_background", product.Background.OpenReadStream())
             });
 
-            product.Background = downloadResult.Url.AbsolutePath;
-
-            return product;
+            return downloadResult.Url.AbsolutePath;
         }
     }
 }

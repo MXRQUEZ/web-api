@@ -10,7 +10,7 @@ namespace DAL.ApplicationContext.Configurations
         public void Configure(EntityTypeBuilder<Product> builder)
         {
             builder
-                .HasIndex(p => new { p.Name, p.Platform, p.DateCreated, p.TotalRating, p.Genre, p.Rating, p.Price })
+                .HasIndex(p => new {p.Name, p.Platform, p.DateCreated, p.TotalRating, p.Genre, p.Rating, p.Price})
                 .HasFilter("[Name] IS NOT NULL")
                 .HasFilter("[DateCreated] IS NOT NULL");
 
@@ -142,7 +142,6 @@ namespace DAL.ApplicationContext.Configurations
                         Price = 50,
                         Rating = Rating.All
                     });
-
         }
     }
 }
